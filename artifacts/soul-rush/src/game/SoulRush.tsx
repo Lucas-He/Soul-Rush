@@ -900,8 +900,23 @@ function doJudgmentBeams(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// wingBarrage: Diamond bullets from sides in alternating waves.
+// wingBarrage: Phase 0 (0.65s) — vertical laser warnings on the incoming side(s)
+// telegraph which wall(s) the diamond volley comes from before any bullet spawns.
+// Phase 1 — alternating volleys from left and right sides.
 function doWingBarrage(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) {
+      // Left-side warning
+      g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + 10,      width: 22, timer: 0.65, color: boss.color,  fake: false });
+      // Right-side warning
+      g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW - 10, width: 22, timer: 0.65, color: boss.color2, fake: false });
+    }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.laserWarns = []; }
+    return;
+  }
+  // Phase 1 — alternating diamond volleys
   g.spawnTimer -= dt;
   if (g.spawnTimer <= 0) {
     g.spawnTimer = st(0.2, g);
@@ -929,11 +944,32 @@ function doWingBarrage(g: GameData, dt: number, boss: BossConf) {
 
 // ---- BOSS 4: Orryx ----
 
-// gearMaze: Gears traverse the box. Time distortion warned via UI text.
+// gearMaze: Phase 0 (0.9s) — arrow warnMarkers on the edges the gears will enter from,
+// with gears held off-screen. Phase 1 — gears are released and become damaging.
 function doGearMaze(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 3; i++) {
+        const fromLeft = i % 2 === 0;
+        g.warnMarkers.push({
+          id: nid(g),
+          x: fromLeft ? BX : BX + BW,
+          y: BY + BH * (0.2 + i * 0.3),
+          angle: fromLeft ? 0 : Math.PI,
+          r: 10, color: boss.color,
+          timer: 0.9, maxTimer: 0.9,
+        });
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+  // Phase 1 — spawn gears once, then drive them
   if (g.gears.length === 0) {
     for (let i = 0; i < 3; i++) {
-      const fromLeft = Math.random() > 0.5;
+      const fromLeft = i % 2 === 0;
       const spd = sm(g);
       g.gears.push({
         id: nid(g),
@@ -1128,8 +1164,38 @@ function doRealityTear(g: GameData, dt: number) {
   g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
 }
 
-// soulSplit: Fake mirror soul appears — only real soul takes damage.
+// soulSplit: Phase 0 (0.65s) — warnMarkers orbit the spawn point showing the
+// 6-arm pattern. The fake soul appears but bullets do not spawn yet.
+// Phase 1 — bullets fire and the fake soul tracks the player.
 function doSoulSplit(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI * 2) / 6;
+        g.warnMarkers.push({
+          id: nid(g),
+          x: BCX + Math.cos(a) * 55,
+          y: (BY - 55) + Math.sin(a) * 28,
+          angle: a,
+          r: 5, color: boss.color2,
+          timer: 0.65, maxTimer: 0.65,
+        });
+      }
+      // Fake soul appears immediately as part of the telegraph
+      if (!g.fakeSoul.active) {
+        g.fakeSoul.active = true;
+        g.fakeSoul.x = g.player.x + 50;
+        g.fakeSoul.y = g.player.y;
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.fakeSoul.x += (g.player.x + 48 - g.fakeSoul.x) * 3.0 * dt;
+    g.fakeSoul.y += (g.player.y    - g.fakeSoul.y)   * 3.0 * dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+  // Phase 1 — fake soul tracks player and bullets fire
   if (!g.fakeSoul.active) {
     g.fakeSoul.active = true;
     g.fakeSoul.x = g.player.x + 50;
@@ -1151,9 +1217,41 @@ function doSoulSplit(g: GameData, dt: number, boss: BossConf) {
   g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
 }
 
-// finalPattern: Ultimate combination — dense rain + spiral + diagonal beams.
-// All elements have warnings — technically dodgeable.
+// finalPattern: Phase 0 (0.75s) — top-edge rain markers + 4-arm spiral markers warn
+// of the dual-hazard opening. Phase 1 — bullets spawn immediately, diagonal beams
+// recur on a 3.8s internal timer (each with a 1.2s diagWarn before activating).
 function doFinalPattern(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      // Top-edge markers: telegraph the vertical rain
+      for (let i = 0; i < 16; i++) {
+        g.warnMarkers.push({
+          id: nid(g),
+          x: BX + BW * (i / 15), y: BY,
+          angle: Math.PI / 2, r: 4, color: boss.color,
+          timer: 0.75, maxTimer: 0.75,
+        });
+      }
+      // Orbital markers: telegraph the 4-arm spiral from above
+      for (let arm = 0; arm < 4; arm++) {
+        const a = (arm * Math.PI * 2) / 4;
+        g.warnMarkers.push({
+          id: nid(g),
+          x: BCX + Math.cos(a) * 52,
+          y: (BY - 55) + Math.sin(a) * 28,
+          angle: a, r: 5, color: boss.color2,
+          timer: 0.75, maxTimer: 0.75,
+        });
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.75) {
+      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
+    }
+    return;
+  }
+  // Phase 1 — bullets + periodic diagonal beams (each beam has its own diagWarn)
   g.spawnTimer -= dt;
   const spd = sm(g);
   if (g.spawnTimer <= 0) {
@@ -2107,10 +2205,13 @@ export default function SoulRush() {
     margin: 3,
   });
 
-  // Admin input is only shown on non-playing screens (title, intro, bossWin, gameOver, victory)
-  // During active gameplay the input is hidden so it does not distract or intercept keys.
-  const gameState = gameRef.current.state;
-  const showAdminInput = gameState !== 'playing';
+  // Poll game state at 5 Hz so the admin-input visibility reacts to playing/non-playing transitions.
+  const [, forceRender] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => forceRender(n => n + 1), 200);
+    return () => clearInterval(id);
+  }, []);
+  const showAdminInput = gameRef.current.state !== 'playing';
 
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', overflow: 'hidden', position: 'relative' }}>
