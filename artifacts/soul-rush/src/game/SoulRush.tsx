@@ -247,10 +247,9 @@ const BOSSES: BossConf[] = [
       '...Your soul is transparent to me.',
       'Precision is eternal. Let us begin.'
     ],
-    // Boss 1 — harder base: faster rain, escalating waves. Wave 3 = shatterPulse is most intense.
     attacks: ['crystalRain', 'mirrorWalls', 'shatterPulse', 'crystalRain', 'mirrorWalls'],
-    dmg: 10,
-    atkDur: 7,
+    dmg: 16,
+    atkDur: 5,
   },
   {
     name: 'Mawbyte',
@@ -262,10 +261,9 @@ const BOSSES: BossConf[] = [
       'ERR_SOUL_DETECTED // CONSUMING...',
       'HUNGRY // HUNGRY // HUNGRY //'
     ],
-    // Boss 2 — easier base: longer spawn intervals, slower bullets.
     attacks: ['bitStorm', 'errorSweep', 'devourLane', 'bitStorm', 'errorSweep', 'devourLane'],
-    dmg: 12,
-    atkDur: 8,
+    dmg: 18,
+    atkDur: 6,
   },
   {
     name: 'Seraph Null',
@@ -278,8 +276,8 @@ const BOSSES: BossConf[] = [
       'Your score: failing. Proceed, if you can.'
     ],
     attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'haloSpiral', 'judgmentBeams'],
-    dmg: 14,
-    atkDur: 8,
+    dmg: 20,
+    atkDur: 6,
   },
   {
     name: 'Orryx',
@@ -292,8 +290,8 @@ const BOSSES: BossConf[] = [
       'You cannot outrun the gears of eternity.'
     ],
     attacks: ['gearMaze', 'clockSlash', 'timeFreeze', 'gearMaze', 'clockSlash', 'gearMaze'],
-    dmg: 15,
-    atkDur: 9,
+    dmg: 22,
+    atkDur: 7,
   },
   {
     name: 'The Unreadable King',
@@ -306,8 +304,8 @@ const BOSSES: BossConf[] = [
       'Y\u0336o\u0337u\u0338 \u0336c\u0337a\u0338n\u0336n\u0337o\u0338t\u0336 \u0337r\u0338e\u0336a\u0337d\u0338 \u0336t\u0337h\u0338i\u0336s\u0337'
     ],
     attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'soulSplit', 'impossibleScript', 'finalPattern'],
-    dmg: 18,
-    atkDur: 10,
+    dmg: 26,
+    atkDur: 8,
   },
 ];
 
@@ -388,7 +386,7 @@ function createState(): GameData {
     devourLane: -1, devourActive: false,
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
-    diffMult: 1.0,
+    diffMult: 1.25,
   };
 }
 
@@ -426,11 +424,11 @@ function nid(g: GameData) { return g.nextId++; }
 // DIFFICULTY SCALE HELPERS
 // ================================================================
 
-/** Scale bullet speed: 0.75x→0.89, 1.0→1.0, 1.25→1.11, 1.5→1.23, 2.0→1.45 */
-function sm(g: GameData) { return 0.55 + 0.45 * g.diffMult; }
+/** Scale bullet speed — harder base than before so Normal feels challenging */
+function sm(g: GameData) { return 0.72 + 0.45 * g.diffMult; }
 
 /** Scale spawn timer (higher mult = smaller timer = faster spawns) */
-function st(base: number, g: GameData) { return base * (1.4 - 0.4 * g.diffMult); }
+function st(base: number, g: GameData) { return base * (1.1 - 0.18 * g.diffMult); }
 
 // ================================================================
 // MATH HELPERS
@@ -538,7 +536,7 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
 
   if (atk === 'bitStorm')         { doBitStorm(g, dt, boss);          return; }
   if (atk === 'errorSweep')       { doErrorSweep(g, dt, boss);        return; }
-  if (atk === 'devourLane')       { doDevourLane(g, dt);              return; }
+  if (atk === 'devourLane')       { doDevourLane(g, dt, boss);        return; }
 
   if (atk === 'haloSpiral')       { doHaloSpiral(g, dt, boss);        return; }
   if (atk === 'judgmentBeams')    { doJudgmentBeams(g, dt, boss);     return; }
@@ -761,53 +759,84 @@ function doBitStorm(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// errorSweep: Glitch bar sweeps across. Boss 2 sweep is slower (easier).
+// errorSweep: Glitch bar sweeps across the battle box.
+// The warning marks where the laser will START (box edge), then it sweeps all the way through.
 function doErrorSweep(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
       const isH = Math.random() > 0.35;
-      const pos = isH ? rand(BY + 40, BY + BH - 40) : rand(BX + 40, BX + BW - 40);
-      // Boss 2: longer warning (1.3s vs 1.0s) — easier to read
-      g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos, width: 65, timer: 1.3, color: boss.color, fake: false });
+      // Warning shows at the entry edge so the player knows which direction the sweep comes from
+      const entryPos = isH ? BY : BX;
+      g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos: entryPos, width: 72, timer: 1.1, color: boss.color, fake: false });
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.3) {
+    if (g.phaseTimer >= 1.1) {
       g.phase = 1; g.phaseTimer = 0;
       const lw = g.laserWarns[0];
-      g.lasers.push({ id: nid(g), type: lw.type, pos: lw.type === 'h' ? BY - 35 : BX - 35, width: 60, timer: 3.5, color: boss.color });
+      // Laser starts exactly at the box entry edge and sweeps to the opposite side
+      g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 72, timer: 6.0, color: boss.color });
       g.laserWarns = [];
       shake(g);
     }
   } else if (g.phase === 1) {
-    // Boss 2: sweep speed is 30% slower (easier)
-    const sweepSpeed = (g.lasers[0]?.type === 'h' ? (BH + 70) / 3.0 : (BW + 70) / 3.0) * 0.7;
+    const lType = g.lasers[0]?.type;
+    const sweepSpeed = lType === 'h' ? (BH + 80) / 2.2 : (BW + 80) / 2.2;
     for (const l of g.lasers) {
       l.pos += sweepSpeed * dt;
       l.timer -= dt;
     }
-    g.lasers = g.lasers.filter(l => {
-      return l.type === 'h' ? l.pos < BY + BH + 40 : l.pos < BX + BW + 40;
-    });
+    g.lasers = g.lasers.filter(l =>
+      l.type === 'h' ? l.pos < BY + BH + 50 : l.pos < BX + BW + 50
+    );
     if (g.lasers.length === 0) { g.phase = 2; g.phaseTimer = 0; }
   } else {
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; }
+    if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; }
   }
 }
 
 // devourLane: Safe lane mechanic. Warning shows which lane is safe.
-function doDevourLane(g: GameData, dt: number) {
+// During active phase, bullets also rain from the top to fill dead zones.
+function doDevourLane(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.devourLane < 0) { g.devourLane = randInt(0, 4); g.devourActive = false; }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.6) { g.phase = 1; g.phaseTimer = 0; g.devourActive = true; }
+    if (g.phaseTimer >= 1.8) { g.phase = 1; g.phaseTimer = 0; g.devourActive = true; g.spawnTimer = 0; }
   } else if (g.phase === 1) {
+    // Spawn bullets that rain into every lane EXCEPT the safe one
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.22, g);
+      const spd = sm(g);
+      const lH = BH / 5;
+      for (let lane = 0; lane < 5; lane++) {
+        if (lane === g.devourLane) continue;
+        const ly = BY + lane * lH + lH / 2;
+        g.bullets.push({
+          id: nid(g),
+          x: rand(BX + 10, BX + BW - 10), y: BY - 8,
+          vx: rand(-20, 20) * spd, vy: rand(140, 200) * spd,
+          r: 5, color: boss.color, shape: 'square', rot: 0, rotSpd: rand(-2, 2), frozen: false,
+        });
+        // Also fire from left wall into non-safe lanes occasionally
+        if (Math.random() > 0.6) {
+          g.bullets.push({
+            id: nid(g),
+            x: BX - 8, y: ly + rand(-20, 20),
+            vx: rand(110, 170) * spd, vy: rand(-20, 20) * spd,
+            r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false,
+          });
+        }
+      }
+    }
+    moveBullets(g, dt);
+    g.bullets = g.bullets.filter(b => b.x > BX - 80 && b.x < BX + BW + 80 && b.y > BY - 20 && b.y < BY + BH + 80);
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 3.2) { g.phase = 2; g.phaseTimer = 0; g.devourActive = false; g.devourLane = -1; }
+    if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.devourActive = false; g.devourLane = -1; g.bullets = []; }
   } else {
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; }
+    if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; }
   }
 }
 
@@ -2066,19 +2095,20 @@ const OVERLAY_STYLE: React.CSSProperties = {
   position: 'absolute',
   top: 0, left: 0, right: 0, bottom: 0,
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  background: 'rgba(0,0,0,0.82)',
+  background: 'rgba(0,0,0,0.88)',
   zIndex: 10,
 };
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: '#0a0a10',
-  border: '1px solid #444',
-  borderRadius: 8,
-  padding: '24px 32px',
-  minWidth: 360,
-  maxWidth: 480,
+  background: '#080810',
+  border: '2px solid #00ffcc44',
+  borderRadius: 10,
+  padding: '28px 36px',
+  minWidth: 520,
+  maxWidth: 620,
   fontFamily: '"Courier New", monospace',
   color: '#ccc',
+  boxShadow: '0 0 40px #00ffcc22',
 };
 
 export default function SoulRush() {
@@ -2088,7 +2118,7 @@ export default function SoulRush() {
   const lastRef         = useRef<number>(0);
   const pausedRef       = useRef<boolean>(false);
   const inputFocusedRef = useRef<boolean>(false);
-  const diffIdxRef      = useRef<number>(1);
+  const diffIdxRef      = useRef<number>(2);
   // adminModeRef is declared BEFORE useEffect so the RAF loop can read it live
   const adminModeRef    = useRef<boolean>(false);
 
@@ -2096,7 +2126,7 @@ export default function SoulRush() {
   const [adminMode,      setAdminModeState] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
   const [bossGuideOpen,  setBossGuideOpen]  = useState(false);
-  const [diffIdx,        setDiffIdxState]   = useState(1);
+  const [diffIdx,        setDiffIdxState]   = useState(2);
   const [adminMsg,       setAdminMsg]       = useState('');
 
   // Wrapper that keeps the ref and state in sync
@@ -2183,9 +2213,14 @@ export default function SoulRush() {
       enableAdmin();
       setAdminPanelOpen(true);
       setAdminMsg('ADMIN MODE ENABLED.');
-      setTimeout(() => setAdminMsg(''), 3000);
+      setTimeout(() => setAdminMsg(''), 4000);
     } else if (val === 'solution0112') {
       setBossGuideOpen(true);
+      setAdminMsg('BOSS GUIDE UNLOCKED.');
+      setTimeout(() => setAdminMsg(''), 3000);
+    } else {
+      setAdminMsg('Unknown command.');
+      setTimeout(() => setAdminMsg(''), 2000);
     }
     setAdminInput('');
   };
@@ -2224,38 +2259,76 @@ export default function SoulRush() {
         {adminPanelOpen && (
           <div style={OVERLAY_STYLE}>
             <div style={PANEL_STYLE}>
-              <div style={{ color: '#00ffcc', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>ADMIN PANEL</div>
-              <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Difficulty</div>
-              <div style={{ marginBottom: 18 }}>
-                {DIFF_LEVELS.map((dl, i) => (
-                  <button
-                    key={dl.label}
-                    style={{
-                      ...btnStyle(i === diffIdx ? '#00ffcc' : '#555'),
-                      background: i === diffIdx ? '#00ffcc22' : 'transparent',
-                    }}
-                    onClick={() => setDiffIdx(i)}
-                  >
-                    {dl.label} {dl.mult}x
-                  </button>
-                ))}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <div style={{ color: '#00ffcc', fontSize: 22, fontWeight: 'bold', letterSpacing: 2, textShadow: '0 0 18px #00ffcc88' }}>
+                  ⚙ ADMIN PANEL
+                </div>
+                <button style={{ ...btnStyle('#555'), fontSize: 16, padding: '2px 10px' }} onClick={() => setAdminPanelOpen(false)}>✕</button>
               </div>
-              <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Boss Select (jumps with full HP)</div>
-              <div style={{ marginBottom: 18 }}>
-                {BOSSES.map((b, i) => (
-                  <button
-                    key={b.name}
-                    style={btnStyle(b.color)}
-                    onClick={() => { jumpBoss(i); setAdminPanelOpen(false); }}
-                  >
-                    {i + 1}. {b.name}
-                  </button>
-                ))}
+
+              {/* Current difficulty display */}
+              <div style={{ background: '#0d0d1a', border: '1px solid #00ffcc33', borderRadius: 6, padding: '10px 16px', marginBottom: 20, textAlign: 'center' }}>
+                <span style={{ color: '#666', fontSize: 12 }}>CURRENT DIFFICULTY — </span>
+                <span style={{ color: '#00ffcc', fontSize: 16, fontWeight: 'bold' }}>
+                  {DIFF_LEVELS[diffIdx].label} &nbsp;{DIFF_LEVELS[diffIdx].mult}×
+                </span>
               </div>
-              <div style={{ marginTop: 4, fontSize: 11, color: '#555', marginBottom: 14 }}>
-                During play: keys 1-5 jump boss · E decrease difficulty · F increase difficulty
+
+              {/* Easier / Harder big buttons */}
+              <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+                <button
+                  style={{ flex: 1, ...btnStyle('#44aaff'), fontSize: 16, padding: '10px 0', fontWeight: 'bold' }}
+                  onClick={() => { if (diffIdx > 0) setDiffIdx(diffIdx - 1); }}
+                >
+                  ◀ Easier
+                </button>
+                <button
+                  style={{ flex: 1, ...btnStyle('#ff4444'), fontSize: 16, padding: '10px 0', fontWeight: 'bold' }}
+                  onClick={() => { if (diffIdx < DIFF_LEVELS.length - 1) setDiffIdx(diffIdx + 1); }}
+                >
+                  Harder ▶
+                </button>
               </div>
-              <button style={btnStyle('#888')} onClick={() => setAdminPanelOpen(false)}>Close</button>
+
+              {/* Difficulty level selector */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ fontSize: 11, color: '#555', marginBottom: 8 }}>SELECT LEVEL</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {DIFF_LEVELS.map((dl, i) => (
+                    <button
+                      key={dl.label}
+                      style={{
+                        ...btnStyle(i === diffIdx ? '#00ffcc' : '#444'),
+                        background: i === diffIdx ? '#00ffcc22' : 'transparent',
+                        fontSize: 13, padding: '6px 14px',
+                      }}
+                      onClick={() => setDiffIdx(i)}
+                    >
+                      {dl.label} {dl.mult}×
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Boss Select */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: '#555', marginBottom: 8 }}>BOSS SELECT — jumps with full HP &amp; clean state</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {BOSSES.map((b, i) => (
+                    <button
+                      key={b.name}
+                      style={{ ...btnStyle(b.color), fontSize: 13, padding: '8px 16px', fontWeight: 'bold' }}
+                      onClick={() => { jumpBoss(i); setAdminPanelOpen(false); }}
+                    >
+                      {i + 1}. {b.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ fontSize: 11, color: '#444', borderTop: '1px solid #222', paddingTop: 12 }}>
+                Keyboard shortcuts during play: &nbsp;<span style={{ color: '#666' }}>1–5</span> jump boss · <span style={{ color: '#666' }}>E</span> easier · <span style={{ color: '#666' }}>F</span> harder
+              </div>
             </div>
           </div>
         )}
@@ -2290,31 +2363,44 @@ export default function SoulRush() {
           </div>
         )}
 
-        {/* Admin input — hidden during active gameplay to prevent key conflicts */}
+        {/* Admin command input — shown on title and pause screens, hidden during active play */}
         {showAdminInput && (
-          <input
-            type="text"
-            value={adminInput}
-            placeholder="Admin command"
-            onChange={e => setAdminInput(e.target.value)}
-            onKeyDown={handleAdminInput}
-            onFocus={() => { inputFocusedRef.current = true; }}
-            onBlur={() => { inputFocusedRef.current = false; }}
-            style={{
-              position: 'absolute',
-              bottom: 10, right: 10,
-              width: 140,
-              background: '#050505',
-              border: '1px solid #222',
-              color: '#555',
-              fontFamily: '"Courier New", monospace',
-              fontSize: 11,
-              padding: '4px 8px',
-              borderRadius: 3,
-              outline: 'none',
-              opacity: 0.6,
-            }}
-          />
+          <div style={{
+            position: 'absolute',
+            bottom: 18, right: 18,
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6,
+          }}>
+            <div style={{
+              fontSize: 10, color: '#444', fontFamily: '"Courier New", monospace',
+              letterSpacing: 1,
+            }}>
+              ADMIN COMMAND
+            </div>
+            <input
+              type="text"
+              value={adminInput}
+              placeholder="Type command + Enter"
+              onChange={e => setAdminInput(e.target.value)}
+              onKeyDown={handleAdminInput}
+              onFocus={() => { inputFocusedRef.current = true; }}
+              onBlur={() => { inputFocusedRef.current = false; }}
+              style={{
+                width: 220,
+                background: '#0a0a14',
+                border: '1px solid #333',
+                borderRadius: 5,
+                color: '#aaaacc',
+                fontFamily: '"Courier New", monospace',
+                fontSize: 13,
+                padding: '8px 12px',
+                outline: 'none',
+                boxShadow: 'inset 0 0 8px #00000088',
+              }}
+            />
+            <div style={{ fontSize: 9, color: '#333', fontFamily: 'monospace' }}>
+              Orcas@0112 · solution0112
+            </div>
+          </div>
         )}
       </div>
     </div>

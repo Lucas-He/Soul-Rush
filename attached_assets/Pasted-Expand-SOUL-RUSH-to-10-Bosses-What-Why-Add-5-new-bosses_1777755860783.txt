@@ -1,0 +1,37 @@
+Expand SOUL RUSH to 10 Bosses
+What & Why
+Add 5 new bosses (6–10) to the existing 5-boss lineup, update game flow to reflect a 10-boss rush, and extend the admin panel to cover all 10 bosses with keyboard shortcuts and full reset behavior.
+
+Done looks like
+Title screen reads "10-Boss Rush Mode."
+Bosses 6–10 appear in sequence after Boss 5, each with a unique canvas design, color theme, personality dialog, and at least 3 distinct attacks.
+After defeating Boss 10, a final victory screen shows: "You survived the end of rules."
+Admin panel (code: Orcas@0112) shows buttons for all 10 bosses; pressing 1–9 jumps to Boss 1–9, pressing 0 jumps to Boss 10.
+Switching bosses via admin fully resets HP, bullets, hazards, lasers, timers, warnings, screen shake, fake hearts, and arena effects.
+Difficulty keys E (easier) and F (harder) still function for all 10 bosses; current multiplier is displayed.
+The existing admin command input box is preserved.
+Each new boss is visually and mechanically distinct from all existing bosses.
+Out of scope
+Sound effects or music for new bosses (covered by Task #2).
+High score tracking for the expanded run (covered by Task #3).
+Mobile touch controls (covered by Task #4).
+Steps
+Boss 6 — Nyxcoil, the Deep Current: Implement a giant electric eel/sea serpent made of glowing blue coils on a dark ocean background. Add three attacks: Current Surge (electric lines sweep after warning flashes), Coil Trap (curved bullet streams that form temporary cages), and Undertow Pull (the player is gently pulled toward one side). Add water-current physics that drift the player slightly throughout the fight.
+
+Boss 7 — Marrow Saint: Implement a floating skeletal priest with bone wings and a cracked halo on a white/gray/crimson background. Add three attacks: Bone Rain (bone-shaped bullets fall in offset patterns), Rib Cage (vertical bone walls close inward with small gaps), and Halo Curse (circular bullets orbit the player briefly then fly outward). Some attacks should track the player's previous position rather than their current one.
+
+Boss 8 — Luxora, Queen of False Stars: Implement a cosmic queen with a starry cloak, glowing crown, and floating constellations on a purple/gold/cosmic-blue background. Add three attacks: Starfall (stars drop from the top with warning sparkles), Constellation Lines (laser lines connecting stars form inside the arena), and False Star (fake warning markers appear but only brighter ones are real hazards). This teaches the player to read visual priority.
+
+Boss 9 — Ruin Engine Omega: Implement a massive broken machine core with rotating arms, pistons, and red warning lights on an industrial black/orange/steel background. Add three attacks: Piston Crush (large blocks slam from the sides after warnings), Engine Spin (rotating bullet arms sweep the arena), and Overheat (danger zones appear on the floor and explode after a delay). The arena temporarily shrinks during certain attacks.
+
+Boss 10 — Axiom, the End of Rules: Implement an abstract godlike boss made of floating equations, eyes, shattered masks, and broken geometry on a white/black/neon-cyan/red background. Add five attacks: Rule Rewrite (battle box changes shape temporarily), Axis Collapse (vertical and horizontal laser grids with safe gaps), Mirror Soul (a fake heart mirrors the player's movement and damages on contact), Pattern Overload (combines spirals, lasers, falling symbols, and a shrinking arena), and Final Rule (a last survival wave where every previous boss's signature attack appears in sequence). This must be the most demanding boss while remaining readable via warning indicators.
+
+Update game flow: Change the title screen to say "10-Boss Rush Mode." Ensure progression continues from Boss 5 through Boss 10. Wire the final victory screen after Boss 10 is defeated with the message "You survived the end of rules."
+
+Extend admin panel: Add buttons for Bosses 6–10 alongside the existing Boss 1–5 buttons. Map the 0 key to Boss 10 (in addition to 1–9 for Bosses 1–9). Ensure the boss-switch logic fully resets all state (HP, bullets, hazards, lasers, timers, warnings, screen shake, fake hearts, arena effects). Confirm difficulty controls (E/F keys and multiplier display) apply correctly to all 10 bosses. Keep the existing command input box and Orcas@0112 unlock code intact.
+
+Relevant files
+artifacts/soul-rush/src/game/SoulRush.tsx
+Dependencies
+
+Build SOUL RUSH browser game
