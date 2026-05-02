@@ -1,0 +1,543 @@
+Also include the full boss data in the code, not just descriptions.
+
+Boss Data Requirement:
+- Create a real `bosses` array in `script.js`.
+- Each boss object must include:
+  - `id`
+  - `name`
+  - `title`
+  - `difficultyLabel`
+  - `themeColors`
+  - `personality`
+  - `design`
+  - `maxHp` or `duration`
+  - `arenaModifier`
+  - `rewardItemPool`
+  - `waves`
+- Each wave object must include:
+  - `id`
+  - `name`
+  - `description`
+  - `duration`
+  - `attackType`
+  - `warningType`
+  - `bulletSpeed`
+  - `spawnRate`
+  - `damage`
+  - `arenaEffect`
+  - `patternTags`
+  - `execute`
+- Do not leave boss data as comments only.
+- The game must actually read from this `bosses` array to run each boss and wave.
+
+Wave Count Data:
+- Boss 1 must have 5 waves.
+- Boss 2 must have 6 waves.
+- Boss 3 must have 7 waves.
+- Boss 4 must have 8 waves.
+- Boss 5 must have 9 waves.
+- Boss 6 must have 10 waves.
+- Boss 7 must have 11 waves.
+- Boss 8 must have 12 waves.
+- Boss 9 must have 13 waves.
+- Boss 10 must have 14 waves.
+- Boss 11 must have 15 waves.
+- Boss 12 must have 16 waves.
+- Boss 13 must have 17 waves.
+- Boss 14 must have 18 waves.
+- Boss 15 must have 19 waves.
+- Boss 16 must have 20 waves.
+- Boss 17 must have 21 waves.
+- Boss 18 must have 22 waves.
+- Boss 19 must have 23 waves.
+- Boss 20 must have 25 waves.
+
+Important:
+- Include the actual wave names for every boss.
+- Each boss should have several handcrafted signature waves.
+- Extra waves can be generated/remixed, but they must still exist as real wave objects inside the boss data.
+- UI must use `boss.waves.length` so it automatically shows the correct wave total.
+
+Use this structure:
+
+const bosses = [
+  {
+    id: 1,
+    name: "Virel",
+    title: "The Glass Warden",
+    difficultyLabel: "Hard",
+    themeColors: ["#7dd3fc", "#a78bfa", "#e0f2fe"],
+    personality: "Calm, precise, cold.",
+    design: "Tall crystal knight with transparent blue-purple armor and one cracked glowing eye.",
+    duration: 5,
+    arenaModifier: "standard",
+    rewardItemPool: ["Prism Apple", "Crown Shard", "Deep Battery"],
+    waves: [
+      {
+        id: 1,
+        name: "Crystal Rain",
+        description: "Blue crystal shards fall from the top at different speeds.",
+        duration: 18,
+        attackType: "falling_shards",
+        warningType: "top_flash",
+        bulletSpeed: 2.2,
+        spawnRate: 700,
+        damage: 6,
+        arenaEffect: "none",
+        patternTags: ["falling", "crystal", "intro"],
+        execute: "spawnCrystalRain"
+      },
+      {
+        id: 2,
+        name: "Mirror Walls",
+        description: "Horizontal and vertical laser walls appear after warning lines.",
+        duration: 18,
+        attackType: "warning_lasers",
+        warningType: "line_preview",
+        bulletSpeed: 0,
+        spawnRate: 1400,
+        damage: 10,
+        arenaEffect: "none",
+        patternTags: ["laser", "walls", "warning"],
+        execute: "spawnMirrorWalls"
+      },
+      {
+        id: 3,
+        name: "Shatter Pulse",
+        description: "Expanding circular rings from the center with gaps.",
+        duration: 20,
+        attackType: "expanding_rings",
+        warningType: "center_pulse",
+        bulletSpeed: 2.6,
+        spawnRate: 1200,
+        damage: 7,
+        arenaEffect: "none",
+        patternTags: ["rings", "gaps", "pulse"],
+        execute: "spawnShatterPulse"
+      },
+      {
+        id: 4,
+        name: "Prism Crossfire",
+        description: "Crystal beams reflect across the battle box after warning lines.",
+        duration: 20,
+        attackType: "reflecting_beams",
+        warningType: "angled_line_preview",
+        bulletSpeed: 0,
+        spawnRate: 1600,
+        damage: 10,
+        arenaEffect: "none",
+        patternTags: ["beam", "reflect", "crystal"],
+        execute: "spawnPrismCrossfire"
+      },
+      {
+        id: 5,
+        name: "Prism Prison",
+        description: "Crystal walls appear around the player with one escape gap, then shatter into diagonal shards.",
+        duration: 22,
+        attackType: "trap_then_shatter",
+        warningType: "box_outline",
+        bulletSpeed: 3.0,
+        spawnRate: 1700,
+        damage: 8,
+        arenaEffect: "temporary_trap",
+        patternTags: ["trap", "shards", "escape"],
+        execute: "spawnPrismPrison"
+      }
+    ]
+  }
+];
+
+Then continue this exact data-driven format for Bosses 2–20.
+
+Boss 2 must include these first 6 wave names:
+1. Bit Storm
+2. Error Sweep
+3. Devour Lane
+4. Corrupted Download
+5. Input Rot
+6. Cache Bite
+
+Boss 3 must include these first 7 wave names:
+1. Halo Spiral
+2. Judgment Beams
+3. Wing Barrage
+4. False Judgment
+5. Null Verdict
+6. Seraphic Cage
+7. Broken Halo
+
+Boss 4 must include these first 8 wave names:
+1. Gear Maze
+2. Time Freeze
+3. Clock Hand Slash
+4. Rewind Strike
+5. Midnight Loop
+6. Second Hand Spiral
+7. Pendulum Crush
+8. Time Debt
+
+Boss 5 must include these first 9 wave names:
+1. Impossible Script
+2. Crown Collapse
+3. Reality Tear
+4. Broken Sentence
+5. Crown of Static
+6. Lost Paragraph
+7. Glyph Spiral
+8. Unreadable Maze
+9. Royal Redaction
+
+Boss 6 must include these first 10 wave names:
+1. Current Surge
+2. Coil Trap
+3. Undertow Pull
+4. Deep Shock
+5. Whirlpool Circuit
+6. Abyss Spark
+7. Tide Cage
+8. Voltage Riptide
+9. Serpent Loop
+10. Blackwater Flash
+
+Boss 7 must include these first 11 wave names:
+1. Bone Rain
+2. Rib Cage
+3. Halo Curse
+4. Grave Hymn
+5. Saint’s Ossuary
+6. Marrow Spiral
+7. Skull Lanterns
+8. Tomb Step
+9. Bone Lattice
+10. Red Prayer
+11. Final Relic
+
+Boss 8 must include these first 12 wave names:
+1. Starfall
+2. Constellation Lines
+3. False Star
+4. Supernova Waltz
+5. Royal Eclipse
+6. Meteor Crown
+7. Astral Mirror
+8. Nebula Bloom
+9. Comet Thread
+10. Dark Sky Court
+11. Star Map Trap
+12. Queen’s Nova
+
+Boss 9 must include these first 13 wave names:
+1. Piston Crush
+2. Engine Spin
+3. Overheat
+4. Compression Cycle
+5. Meltdown Protocol
+6. Furnace Lane
+7. Cog Barrage
+8. Rust Storm
+9. Hydraulic Snap
+10. Core Vent
+11. Redline Grid
+12. Shutdown Fakeout
+13. Omega Cycle
+
+Boss 10 must include these first 14 wave names:
+1. Rule Rewrite
+2. Axis Collapse
+3. Mirror Soul
+4. Rule Stack
+5. Undefined Behavior
+6. Null Coordinate
+7. Logic Spiral
+8. Broken Equation
+9. False Safe Zone
+10. Geometry Collapse
+11. Input Paradox
+12. Axiom Cage
+13. End of Pattern
+14. Rule Zero
+
+Boss 11 must include these first 15 wave names:
+1. Spore Bloom
+2. Wing Dust
+3. Infection Zones
+4. Velvet Swarm
+5. Plague Garden
+6. Toxic Waltz
+7. Moth Eclipse
+8. Fever Rings
+9. Velvet Veil
+10. Antidote Fakeout
+11. Green Cathedral
+12. Rotting Petals
+13. Spore Spiral
+14. Plague Crown
+15. Final Bloom
+
+Boss 12 must include these first 16 wave names:
+1. Sound Bars
+2. Choir Split
+3. Silent Beat
+4. Crescendo Crush
+5. Dissonance Finale
+6. Bass Drop
+7. Mask Canon
+8. Broken Rhythm
+9. Echo Measure
+10. Red Note Rain
+11. Syncopation Trap
+12. Chrome Hymn
+13. Rest Note Fakeout
+14. Double Tempo
+15. Choir Wall
+16. Final Chord
+
+Boss 13 must include these first 17 wave names:
+1. Gravity Pull
+2. Orbiting Teeth
+3. Collapse Ring
+4. Gravity Flip
+5. Royal Singularity
+6. Crown Well
+7. Heavy Step
+8. Orbit Break
+9. Dark Matter Rain
+10. Tidal Bite
+11. Center Crush
+12. Gravity Maze
+13. Void Roar
+14. Silver Orbit
+15. Falling Crown
+16. Singularity Cage
+17. Rex Collapse
+
+Boss 14 must include these first 18 wave names:
+1. Wax Drip
+2. Flame Flicker
+3. Funeral March
+4. Last Ember
+5. Melting Cathedral
+6. Candle Tears
+7. Wick Spiral
+8. Blue Flame Lane
+9. Wax Flood
+10. Ember Cross
+11. Flicker Fakeout
+12. Smoke Veil
+13. Mourning Bells
+14. Lantern Drop
+15. Cathedral Collapse
+16. Final Candle
+17. Ash Ring
+18. Grave Flame
+
+Boss 15 must include these first 19 wave names:
+1. Web Grid
+2. Signal Bite
+3. Screen Tear
+4. Static Nest
+5. Widow’s Broadcast
+6. Antenna Strike
+7. Pink Noise
+8. Pixel Web
+9. Dead Channel
+10. Signal Lag
+11. Glitch Fang
+12. Web Collapse
+13. VHS Storm
+14. Static Mirror
+15. Corrupt Frame
+16. Spider Pulse
+17. Broken Feed
+18. Final Broadcast
+19. Widow Crash
+
+Boss 16 must include these first 20 wave names:
+1. Meteor Lesson
+2. Planet Tilt
+3. Crater Burst
+4. Tiny Apocalypse
+5. World Drop
+6. Magma Steps
+7. Orbit Pebbles
+8. Titan Toss
+9. Continent Crack
+10. Falling Lesson
+11. Gravity Playground
+12. Little Cataclysm
+13. Planet Spin
+14. Stone Rain
+15. Cracked Horizon
+16. Atlas Shrug
+17. Moon Bounce
+18. Small Extinction
+19. Core Break
+20. World Lesson
+
+Boss 17 must include these first 21 wave names:
+1. Paper Cuts
+2. Folded Walls
+3. Ink Decree
+4. Royal Guillotine
+5. Thousand Folds
+6. Origami Spears
+7. Ink Rain
+8. Scroll Maze
+9. Paper Fan
+10. Fold Trap
+11. Red Stamp
+12. Blade Script
+13. Emperor’s Letter
+14. Paper Storm
+15. Ink Mirror
+16. Crown Fold
+17. White Edge
+18. Guillotine Hall
+19. Final Decree
+20. Shredded Throne
+21. Thousand Cuts
+
+Boss 18 must include these first 22 wave names:
+1. Echo Trail
+2. Memory Replay
+3. Vault Lock
+4. Shattered Recall
+5. Perfect Echo
+6. Crystal Repeat
+7. Ghost Step
+8. Delayed Ring
+9. Memory Shards
+10. Past Mistake
+11. Locked Reflection
+12. Replayed Rain
+13. Echo Cage
+14. Vault Spiral
+15. Familiar Beam
+16. Old Pattern New Rules
+17. Delayed Mirror
+18. Recall Storm
+19. Archive Collapse
+20. Memory Leak
+21. Crystal Afterimage
+22. Final Echo
+
+Boss 19 must include these first 23 wave names:
+1. String Pull
+2. Puppet Dance
+3. Moon Drop
+4. Final Bow
+5. Red Stage Collapse
+6. Marionette Waltz
+7. Lunar Strings
+8. Blood Curtain
+9. Dance Step Trap
+10. Silver Hook
+11. Puppet Spin
+12. Moon Shatter
+13. String Cage
+14. Red Spotlight
+15. Theater Crush
+16. Cruel Applause
+17. Hanging Thread
+18. Blood Moon Rain
+19. Stage Tilt
+20. Last Dance
+21. Curtain Call
+22. Broken Puppet
+23. Moonlit Finale
+
+Boss 20 must include these first 25 wave names:
+1. Regret Spiral
+2. Boss Memory Chain
+3. Broken Controls
+4. Soul Duel
+5. Memory Overload
+6. Last Mistake
+7. Final Error
+8. Crystal Regret
+9. Glitch Hunger
+10. Null Prayer
+11. Clock Debt
+12. Unreadable Crown
+13. Deep Current Memory
+14. Bone Confession
+15. False Star Memory
+16. Omega Ruin
+17. Axiom Rewrite
+18. Velvet Infection
+19. Iron Dissonance
+20. Gravity Sin
+21. Candle Mourning
+22. Static Widow Memory
+23. Atlas Burden
+24. Paper Judgment
+25. First Mistake
+
+Also include item data:
+
+const items = [
+  {
+    id: "prism_apple",
+    name: "Prism Apple",
+    type: "Healing",
+    description: "Restores 20 HP.",
+    maxStack: 1,
+    usable: true,
+    allowedInLeaderboard: true,
+    iconShape: "crystal_apple",
+    themeColor: "#7dd3fc",
+    effect: "heal20"
+  },
+  {
+    id: "glitch_cookie",
+    name: "Glitch Cookie",
+    type: "Defense",
+    description: "Gives 3 seconds of invincibility.",
+    maxStack: 1,
+    usable: true,
+    allowedInLeaderboard: true,
+    iconShape: "pixel_cookie",
+    themeColor: "#22c55e",
+    effect: "invincible3"
+  }
+];
+
+Then continue item data for all 20 custom items:
+- Prism Apple
+- Glitch Cookie
+- Halo Thread
+- Clock Tea
+- Crown Shard
+- Deep Battery
+- Bone Charm
+- Star Jam
+- Engine Core
+- Rule Eraser
+- Velvet Antidote
+- Choir Bell
+- Gravity Pin
+- Ember Mint
+- Static Patch
+- Atlas Crumb
+- Ink Fold
+- Echo Pearl
+- Moon String
+- Mistake Heart
+
+Item Data Requirement:
+Each item object must include:
+- `id`
+- `name`
+- `type`
+- `description`
+- `maxStack`
+- `usable`
+- `allowedInLeaderboard`
+- `iconShape`
+- `themeColor`
+- `effect`
+- `bossSource`
+- `rarity`
+- `useFunction`
+
+Do not only describe the items. Put the item data directly into JavaScript arrays so the inventory, reward screen, and admin item tools can use it.
