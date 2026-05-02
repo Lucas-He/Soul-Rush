@@ -600,7 +600,6 @@ function doCrystalRain(g: GameData, dt: number, boss: BossConf) {
         });
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
@@ -717,7 +716,6 @@ function doBitStorm(g: GameData, dt: number, boss: BossConf) {
         });
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.55) {
       g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
@@ -836,7 +834,6 @@ function doHaloSpiral(g: GameData, dt: number, boss: BossConf) {
         }
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
@@ -961,7 +958,6 @@ function doGearMaze(g: GameData, dt: number, boss: BossConf) {
         });
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
@@ -1073,7 +1069,6 @@ function doImpossibleScript(g: GameData, dt: number, boss: BossConf) {
         });
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
@@ -1117,7 +1112,6 @@ function doCrownCollapse(g: GameData, dt: number, boss: BossConf) {
         }
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
@@ -1188,7 +1182,6 @@ function doSoulSplit(g: GameData, dt: number, boss: BossConf) {
         g.fakeSoul.y = g.player.y;
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.fakeSoul.x += (g.player.x + 48 - g.fakeSoul.x) * 3.0 * dt;
     g.fakeSoul.y += (g.player.y    - g.fakeSoul.y)   * 3.0 * dt;
     g.phaseTimer += dt;
@@ -1244,7 +1237,6 @@ function doFinalPattern(g: GameData, dt: number, boss: BossConf) {
         });
       }
     }
-    for (const wm of g.warnMarkers) wm.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.75) {
       g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
@@ -1364,6 +1356,11 @@ function update(
   }
 
   // ---- PLAYING ----
+  // R restarts from any point in active gameplay (no delay required)
+  if ((g.keys.has('r') || g.keys.has('R')) && !inputFocused) {
+    resetForBoss(g, 0); g.state = 'title'; return;
+  }
+
   const boss = BOSSES[g.bossIdx];
 
   // Admin keyboard shortcuts (only when admin mode active and input not focused)
