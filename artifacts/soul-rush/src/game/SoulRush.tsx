@@ -104,7 +104,7 @@ const BOSS_TIPS = [
 // TYPES
 // ================================================================
 
-type State = 'title' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory';
+type State = 'title' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory' | 'finalVictory';
 
 interface WarnMarker {
   id: number;
@@ -450,6 +450,9 @@ interface GameData {
   // Boss 8 — Luxora
   starPoints: StarPoint[];
 
+  // Mirror-walls snapshot — stores positions from first pulse so second pulse reuses them
+  laserSnapshot: { type: 'h' | 'v'; pos: number; width: number; color: string }[];
+
   // Boss 9 — Ruin Engine
   pistonBlocks: PistonBlock[];
   arenaShrunken: boolean;
@@ -496,6 +499,7 @@ function createState(): GameData {
     rewrittenBounds: null,
     mirrorSoulActive: false, mirrorSoulX: 0, mirrorSoulY: 0, mirrorSoulPulsing: false,
     finalRuleStep: 0, finalRuleStepTimer: 0,
+    laserSnapshot: [],
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
     diffMult: 1.25,
@@ -529,6 +533,7 @@ function clearEntities(g: GameData) {
   g.rewrittenBounds = null;
   g.mirrorSoulActive = false; g.mirrorSoulPulsing = false;
   g.finalRuleStep = 0; g.finalRuleStepTimer = 0;
+  g.laserSnapshot = [];
 }
 
 function jumpToBoss(g: GameData, idx: number) {
@@ -811,6 +816,7 @@ function doMirrorWalls(g: GameData, dt: number, boss: BossConf) {
     if (g.phaseTimer >= 1.6) {
       g.phase = 1; g.phaseTimer = 0;
       g.lasers = g.laserWarns.map(lw => ({ id: nid(g), type: lw.type, pos: lw.pos, width: lw.width, timer: 2.2, color: lw.color }));
+      g.laserSnapshot = g.laserWarns.map(lw => ({ type: lw.type, pos: lw.pos, width: lw.width, color: lw.color }));
       g.laserWarns = [];
       shake(g);
     }
@@ -823,14 +829,12 @@ function doMirrorWalls(g: GameData, dt: number, boss: BossConf) {
       g.phaseTimer = 0;
     }
   } else if (g.phase === 2) {
-    // Brief gap then second shot (pulse2)
+    // Brief gap then second shot — same wall positions as first pulse
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.5) {
-      // Re-fire from a new pattern
-      const newPosH = rand(BY + 50, BY + BH - 50);
-      const newPosV = rand(BX + 60, BX + BW - 60);
-      g.lasers.push({ id: nid(g), type: 'h', pos: newPosH, width: 22, timer: 1.8, color: boss.color });
-      g.lasers.push({ id: nid(g), type: 'v', pos: newPosV, width: 14, timer: 1.8, color: boss.color2 });
+      for (const snap of g.laserSnapshot) {
+        g.lasers.push({ id: nid(g), type: snap.type, pos: snap.pos, width: snap.width, timer: 1.8, color: snap.color });
+      }
       shake(g); g.phase = 3; g.phaseTimer = 0;
     }
   } else if (g.phase === 3) {
@@ -1697,46 +1701,43 @@ function doBoneRain(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// Two bone walls close inward. A gap of ~80px stays open.
+// Two bone walls close inward from left and right. An 80px gap stays open at the center (BCX).
 function doRibCage(g: GameData, dt: number, boss: BossConf) {
+  const wallWidth = 60;
+  const gapHalf = 40;     // gap is 80px wide, centered at BCX
+  const wallHalf = wallWidth / 2;
+  // Left wall center stops at BCX - gapHalf - wallHalf; right at BCX + gapHalf + wallHalf
+  const stopLeft  = BCX - gapHalf - wallHalf;
+  const stopRight = BCX + gapHalf + wallHalf;
+  const crushSpeed = (stopLeft - BX) / 1.8;
+
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
-      // Warn: two vertical walls coming from both sides
-      const gapCenter = rand(BX + BW * 0.3, BX + BW * 0.7);
-      const gapHalf = 40;
-      // Left wall: from BX, moving right. Right wall: from BX+BW, moving left.
-      // Warn shows their entry positions
-      g.laserWarns.push({ id: nid(g), type: 'v', pos: BX, width: 28, timer: 1.3, color: boss.color, fake: false });
-      g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW, width: 28, timer: 1.3, color: boss.color, fake: false });
-      // Store gap center in spawnCount encoding
-      g.spawnCount = Math.floor(gapCenter);
+      // Warn: two bone walls appearing from both sides
+      g.laserWarns.push({ id: nid(g), type: 'v', pos: BX, width: wallWidth, timer: 1.3, color: boss.color, fake: false });
+      g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW, width: wallWidth, timer: 1.3, color: boss.color, fake: false });
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.3) {
-      // Activate walls
-      g.lasers.push({ id: nid(g), type: 'v', pos: BX, width: 28, timer: 4.0, color: boss.color });
-      g.lasers.push({ id: nid(g), type: 'v', pos: BX + BW, width: 28, timer: 4.0, color: boss.color });
+      g.lasers.push({ id: nid(g), type: 'v', pos: BX, width: wallWidth, timer: 4.0, color: boss.color });
+      g.lasers.push({ id: nid(g), type: 'v', pos: BX + BW, width: wallWidth, timer: 4.0, color: boss.color });
       g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
     }
   } else if (g.phase === 1) {
-    // Move walls inward
-    const gapCenter = g.spawnCount;
-    const gapHalf = 40;
-    const speed = (BW / 2 - gapHalf) / 1.8;
+    // Move walls inward, stop with 80px gap centered at BCX
     if (g.lasers.length >= 2) {
-      g.lasers[0].pos += speed * dt;
-      g.lasers[1].pos -= speed * dt;
-      // Clamp at gap edges
-      g.lasers[0].pos = Math.min(g.lasers[0].pos, gapCenter - gapHalf);
-      g.lasers[1].pos = Math.max(g.lasers[1].pos, gapCenter + gapHalf);
+      g.lasers[0].pos += crushSpeed * dt;
+      g.lasers[1].pos -= crushSpeed * dt;
+      g.lasers[0].pos = Math.min(g.lasers[0].pos, stopLeft);
+      g.lasers[1].pos = Math.max(g.lasers[1].pos, stopRight);
     }
     for (const l of g.lasers) l.timer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 2.2) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
   } else {
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
+    if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; }
   }
 }
 
@@ -1866,26 +1867,24 @@ function doConstellationLines(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// Big gold fake star appears prominently, then real small stars erupt around it.
+// Big gold fake star appears prominently, then real small stars erupt FROM that exact spot.
 function doFalseStar(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
-    // Show one big golden fake warn marker
+    // Show one big golden fake warn marker — record its exact position in starPoints
     if (g.warnMarkers.length === 0) {
       const cx = rand(BX + BW * 0.25, BX + BW * 0.75);
       const cy = rand(BY + BH * 0.25, BY + BH * 0.75);
       g.warnMarkers.push({ id: nid(g), x: cx, y: cy, angle: 0, r: 22, color: boss.color2, timer: 1.2, maxTimer: 1.2 });
-      g.spawnCount = Math.floor(cx * 100) + Math.floor(cy); // encode position
+      g.starPoints.push({ id: nid(g), x: cx, y: cy }); // store actual position for phase 1
     }
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
-    // Erupt real small stars in a radius around the fake star position
+    // Erupt real small stars outward from the fake star's actual position
     if (g.spawnTimer <= 0 && g.bullets.length < 5) {
-      // Decode approx position
-      const cx = Math.floor(g.spawnCount / 100);
-      const cy = g.spawnCount - cx * 100;
-      // Actually just use center area
-      const eruCx = BX + BW * 0.5, eruCy = BY + BH * 0.5;
+      const star = g.starPoints[0];
+      const eruCx = star ? star.x : BCX;
+      const eruCy = star ? star.y : BCY;
       const spd = sm(g);
       for (let i = 0; i < 16; i++) {
         const a = (i / 16) * Math.PI * 2;
@@ -1898,7 +1897,7 @@ function doFalseStar(g: GameData, dt: number, boss: BossConf) {
     moveBullets(g, dt);
     g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 3.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+    if (g.phaseTimer >= 3.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; g.starPoints = []; }
   } else {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
@@ -1935,6 +1934,7 @@ function doPistonCrush(g: GameData, dt: number, boss: BossConf) {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.1) {
       for (const pb of g.pistonBlocks) { pb.active = true; pb.warnTimer = 0; }
+      g.arenaShrunken = true;
       g.phase = 1; g.phaseTimer = 0; shake(g);
     }
   } else if (g.phase === 1) {
@@ -2274,28 +2274,6 @@ function updateWarnMarkers(g: GameData, dt: number) {
 // MAIN GAME UPDATE
 // ================================================================
 
-function ensureState(g: GameData) {
-  if (!Array.isArray(g.pistonBlocks))             g.pistonBlocks = [];
-  if (!Array.isArray(g.prevPlayerPositions))       g.prevPlayerPositions = [];
-  if (!Array.isArray(g.starPoints))                g.starPoints = [];
-  if (g.currentPullX === undefined)               g.currentPullX = 0;
-  if (g.currentPullY === undefined)               g.currentPullY = 0;
-  if (g.pullActive === undefined)                  g.pullActive = false;
-  if (g.haloOrbitActive === undefined)             g.haloOrbitActive = false;
-  if (g.haloOrbitTimer === undefined)              g.haloOrbitTimer = 0;
-  if (g.prevPosTimer === undefined)                g.prevPosTimer = 0;
-  if (g.arenaShrunken === undefined)               g.arenaShrunken = false;
-  if (g.engineSpinAngle === undefined)             g.engineSpinAngle = 0;
-  if (g.rewrittenBounds === undefined)             g.rewrittenBounds = null;
-  if (g.mirrorSoulActive === undefined)            g.mirrorSoulActive = false;
-  if (g.mirrorSoulX === undefined)                 g.mirrorSoulX = 0;
-  if (g.mirrorSoulY === undefined)                 g.mirrorSoulY = 0;
-  if (g.mirrorSoulPulsing === undefined)           g.mirrorSoulPulsing = false;
-  if (g.finalRuleStep === undefined)               g.finalRuleStep = 0;
-  if (g.finalRuleStepTimer === undefined)          g.finalRuleStepTimer = 0;
-  if (!Array.isArray(g.warnMarkers))               g.warnMarkers = [];
-}
-
 function update(
   g: GameData,
   dt: number,
@@ -2305,7 +2283,6 @@ function update(
   jumpBoss: (idx: number) => void,
   inputFocused: boolean,
 ) {
-  ensureState(g);
   const cap = Math.min(dt, 0.05);
   g.time += cap;
 
@@ -2343,7 +2320,7 @@ function update(
     if (g.keys.has('r') || g.keys.has('R')) { resetForBoss(g, 0); g.state = 'title'; return; }
     if (g.postBossTimer >= 3.0 && (g.keys.has('Enter') || g.keys.has(' '))) {
       const next = g.bossIdx + 1;
-      if (next >= BOSSES.length) { g.state = 'victory'; }
+      if (next >= BOSSES.length) { g.state = 'finalVictory'; }
       else { resetForBoss(g, next); g.state = 'intro'; g.introTimer = 0; g.introLine = 0; }
     }
     return;
@@ -2353,7 +2330,7 @@ function update(
     if (g.gameOverTimer >= 1.5 && (g.keys.has('r') || g.keys.has('R'))) { resetForBoss(g, 0); g.state = 'title'; g.gameOverTimer = 0; }
     return;
   }
-  if (g.state === 'victory') {
+  if (g.state === 'finalVictory') {
     if (g.keys.has('r') || g.keys.has('R') || g.keys.has('Enter') || g.keys.has(' ')) { resetForBoss(g, 0); g.state = 'title'; }
     return;
   }
@@ -2413,6 +2390,22 @@ function update(
 
   g.player.x = Math.max(cbx + P_HIT_R, Math.min(cbx + cbw - P_HIT_R, g.player.x));
   g.player.y = Math.max(cby + P_HIT_R, Math.min(cby + cbh - P_HIT_R, g.player.y));
+
+  // Push player away from advancing piston slabs when arena is shrunken
+  if (g.arenaShrunken) {
+    for (const pb of g.pistonBlocks) {
+      if (!pb.active) continue;
+      if (pb.w >= BW * 0.6) {
+        // Horizontal slab (full-width, entering top or bottom)
+        if (pb.y + pb.h / 2 < BCY) g.player.y = Math.max(g.player.y, pb.y + pb.h + P_HIT_R);
+        else                        g.player.y = Math.min(g.player.y, pb.y - P_HIT_R);
+      } else {
+        // Vertical slab (full-height, entering left or right)
+        if (pb.x + pb.w / 2 < BCX) g.player.x = Math.max(g.player.x, pb.x + pb.w + P_HIT_R);
+        else                        g.player.x = Math.min(g.player.x, pb.x - P_HIT_R);
+      }
+    }
+  }
 
   if (g.player.invTimer > 0) {
     g.player.invTimer -= cap;
@@ -3066,6 +3059,43 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
   }
 }
 
+function drawElectricLaser(ctx: CanvasRenderingContext2D, l: Laser, time: number) {
+  ctx.save();
+  // Soft glow fill
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = l.color; ctx.shadowBlur = 32; ctx.shadowColor = l.color;
+  if (l.type === 'h') ctx.fillRect(BX, l.pos - l.width / 2, BW, l.width);
+  else ctx.fillRect(l.pos - l.width / 2, BY, l.width, BH);
+  ctx.globalAlpha = 1;
+  // Two jagged-line passes: wide colored core + thin white highlight
+  for (let pass = 0; pass < 2; pass++) {
+    ctx.strokeStyle = pass === 0 ? l.color : '#aaeeff';
+    ctx.lineWidth   = pass === 0 ? 2.5 : 1;
+    ctx.shadowBlur  = pass === 0 ? 20 : 8;
+    ctx.shadowColor = l.color;
+    ctx.beginPath();
+    if (l.type === 'h') {
+      const segs = 20;
+      ctx.moveTo(BX, l.pos);
+      for (let i = 1; i <= segs; i++) {
+        const x   = BX + BW * (i / segs);
+        const jag = (i % 2 === 0 ? 1 : -1) * (5 + Math.sin(time * 24 + i * 1.9) * 9);
+        ctx.lineTo(x, l.pos + jag);
+      }
+    } else {
+      const segs = 16;
+      ctx.moveTo(l.pos, BY);
+      for (let i = 1; i <= segs; i++) {
+        const y   = BY + BH * (i / segs);
+        const jag = (i % 2 === 0 ? 1 : -1) * (5 + Math.sin(time * 24 + i * 1.9) * 9);
+        ctx.lineTo(l.pos + jag, y);
+      }
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   const boss = BOSSES[g.bossIdx];
   ctx.save();
@@ -3126,12 +3156,16 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
     ctx.restore();
   }
 
-  // Active lasers
+  // Active lasers — Boss 6 (Nyxcoil) uses a jagged electric render
   for (const l of g.lasers) {
-    ctx.save(); ctx.shadowBlur = 22; ctx.shadowColor = l.color; ctx.fillStyle = l.color;
-    if (l.type === 'h') ctx.fillRect(BX, l.pos - l.width / 2, BW, l.width);
-    else ctx.fillRect(l.pos - l.width / 2, BY, l.width, BH);
-    ctx.restore();
+    if (g.bossIdx === 5) {
+      drawElectricLaser(ctx, l, g.time);
+    } else {
+      ctx.save(); ctx.shadowBlur = 22; ctx.shadowColor = l.color; ctx.fillStyle = l.color;
+      if (l.type === 'h') ctx.fillRect(BX, l.pos - l.width / 2, BW, l.width);
+      else ctx.fillRect(l.pos - l.width / 2, BY, l.width, BH);
+      ctx.restore();
+    }
   }
 
   // Diagonal lasers
@@ -3314,6 +3348,25 @@ function renderVictory(ctx: CanvasRenderingContext2D, time: number) {
   ctx.globalAlpha = 1;
 }
 
+function renderFinalVictory(ctx: CanvasRenderingContext2D, time: number) {
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  for (let i = 0; i < 16; i++) {
+    ctx.fillStyle = `hsla(${(time * 55 + i * 22) % 360},100%,55%,0.025)`;
+    ctx.fillRect(0, 0, W, H);
+  }
+  ctx.shadowBlur = 44; ctx.shadowColor = '#00ffff'; ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 32px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText('You survived the end of rules.', W / 2, H / 2 - 58);
+  ctx.shadowBlur = 10; ctx.fillStyle = '#888'; ctx.font = '14px "Courier New", monospace';
+  ctx.fillText('All ten bosses have been silenced.', W / 2, H / 2 + 6);
+  ctx.fillStyle = '#555'; ctx.font = '12px "Courier New", monospace';
+  ctx.fillText('Rules existed. They have been read. Now they end.', W / 2, H / 2 + 32);
+  ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 2.2);
+  ctx.fillStyle = '#fff'; ctx.shadowBlur = 8; ctx.shadowColor = '#fff'; ctx.font = '13px "Courier New", monospace';
+  ctx.fillText('[ R or ENTER — return to title ]', W / 2, H / 2 + 86);
+  ctx.globalAlpha = 1;
+}
+
 function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   ctx.clearRect(0, 0, W, H);
   switch (g.state) {
@@ -3322,7 +3375,8 @@ function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
     case 'playing':  renderPlaying(ctx, g, adminMode, diffIdx);  break;
     case 'bossWin':  renderBossWin(ctx, g);                      break;
     case 'gameOver': renderGameOver(ctx, g);                     break;
-    case 'victory':  renderVictory(ctx, g.time);                 break;
+    case 'victory':       renderVictory(ctx, g.time);       break;
+    case 'finalVictory':  renderFinalVictory(ctx, g.time); break;
   }
 }
 
