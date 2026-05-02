@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "SOUL RUSH"
+version = "1.0.0"
+id = "artifacts/soul-rush"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26021
+
+[services.development]
+run = "pnpm --filter @workspace/soul-rush run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/soul-rush", "run", "build" ]
+publicDir = "artifacts/soul-rush/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26021"
+BASE_PATH = "/"
