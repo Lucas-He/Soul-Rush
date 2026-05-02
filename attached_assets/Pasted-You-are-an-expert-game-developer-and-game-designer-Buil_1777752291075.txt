@@ -1,0 +1,139 @@
+You are an expert game developer and game designer. Build a complete browser game called “SOUL RUSH” inspired by Undertale-style boss fights, but with all original characters, art, names, music placeholders, and mechanics.
+
+Make this as a playable HTML/CSS/JavaScript game. Do not use copyrighted Undertale assets, names, sprites, sounds, or music. The style can be inspired by bullet-hell boss fights: a small player heart/soul dodges attacks inside a battle box.
+
+Core Gameplay:
+- Player controls a small glowing heart/soul using arrow keys or WASD.
+- Movement: up, down, left, right.
+- Player stays inside a rectangular battle box.
+- Boss attacks happen in waves.
+- Player has HP.
+- If HP reaches 0, show Game Over and allow restart.
+- After surviving enough waves, the boss is defeated and the next boss begins.
+- Include 5 bosses total.
+- Difficulty increases from hard to insanely, incomprehensibly hard.
+- Add a title screen, boss intro screen, victory screen, and restart button.
+- Add pause support with the P key.
+- Include simple sound placeholders using Web Audio or comments where sounds can be added.
+
+Visual Style:
+- Modern dark background.
+- Neon pixel/arcade style.
+- Battle box in the center.
+- Player heart should glow.
+- Boss should have a custom design drawn with CSS/Canvas shapes, not external copyrighted art.
+- Each boss needs a unique look, personality, color theme, and attack style.
+- UI should look polished, not childish.
+
+Bosses:
+
+Boss 1: “Virel, the Glass Warden”
+Difficulty: Hard
+Design:
+- Tall crystal knight floating above the battle box.
+- Transparent blue/purple crystal armor.
+- One cracked glowing eye.
+Personality:
+- Calm, precise, cold.
+Moves:
+1. Crystal Rain: blue crystal shards fall from the top at different speeds.
+2. Mirror Walls: horizontal and vertical laser walls appear after warning lines.
+3. Shatter Pulse: expanding circular rings from the center that the player must dodge through gaps.
+Special:
+- Teaches the player warning indicators before damage happens.
+
+Boss 2: “Mawbyte, the Hungry Code”
+Difficulty: Very Hard
+Design:
+- Glitchy digital monster made of broken squares and teeth.
+- Red and green error-code colors.
+Personality:
+- Chaotic, hungry, unstable.
+Moves:
+1. Bit Storm: small square bullets move in random-looking but fair patterns.
+2. Error Sweep: large rectangular glitch bars sweep across the battle box.
+3. Devour Lane: one safe lane appears while the rest fills with danger.
+Special:
+- Occasionally flips the controls for 3 seconds, but show a warning first.
+
+Boss 3: “Seraph Null”
+Difficulty: Extremely Hard
+Design:
+- Angelic robotic mask with broken wings and black-gold rings.
+- Floating halo made of rotating triangles.
+Personality:
+- Judges the player like a final exam.
+Moves:
+1. Halo Spiral: bullets rotate outward from the boss in spiral patterns.
+2. Judgment Beams: diagonal beams appear after warning lines.
+3. Wing Barrage: feather-shaped bullets enter from left and right.
+Special:
+- Adds fake safe zones sometimes, but the real safe zone is brighter.
+
+Boss 4: “Orryx, the Clock Eater”
+Difficulty: Insane
+Design:
+- Giant clock-faced beast with broken clock hands and floating gears.
+- Bronze, black, and orange theme.
+Personality:
+- Slow voice, controls time, intimidating.
+Moves:
+1. Gear Maze: rotating gear hazards move across the box.
+2. Time Freeze: bullets stop for a moment, then suddenly continue.
+3. Clock Hand Slash: long rotating clock hands sweep across the battle box.
+Special:
+- Player speed changes during certain attacks. Show “TIME DISTORTED” warning.
+
+Boss 5: “The Unreadable King”
+Difficulty: Insanely Incomprehensibly Hard
+Design:
+- Final boss made of shifting symbols, crowns, eyes, and broken text.
+- Looks like reality is collapsing.
+- Black, white, violet, and neon red theme.
+Personality:
+- Speaks in fragmented mysterious lines.
+Moves:
+1. Impossible Script: streams of strange symbols fall like rain.
+2. Crown Collapse: crown-shaped bullet patterns close inward.
+3. Reality Tear: parts of the battle box temporarily become dangerous.
+4. Soul Split: creates a fake player heart that mirrors the player’s movement and can confuse them, but only the real heart takes damage.
+5. Final Pattern: combines lasers, falling symbols, and rotating bullets in one intense survival wave.
+Special:
+- This boss should feel almost unfair but still technically dodgeable.
+- Add visual warnings so it is not random.
+
+Game Requirements:
+- Use HTML Canvas for the gameplay.
+- Keep all code in a clean structure: index.html, style.css, script.js.
+- Use no external image assets unless they are generated as simple shapes or gradients in code.
+- Include comments explaining each boss, each attack pattern, and how to adjust difficulty.
+- Make collision detection accurate but fair.
+- Add invincibility frames after the player gets hit.
+- Add HP bar and current boss name.
+- Add wave timer.
+- Add smooth animations.
+- Add screen shake only when appropriate.
+- Add attack warning indicators before lasers, walls, or major hits.
+- Make the game playable immediately after running in Replit.
+
+Controls:
+- Arrow keys or WASD to move.
+- P to pause.
+- Enter or Space to start/continue.
+- R to restart after game over.
+
+Game Flow:
+1. Title screen: “SOUL RUSH”
+2. Show controls.
+3. Start Boss 1.
+4. After each boss, show short victory message and continue to next boss.
+5. After Boss 5, show final victory screen:
+   “You survived the unreadable.”
+6. Add restart option.
+
+Important:
+- Do not make this just a visual demo. It must be playable.
+- Do not make the bosses generic. Each boss must have unique attacks and visuals.
+- Make the code expandable so I can add more bosses later.
+- Make the difficulty challenging but fair.
+- Use original boss designs only.
