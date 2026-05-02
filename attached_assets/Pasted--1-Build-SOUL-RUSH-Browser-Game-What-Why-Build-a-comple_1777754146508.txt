@@ -1,0 +1,38 @@
+#1 - Build SOUL RUSH Browser Game
+What & Why
+Build a complete, playable browser game called "SOUL RUSH" — a bullet-hell boss fight game inspired by Undertale-style mechanics but with fully original characters, art, and design. The game uses HTML Canvas for gameplay and runs entirely in the browser.
+
+Done looks like
+Title screen with "SOUL RUSH" branding and controls displayed
+5 unique bosses fought in sequence, each with distinct visual design, color theme, attack patterns, and personality text
+Player controls a glowing heart/soul with arrow keys or WASD, constrained to a battle box
+HP bar, boss name, wave timer visible during combat
+All boss attacks implemented with proper warning indicators before damage:
+Boss 1 Virel: Crystal Rain, Mirror Walls, Shatter Pulse
+Boss 2 Mawbyte: Bit Storm, Error Sweep, Devour Lane (+ control flip)
+Boss 3 Seraph Null: Halo Spiral, Judgment Beams, Wing Barrage (+ fake safe zones)
+Boss 4 Orryx: Gear Maze, Time Freeze, Clock Hand Slash (+ player speed distortion)
+Boss 5 The Unreadable King: Impossible Script, Crown Collapse, Reality Tear, Soul Split, Final Pattern
+Invincibility frames after being hit
+Screen shake on appropriate impacts
+Game Over screen with restart (R key)
+Boss defeated screen between each boss
+Final victory screen: "You survived the unreadable."
+P key pauses, Enter/Space advances, R restarts
+All boss visuals drawn with canvas shapes/gradients — no external assets
+Sound placeholder structure using Web Audio API comments
+Out of scope
+Actual audio (music/SFX) — placeholders/comments only
+External image assets
+Mobile touch controls
+Leaderboards or save state
+Steps
+Create react-vite artifact — Bootstrap a new web artifact at path "/" to host the game. The artifact serves as the container for the game files.
+Build the game engine core — Implement the canvas rendering loop, player movement with battle box constraints, collision detection, HP system, invincibility frames, screen shake, and input handling (WASD/arrows, P pause, R restart, Enter/Space confirm).
+Build the game state machine — Implement screens: Title, BossIntro, Playing, BossDead, GameOver, Victory. Each transition should be clean with appropriate messages.
+Implement Boss 1 — Virel the Glass Warden — Crystal knight design (blue/purple, cracked eye), three attacks: Crystal Rain (shards fall at varied speeds), Mirror Walls (laser walls with warning lines), Shatter Pulse (expanding rings with dodge gaps). Teach warning indicators.
+Implement Boss 2 — Mawbyte the Hungry Code — Glitchy digital monster (red/green error colors, broken squares), three attacks: Bit Storm (fair random square bullets), Error Sweep (sweeping glitch bars), Devour Lane (safe lane mechanic). Special: control flip with warning.
+Implement Boss 3 — Seraph Null — Angelic robotic mask (black/gold, rotating triangle halo, broken wings), three attacks: Halo Spiral (rotating bullet spiral), Judgment Beams (diagonal with warning), Wing Barrage (feather-shaped bullets from sides). Special: fake vs real safe zones (brightness difference).
+Implement Boss 4 — Orryx the Clock Eater — Giant clock-face beast (bronze/black/orange, clock hands, floating gears), three attacks: Gear Maze (rotating gear hazards), Time Freeze (bullets pause then resume), Clock Hand Slash (rotating sweep). Special: "TIME DISTORTED" warning + player speed change.
+Implement Boss 5 — The Unreadable King — Final boss of shifting symbols/crowns/eyes (black/white/violet/neon red), five attacks: Impossible Script (symbol rain), Crown Collapse (inward crown pattern), Reality Tear (dangerous box zones), Soul Split (fake mirror heart), Final Pattern (combined lasers + symbols + rotating bullets). Must be technically dodgeable with clear warnings.
+Polish and UI — Add neon/arcade visual style, boss canvas art with unique shapes per boss, glowing player heart, polished HP bar, wave timer display, boss name UI, smooth animations, and all warning indicators. Ensure the game feels complete and playable from first load.
