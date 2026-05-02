@@ -104,7 +104,7 @@ const BOSS_TIPS = [
 // TYPES
 // ================================================================
 
-type State = 'title' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory' | 'finalVictory';
+type State = 'title' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory' | 'finalVictory' | 'waveEnd';
 
 interface WarnMarker {
   id: number;
@@ -227,6 +227,20 @@ interface StarPoint {
   x: number; y: number;
 }
 
+interface Wave {
+  id: string; name: string; description: string;
+  duration: number; attackType: string; warningType: string;
+  bulletSpeed: number; spawnRate: number; damage: number;
+  arenaEffect: string; patternTags: string[]; execute: string;
+}
+
+interface Item {
+  id: string; name: string; type: string; description: string;
+  maxStack: number; usable: boolean; allowedInLeaderboard: boolean;
+  iconShape: string; themeColor: string; effect: string;
+  bossSource: string; rarity: string; useFunction: string;
+}
+
 interface BossConf {
   name: string;
   title: string;
@@ -237,6 +251,13 @@ interface BossConf {
   attacks: string[];
   dmg: number;
   atkDur: number;
+  difficultyLabel?: string;
+  themeColors?: string[];
+  personality?: string;
+  design?: string;
+  arenaModifier?: string;
+  rewardItemPool?: string[];
+  waves?: Wave[];
 }
 
 // ================================================================
@@ -384,6 +405,370 @@ const BOSSES: BossConf[] = [
     dmg: 38,
     atkDur: 9,
   },
+  // ── Bosses 11–20 ─────────────────────────────────────────────
+  {
+    name: 'Vyrial',
+    title: 'Moth of Velvet Plague',
+    color: '#88ff44', color2: '#ff8844', bgTint: '#031004',
+    difficultyLabel: 'Hard',
+    personality: 'Languid and beautiful; spreads disease through elegance.',
+    design: 'Moth form; wings drip iridescent spores; antennae pulse neon green.',
+    arenaModifier: 'Spore clouds obscure edge visibility.',
+    dialog: ['Your air tastes like rot already.', 'Bloom, little garden.'],
+    attacks: ['sporeBloom', 'crystalRain', 'plagueGarden', 'velvetSwarm', 'boneRain', 'mothEclipse', 'feverRings', 'plagueGarden', 'velvetSwarm', 'falseStar', 'ribCage', 'boneRain', 'sporeBloom', 'plagueCrown', 'mothEclipse'],
+    dmg: 40, atkDur: 8,
+    waves: [
+      { id: 'v1', name: 'Spore Bloom', description: 'Radial spore burst from center.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 100, spawnRate: 8, damage: 40, arenaEffect: 'none', patternTags: ['radial', 'slow'], execute: 'sporeBloom' },
+      { id: 'v2', name: 'Crystal Drift', description: 'Drifting crystal shards.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 12, damage: 40, arenaEffect: 'none', patternTags: ['rain', 'drift'], execute: 'crystalRain' },
+      { id: 'v3', name: 'Plague Garden', description: 'Danger zones bloom across arena.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 40, arenaEffect: 'plague', patternTags: ['zone', 'spread'], execute: 'plagueGarden' },
+      { id: 'v4', name: 'Velvet Swarm', description: 'Homing spore bullets rain down.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 120, spawnRate: 8, damage: 40, arenaEffect: 'none', patternTags: ['homing', 'rain'], execute: 'velvetSwarm' },
+      { id: 'v5', name: 'Bone Pollen', description: 'Aimed bone spatter.', duration: 6, attackType: 'aimed', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 40, arenaEffect: 'none', patternTags: ['aimed'], execute: 'boneRain' },
+      { id: 'v6', name: 'Moth Eclipse', description: 'Full-arena ring contracts with small gap.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 80, spawnRate: 1, damage: 40, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
+      { id: 'v7', name: 'Fever Rings', description: 'Three expanding concentric rings.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 95, spawnRate: 3, damage: 40, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
+      { id: 'v8', name: 'Garden Surge', description: 'Denser plague zones.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 40, arenaEffect: 'plague', patternTags: ['zone'], execute: 'plagueGarden' },
+      { id: 'v9', name: 'Velvet Veil', description: 'Heavy spore swarm.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 130, spawnRate: 8, damage: 40, arenaEffect: 'none', patternTags: ['homing'], execute: 'velvetSwarm' },
+      { id: 'v10', name: 'False Flower', description: 'Fake star decoy.', duration: 5, attackType: 'decoy', warningType: 'glow', bulletSpeed: 140, spawnRate: 1, damage: 40, arenaEffect: 'none', patternTags: ['decoy'], execute: 'falseStar' },
+      { id: 'v11', name: 'Rib Bloom', description: 'Rib cage bone walls.', duration: 6, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 40, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
+      { id: 'v12', name: 'Rotting Petals', description: 'Heavy bone rain.', duration: 6, attackType: 'aimed', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 40, arenaEffect: 'none', patternTags: ['aimed'], execute: 'boneRain' },
+      { id: 'v13', name: 'Spore Spiral', description: 'Dense spiral bloom.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 100, spawnRate: 8, damage: 40, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
+      { id: 'v14', name: 'Plague Crown', description: 'Corner eruption burst.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 150, spawnRate: 24, damage: 40, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
+      { id: 'v15', name: 'Final Eclipse', description: 'Closing moth ring finale.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 80, spawnRate: 1, damage: 40, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
+    ],
+  },
+  {
+    name: 'Echora',
+    title: 'the Masked Choir',
+    color: '#ff44aa', color2: '#44aaff', bgTint: '#050008',
+    difficultyLabel: 'Hard',
+    personality: 'Theatrical and layered; every attack is a performance.',
+    design: 'Conductor figure; wears a cracked mask; baton drips sound waves.',
+    arenaModifier: 'Reverb pulses distort bullet trails briefly.',
+    dialog: ['The choir will drown your heartbeat.', 'Sing. Or be silenced.'],
+    attacks: ['soundBars', 'choirSplit', 'bitStorm', 'crescendoCrush', 'silentBeat', 'currentSurge', 'silentBeat', 'errorSweep', 'choirSplit', 'bitStorm', 'crescendoCrush', 'errorSweep', 'silentBeat', 'doubleTempo', 'choirSplit', 'soundBars'],
+    dmg: 42, atkDur: 8,
+    waves: [
+      { id: 'e1', name: 'Sound Bars', description: 'Piano-key laser bars sweep inward.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 42, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'soundBars' },
+      { id: 'e2', name: 'Choir Split', description: 'Diagonal quad burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 160, spawnRate: 20, damage: 42, arenaEffect: 'none', patternTags: ['quad', 'burst'], execute: 'choirSplit' },
+      { id: 'e3', name: 'Bit Surge', description: 'Bit storm from both edges.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 190, spawnRate: 10, damage: 42, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'e4', name: 'Crescendo Crush', description: 'Accelerating laser sweep.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 42, arenaEffect: 'none', patternTags: ['laser', 'accel'], execute: 'crescendoCrush' },
+      { id: 'e5', name: 'Silent Beat', description: 'Long silence then massive burst.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 42, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'silentBeat' },
+      { id: 'e6', name: 'Current Verse', description: 'Sweeping current surge.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 170, spawnRate: 8, damage: 42, arenaEffect: 'current', patternTags: ['sweep'], execute: 'currentSurge' },
+      { id: 'e7', name: 'Pause', description: 'Another silent beat.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 42, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
+      { id: 'e8', name: 'Error Verse', description: 'Reversed error sweep.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 6, damage: 42, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'e9', name: 'Choir Reprise', description: 'Quad burst again.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 160, spawnRate: 20, damage: 42, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
+      { id: 'e10', name: 'Bit Chorus', description: 'Heavier bit storm.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 200, spawnRate: 10, damage: 42, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'e11', name: 'Rising Crescendo', description: 'Fast laser sweep.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 42, arenaEffect: 'none', patternTags: ['laser'], execute: 'crescendoCrush' },
+      { id: 'e12', name: 'Error Bridge', description: 'Double error sweep.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 6, damage: 42, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'e13', name: 'Grand Pause', description: 'Heaviest silent beat.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 42, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
+      { id: 'e14', name: 'Double Tempo', description: 'Two sweeping lasers back to back.', duration: 6, attackType: 'laser', warningType: 'multi', bulletSpeed: 0, spawnRate: 2, damage: 42, arenaEffect: 'none', patternTags: ['laser', 'multi'], execute: 'doubleTempo' },
+      { id: 'e15', name: 'Final Choir', description: 'Last quad burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 160, spawnRate: 20, damage: 42, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
+      { id: 'e16', name: 'Finale Bars', description: 'Final sound bar curtain.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 42, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+    ],
+  },
+  {
+    name: 'Vantus',
+    title: 'the Gravity Rex',
+    color: '#8844ff', color2: '#44ffcc', bgTint: '#040008',
+    difficultyLabel: 'Hard+',
+    personality: 'Methodical and cosmic; bends space itself as a weapon.',
+    design: 'Massive purple serpent; orbiting debris rings; empty eyes like event horizons.',
+    arenaModifier: 'Bullet paths arc toward center gravitational well.',
+    dialog: ['Gravity is the only honest force.', 'All things collapse. Eventually.'],
+    attacks: ['gravityPull', 'orbitBreak', 'collapseRing', 'pistonCrush', 'centerCrush', 'boneRain', 'orbitBreak', 'shatterPulse', 'gravityPull', 'boneRain', 'centerCrush', 'collapseRing', 'ruleRewrite', 'orbitBreak', 'gravityPull', 'collapseRing', 'centerCrush'],
+    dmg: 44, atkDur: 9,
+    waves: [
+      { id: 'va1', name: 'Gravity Pull', description: 'Bullets arc toward center.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 80, spawnRate: 7, damage: 44, arenaEffect: 'gravity', patternTags: ['gravity', 'arc'], execute: 'gravityPull' },
+      { id: 'va2', name: 'Orbit Break', description: 'Ring holds then explodes.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 200, spawnRate: 16, damage: 44, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'orbitBreak' },
+      { id: 'va3', name: 'Collapse Ring', description: 'Ring shrinks from edge inward.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 75, spawnRate: 1, damage: 44, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'collapseRing' },
+      { id: 'va4', name: 'Gravity Piston', description: 'Horizontal slab crush.', duration: 6, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 44, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
+      { id: 'va5', name: 'Center Crush', description: 'All 4 pistons close to center.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 44, arenaEffect: 'none', patternTags: ['piston', 'multi'], execute: 'centerCrush' },
+      { id: 'va6', name: 'Bone Arc', description: 'Aimed bone rain.', duration: 6, attackType: 'aimed', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 44, arenaEffect: 'none', patternTags: ['aimed'], execute: 'boneRain' },
+      { id: 'va7', name: 'Orbit Break II', description: 'Ring holds longer then bursts.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 200, spawnRate: 16, damage: 44, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va8', name: 'Shatter Pulse', description: 'Two offset rings.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 110, spawnRate: 2, damage: 44, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'shatterPulse' },
+      { id: 'va9', name: 'Gravity Surge', description: 'Heavy gravity pull.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 80, spawnRate: 7, damage: 44, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
+      { id: 'va10', name: 'Bone Storm', description: 'Dense bone rain.', duration: 6, attackType: 'aimed', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 44, arenaEffect: 'none', patternTags: ['aimed'], execute: 'boneRain' },
+      { id: 'va11', name: 'Center Crush II', description: 'Tighter center crush.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 44, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
+      { id: 'va12', name: 'Collapse Ring II', description: 'Faster collapsing ring.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 44, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
+      { id: 'va13', name: 'Rule of Mass', description: 'Arena rewrites gravity zone.', duration: 7, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 44, arenaEffect: 'rewrite', patternTags: ['rewrite'], execute: 'ruleRewrite' },
+      { id: 'va14', name: 'Orbit Break III', description: 'Largest orbit burst.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 200, spawnRate: 16, damage: 44, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va15', name: 'Gravity Finale', description: 'Final gravity spiral.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 80, spawnRate: 7, damage: 44, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
+      { id: 'va16', name: 'Total Collapse', description: 'Maximum ring contraction.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 90, spawnRate: 1, damage: 44, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
+      { id: 'va17', name: 'Core Crush', description: 'Final 4-way piston press.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 44, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
+    ],
+  },
+  {
+    name: 'Caloric',
+    title: 'the Dying Candle',
+    color: '#ffaa22', color2: '#ff4422', bgTint: '#070300',
+    difficultyLabel: 'Hard+',
+    personality: 'Mournful, slow-burning; attacks grow quieter but deadlier.',
+    design: 'Skeletal wax figure; dripping candle crown; flame eyes; trails of amber smoke.',
+    arenaModifier: 'Wax drips leave brief ground-burn patches.',
+    dialog: ['Every flame has an end.', 'Do not grieve. Burn with me.'],
+    attacks: ['waxDrip', 'crystalRain', 'funeralMarch', 'lastEmber', 'waxFlood', 'candleTears', 'waxDrip', 'currentSurge', 'waxFlood', 'crystalRain', 'falseStar', 'boneRain', 'pistonCrush', 'candleTears', 'waxFlood', 'lastEmber', 'waxDrip', 'crystalRain'],
+    dmg: 46, atkDur: 8,
+    waves: [
+      { id: 'c1', name: 'Wax Drip', description: 'Sinusoidal dripping bullets.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 160, spawnRate: 8, damage: 46, arenaEffect: 'wax', patternTags: ['rain', 'arc'], execute: 'waxDrip' },
+      { id: 'c2', name: 'Crystal Drip', description: 'Crystal shard rain.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 12, damage: 46, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'c3', name: 'Funeral March', description: 'Slow dense rows of bullets.', duration: 5, attackType: 'wall', warningType: 'top', bulletSpeed: 80, spawnRate: 8, damage: 46, arenaEffect: 'none', patternTags: ['wall', 'dense'], execute: 'funeralMarch' },
+      { id: 'c4', name: 'Last Ember', description: 'Long warning then total burst.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 175, spawnRate: 40, damage: 46, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'lastEmber' },
+      { id: 'c5', name: 'Wax Flood', description: 'Danger zones flood from top.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 46, arenaEffect: 'wax', patternTags: ['zone'], execute: 'waxFlood' },
+      { id: 'c6', name: 'Candle Tears', description: 'Arcing streams from above.', duration: 5, attackType: 'arc', warningType: 'top', bulletSpeed: 140, spawnRate: 5, damage: 46, arenaEffect: 'none', patternTags: ['arc', 'spread'], execute: 'candleTears' },
+      { id: 'c7', name: 'Wax Drip II', description: 'Heavier wax drip.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 160, spawnRate: 8, damage: 46, arenaEffect: 'wax', patternTags: ['rain'], execute: 'waxDrip' },
+      { id: 'c8', name: 'Current Melt', description: 'Sweeping current surge.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 170, spawnRate: 8, damage: 46, arenaEffect: 'none', patternTags: ['sweep'], execute: 'currentSurge' },
+      { id: 'c9', name: 'Wax Flood II', description: 'Denser zone flood.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 46, arenaEffect: 'wax', patternTags: ['zone'], execute: 'waxFlood' },
+      { id: 'c10', name: 'Crystal Melt', description: 'Fast crystal rain.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 190, spawnRate: 12, damage: 46, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'c11', name: 'False Flame', description: 'Fake star decoy.', duration: 5, attackType: 'decoy', warningType: 'glow', bulletSpeed: 140, spawnRate: 1, damage: 46, arenaEffect: 'none', patternTags: ['decoy'], execute: 'falseStar' },
+      { id: 'c12', name: 'Bone Wax', description: 'Aimed bone drip.', duration: 6, attackType: 'aimed', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 46, arenaEffect: 'none', patternTags: ['aimed'], execute: 'boneRain' },
+      { id: 'c13', name: 'Wax Piston', description: 'Piston crush in wax.', duration: 6, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 46, arenaEffect: 'wax', patternTags: ['piston'], execute: 'pistonCrush' },
+      { id: 'c14', name: 'Candle Tears II', description: 'Heavier arc streams.', duration: 5, attackType: 'arc', warningType: 'top', bulletSpeed: 150, spawnRate: 5, damage: 46, arenaEffect: 'none', patternTags: ['arc'], execute: 'candleTears' },
+      { id: 'c15', name: 'Final Flood', description: 'Maximum zone flood.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 46, arenaEffect: 'wax', patternTags: ['zone'], execute: 'waxFlood' },
+      { id: 'c16', name: 'Last Ember II', description: 'Final total burst.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 175, spawnRate: 40, damage: 46, arenaEffect: 'none', patternTags: ['radial'], execute: 'lastEmber' },
+      { id: 'c17', name: 'Wax Drip III', description: 'Dense wax finale.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 8, damage: 46, arenaEffect: 'wax', patternTags: ['rain'], execute: 'waxDrip' },
+      { id: 'c18', name: 'Crystal End', description: 'Final crystal shower.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 195, spawnRate: 12, damage: 46, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+    ],
+  },
+  {
+    name: 'Zylvira',
+    title: 'the Static Widow',
+    color: '#ff44ff', color2: '#aaffaa', bgTint: '#060005',
+    difficultyLabel: 'Very Hard',
+    personality: 'Cold and systematic; corrupts everything it touches.',
+    design: 'Spider-form made of circuit board legs; static sparks as eyes; web of laser filaments.',
+    arenaModifier: 'Static flickers briefly swap bullet colors.',
+    dialog: ['Signal acquired. Eliminating.', 'You are noise in a perfect system.'],
+    attacks: ['webGrid', 'signalBite', 'screenTear', 'staticNest', 'webGrid', 'errorSweep', 'vhsStorm', 'webGrid', 'bitStorm', 'signalBite', 'errorSweep', 'webGrid', 'bitStorm', 'staticNest', 'screenTear', 'signalBite', 'vhsStorm', 'errorSweep', 'webGrid'],
+    dmg: 48, atkDur: 9,
+    waves: [
+      { id: 'z1', name: 'Web Grid', description: 'H+V laser grid fires simultaneously.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 48, arenaEffect: 'web', patternTags: ['laser', 'grid'], execute: 'webGrid' },
+      { id: 'z2', name: 'Signal Bite', description: 'Targeted shot volleys.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 150, spawnRate: 5, damage: 48, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
+      { id: 'z3', name: 'Screen Tear', description: 'Fast horizontal laser slice ×2.', duration: 3, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 48, arenaEffect: 'none', patternTags: ['laser', 'fast'], execute: 'screenTear' },
+      { id: 'z4', name: 'Static Nest', description: 'Corner eruption spread.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 160, spawnRate: 32, damage: 48, arenaEffect: 'static', patternTags: ['corner'], execute: 'staticNest' },
+      { id: 'z5', name: 'Web Grid II', description: 'Denser laser grid.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 6, damage: 48, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
+      { id: 'z6', name: 'Error Signal', description: 'Error sweep attack.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 6, damage: 48, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'z7', name: 'VHS Storm', description: 'Random scattershot from all edges.', duration: 4, attackType: 'random', warningType: 'edge', bulletSpeed: 160, spawnRate: 15, damage: 48, arenaEffect: 'static', patternTags: ['random'], execute: 'vhsStorm' },
+      { id: 'z8', name: 'Web Grid III', description: 'Maximum grid density.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 48, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
+      { id: 'z9', name: 'Bit Glitch', description: 'Bit storm surge.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 200, spawnRate: 10, damage: 48, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'z10', name: 'Signal Bite II', description: 'Faster signal tracking.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 160, spawnRate: 5, damage: 48, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
+      { id: 'z11', name: 'Error Cascade', description: 'Reversed error sweep.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 6, damage: 48, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'z12', name: 'Web Grid IV', description: 'Final grid formation.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 48, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
+      { id: 'z13', name: 'Bit Flood', description: 'Heavy bit storm.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 210, spawnRate: 10, damage: 48, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'z14', name: 'Static Nest II', description: 'Heavy corner eruptions.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 175, spawnRate: 32, damage: 48, arenaEffect: 'static', patternTags: ['corner'], execute: 'staticNest' },
+      { id: 'z15', name: 'Screen Tear II', description: 'Two screen tears rapid.', duration: 3, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 48, arenaEffect: 'none', patternTags: ['laser'], execute: 'screenTear' },
+      { id: 'z16', name: 'Signal Bite III', description: 'Max tracking volleys.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 170, spawnRate: 5, damage: 48, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
+      { id: 'z17', name: 'VHS Storm II', description: 'Denser VHS scatter.', duration: 4, attackType: 'random', warningType: 'edge', bulletSpeed: 175, spawnRate: 15, damage: 48, arenaEffect: 'static', patternTags: ['random'], execute: 'vhsStorm' },
+      { id: 'z18', name: 'Error Final', description: 'Fast final error sweep.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 200, spawnRate: 6, damage: 48, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'z19', name: 'Web Final', description: 'Final web grid assault.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 48, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
+    ],
+  },
+  {
+    name: 'Atlas Minor',
+    title: 'the Little Catastrophe',
+    color: '#cc8833', color2: '#ff6644', bgTint: '#060300',
+    difficultyLabel: 'Very Hard',
+    personality: 'Clumsy but apocalyptic; destroys without malice.',
+    design: 'A tiny laughing planet covered in craters; orbiting boulders; asteroid belt halo.',
+    arenaModifier: 'Screen shakes randomly from impact tremors.',
+    dialog: ['Oops. Another one.', 'I am not trying. This just happens.'],
+    attacks: ['meteorLesson', 'planetTilt', 'craterBurst', 'pistonCrush', 'tinyApocalypse', 'crystalRain', 'planetTilt', 'engineSpin', 'craterBurst', 'meteorLesson', 'pistonCrush', 'tinyApocalypse', 'planetTilt', 'crystalRain', 'craterBurst', 'tinyApocalypse', 'meteorLesson', 'pistonCrush', 'craterBurst', 'tinyApocalypse'],
+    dmg: 50, atkDur: 9,
+    waves: [
+      { id: 'at1', name: 'Meteor Lesson', description: 'Giant slow bullets rain down.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 50, arenaEffect: 'quake', patternTags: ['rain', 'large'], execute: 'meteorLesson' },
+      { id: 'at2', name: 'Planet Tilt', description: '6-arm rotating spiral.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 155, spawnRate: 6, damage: 50, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
+      { id: 'at3', name: 'Crater Burst', description: 'Random-center explosion.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 185, spawnRate: 25, damage: 50, arenaEffect: 'none', patternTags: ['burst', 'random'], execute: 'craterBurst' },
+      { id: 'at4', name: 'Piston Impact', description: 'Piston crush.', duration: 6, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 50, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
+      { id: 'at5', name: 'Tiny Apocalypse', description: 'Rings + bullets simultaneously.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 130, spawnRate: 8, damage: 50, arenaEffect: 'none', patternTags: ['combo', 'ring'], execute: 'tinyApocalypse' },
+      { id: 'at6', name: 'Crystal Debris', description: 'Crystal shard fall.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 12, damage: 50, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'at7', name: 'Planet Spin', description: 'Fast rotating arms.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 165, spawnRate: 6, damage: 50, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
+      { id: 'at8', name: 'Engine Orbit', description: 'Spinning engine arms.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 4, damage: 50, arenaEffect: 'none', patternTags: ['orbit'], execute: 'engineSpin' },
+      { id: 'at9', name: 'Crater Chain', description: 'Multiple burst explosions.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 190, spawnRate: 25, damage: 50, arenaEffect: 'none', patternTags: ['burst'], execute: 'craterBurst' },
+      { id: 'at10', name: 'Meteor Rain', description: 'Heavier meteor fall.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 165, spawnRate: 6, damage: 50, arenaEffect: 'quake', patternTags: ['rain'], execute: 'meteorLesson' },
+      { id: 'at11', name: 'Piston Quake', description: 'Heavy piston slam.', duration: 6, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 50, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
+      { id: 'at12', name: 'Tiny Apocalypse II', description: 'Bigger chaos combo.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 140, spawnRate: 8, damage: 50, arenaEffect: 'none', patternTags: ['combo'], execute: 'tinyApocalypse' },
+      { id: 'at13', name: 'Planet Tilt III', description: 'Max rotating burst.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 170, spawnRate: 6, damage: 50, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
+      { id: 'at14', name: 'Crystal Storm', description: 'Dense crystal fall.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 195, spawnRate: 12, damage: 50, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'at15', name: 'Crater Mega', description: 'Mega crater burst.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 200, spawnRate: 25, damage: 50, arenaEffect: 'none', patternTags: ['burst'], execute: 'craterBurst' },
+      { id: 'at16', name: 'Apocalypse III', description: 'Max chaos final.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 145, spawnRate: 8, damage: 50, arenaEffect: 'none', patternTags: ['combo'], execute: 'tinyApocalypse' },
+      { id: 'at17', name: 'Meteor Finale', description: 'Dense meteor finale.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 165, spawnRate: 7, damage: 50, arenaEffect: 'quake', patternTags: ['rain'], execute: 'meteorLesson' },
+      { id: 'at18', name: 'Piston End', description: 'Final piston slam.', duration: 6, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 50, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
+      { id: 'at19', name: 'Crater End', description: 'Final crater burst.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 200, spawnRate: 25, damage: 50, arenaEffect: 'none', patternTags: ['burst'], execute: 'craterBurst' },
+      { id: 'at20', name: 'Last Apocalypse', description: 'Final combo attack.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 150, spawnRate: 8, damage: 50, arenaEffect: 'none', patternTags: ['combo'], execute: 'tinyApocalypse' },
+    ],
+  },
+  {
+    name: 'Xiu',
+    title: 'the Paper Emperor',
+    color: '#ffffff', color2: '#cc2222', bgTint: '#050505',
+    difficultyLabel: 'Very Hard',
+    personality: 'Regal and precise; believes every cut is a pronouncement.',
+    design: 'Origami crane emperor; white paper armour edged in crimson; ink-drip crown.',
+    arenaModifier: 'Occasional ink pools reduce movement speed.',
+    dialog: ['Each fold is a sentence. Each cut, a law.', 'You will be filed away.'],
+    attacks: ['paperCuts', 'foldedWalls', 'inkDecree', 'royalGuillotine', 'origamiSpears', 'errorSweep', 'foldedWalls', 'clockSlash', 'inkDecree', 'ribCage', 'paperCuts', 'royalGuillotine', 'inkDecree', 'foldedWalls', 'errorSweep', 'origamiSpears', 'foldedWalls', 'royalGuillotine', 'inkDecree', 'paperCuts', 'royalGuillotine'],
+    dmg: 52, atkDur: 10,
+    waves: [
+      { id: 'x1', name: 'Paper Cuts', description: 'Diagonal laser volleys.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['diag', 'laser'], execute: 'paperCuts' },
+      { id: 'x2', name: 'Folded Walls', description: 'V-walls closing inward.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'foldedWalls' },
+      { id: 'x3', name: 'Ink Decree', description: 'Grid of danger zones.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 52, arenaEffect: 'ink', patternTags: ['zone'], execute: 'inkDecree' },
+      { id: 'x4', name: 'Royal Guillotine', description: 'Vertical slash + bullet spray.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 170, spawnRate: 12, damage: 52, arenaEffect: 'none', patternTags: ['slash', 'burst'], execute: 'royalGuillotine' },
+      { id: 'x5', name: 'Origami Spears', description: '8-directional laser spears.', duration: 3, attackType: 'diag', warningType: 'star', bulletSpeed: 0, spawnRate: 8, damage: 52, arenaEffect: 'none', patternTags: ['diag', 'laser'], execute: 'origamiSpears' },
+      { id: 'x6', name: 'Error Edict', description: 'Error sweep attack.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 6, damage: 52, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'x7', name: 'Folded Walls II', description: 'Denser closing walls.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 4, damage: 52, arenaEffect: 'none', patternTags: ['laser'], execute: 'foldedWalls' },
+      { id: 'x8', name: 'Clock Slash', description: 'Rotating clock-hand lasers.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['orbit'], execute: 'clockSlash' },
+      { id: 'x9', name: 'Ink Decree II', description: 'Heavier grid zones.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 52, arenaEffect: 'ink', patternTags: ['zone'], execute: 'inkDecree' },
+      { id: 'x10', name: 'Rib Cage Fold', description: 'Rib wall with gap.', duration: 6, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 52, arenaEffect: 'none', patternTags: ['wall'], execute: 'ribCage' },
+      { id: 'x11', name: 'Paper Cuts II', description: 'Angled diagonal lasers.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['diag'], execute: 'paperCuts' },
+      { id: 'x12', name: 'Royal Guillotine II', description: 'Double guillotine slash.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 180, spawnRate: 12, damage: 52, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
+      { id: 'x13', name: 'Ink Decree III', description: 'Full decree grid.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 52, arenaEffect: 'ink', patternTags: ['zone'], execute: 'inkDecree' },
+      { id: 'x14', name: 'Folded Walls III', description: 'Max closing walls.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 5, damage: 52, arenaEffect: 'none', patternTags: ['laser'], execute: 'foldedWalls' },
+      { id: 'x15', name: 'Error Final', description: 'Fast error sweep.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 195, spawnRate: 6, damage: 52, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'x16', name: 'Origami Finale', description: 'Max spear volley.', duration: 3, attackType: 'diag', warningType: 'star', bulletSpeed: 0, spawnRate: 8, damage: 52, arenaEffect: 'none', patternTags: ['diag'], execute: 'origamiSpears' },
+      { id: 'x17', name: 'Folded Walls IV', description: 'Final wall closure.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 5, damage: 52, arenaEffect: 'none', patternTags: ['laser'], execute: 'foldedWalls' },
+      { id: 'x18', name: 'Royal Guillotine III', description: 'Triple slash.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 180, spawnRate: 12, damage: 52, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
+      { id: 'x19', name: 'Ink Final', description: 'Final ink decree.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 52, arenaEffect: 'ink', patternTags: ['zone'], execute: 'inkDecree' },
+      { id: 'x20', name: 'Paper Cuts III', description: 'Final diagonal cuts.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['diag'], execute: 'paperCuts' },
+      { id: 'x21', name: 'Guillotine Final', description: 'Final royal slash.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 185, spawnRate: 12, damage: 52, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
+    ],
+  },
+  {
+    name: 'Mnemovex',
+    title: 'the Living Archive',
+    color: '#44ccff', color2: '#ccaaff', bgTint: '#000510',
+    difficultyLabel: 'Extreme',
+    personality: 'Ancient, calm; stores every soul it has killed and weaponizes the memories.',
+    design: 'Floating archive cube; thousands of tiny screens; hands made of floating pages.',
+    arenaModifier: 'Ghostly player echo appears 2 seconds behind.',
+    dialog: ['I have remembered every soul that failed here.', 'Including yours. Eventually.'],
+    attacks: ['echoTrail', 'memoryReplay', 'vaultLock', 'timeFreeze', 'crystalRepeat', 'constellationLines', 'echoTrail', 'vaultLock', 'timeFreeze', 'crystalRepeat', 'echoTrail', 'constellationLines', 'vaultLock', 'memoryReplay', 'crystalRepeat', 'echoTrail', 'memoryReplay', 'vaultLock', 'timeFreeze', 'crystalRepeat', 'echoTrail', 'crystalRepeat'],
+    dmg: 54, atkDur: 10,
+    waves: [
+      { id: 'm1', name: 'Echo Trail', description: 'Bullets from past player positions.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 130, spawnRate: 5, damage: 54, arenaEffect: 'echo', patternTags: ['echo', 'memory'], execute: 'echoTrail' },
+      { id: 'm2', name: 'Memory Replay', description: 'Replays a boss 1–5 attack.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 54, arenaEffect: 'none', patternTags: ['replay'], execute: 'memoryReplay' },
+      { id: 'm3', name: 'Vault Lock', description: 'Grid laser with blinking pattern.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 54, arenaEffect: 'none', patternTags: ['laser', 'grid'], execute: 'vaultLock' },
+      { id: 'm4', name: 'Time Freeze', description: 'Bullets freeze then split.', duration: 6, attackType: 'freeze', warningType: 'glow', bulletSpeed: 130, spawnRate: 5, damage: 54, arenaEffect: 'freeze', patternTags: ['freeze', 'split'], execute: 'timeFreeze' },
+      { id: 'm5', name: 'Crystal Repeat', description: 'Rain pattern played twice.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 190, spawnRate: 10, damage: 54, arenaEffect: 'none', patternTags: ['rain', 'repeat'], execute: 'crystalRepeat' },
+      { id: 'm6', name: 'Constellation', description: 'Laser constellation lines.', duration: 6, attackType: 'diag', warningType: 'dot', bulletSpeed: 0, spawnRate: 6, damage: 54, arenaEffect: 'none', patternTags: ['diag', 'laser'], execute: 'constellationLines' },
+      { id: 'm7', name: 'Echo Trail II', description: 'Heavier echo burst.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 140, spawnRate: 5, damage: 54, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
+      { id: 'm8', name: 'Vault Lock II', description: 'Alternate lock pattern.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 54, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
+      { id: 'm9', name: 'Time Freeze II', description: 'Heavier freeze burst.', duration: 6, attackType: 'freeze', warningType: 'glow', bulletSpeed: 140, spawnRate: 5, damage: 54, arenaEffect: 'freeze', patternTags: ['freeze'], execute: 'timeFreeze' },
+      { id: 'm10', name: 'Crystal Repeat II', description: 'Offset repeat rain.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 200, spawnRate: 10, damage: 54, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
+      { id: 'm11', name: 'Echo Trail III', description: 'Dense echo volleys.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 150, spawnRate: 5, damage: 54, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
+      { id: 'm12', name: 'Constellation II', description: 'Heavier constellation.', duration: 6, attackType: 'diag', warningType: 'dot', bulletSpeed: 0, spawnRate: 8, damage: 54, arenaEffect: 'none', patternTags: ['diag'], execute: 'constellationLines' },
+      { id: 'm13', name: 'Vault Lock III', description: 'Double blink lock.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 54, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
+      { id: 'm14', name: 'Memory Replay II', description: 'Different boss replay.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 54, arenaEffect: 'none', patternTags: ['replay'], execute: 'memoryReplay' },
+      { id: 'm15', name: 'Crystal Repeat III', description: 'Max offset repeat.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 205, spawnRate: 10, damage: 54, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
+      { id: 'm16', name: 'Echo Trail IV', description: 'Max trail burst.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 155, spawnRate: 5, damage: 54, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
+      { id: 'm17', name: 'Memory Replay III', description: 'Third unique replay.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 54, arenaEffect: 'none', patternTags: ['replay'], execute: 'memoryReplay' },
+      { id: 'm18', name: 'Vault Lock IV', description: 'Final dual lock.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 54, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
+      { id: 'm19', name: 'Time Freeze III', description: 'Final freeze split.', duration: 6, attackType: 'freeze', warningType: 'glow', bulletSpeed: 150, spawnRate: 5, damage: 54, arenaEffect: 'freeze', patternTags: ['freeze'], execute: 'timeFreeze' },
+      { id: 'm20', name: 'Crystal Repeat IV', description: 'Max crystal repeat.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 210, spawnRate: 10, damage: 54, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
+      { id: 'm21', name: 'Echo Trail V', description: 'Final echo trail.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 160, spawnRate: 5, damage: 54, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
+      { id: 'm22', name: 'Crystal Finale', description: 'Final repeated crystal.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 215, spawnRate: 10, damage: 54, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
+    ],
+  },
+  {
+    name: 'Lunara',
+    title: 'the Red Marionette',
+    color: '#cc2244', color2: '#ffccaa', bgTint: '#070001',
+    difficultyLabel: 'Extreme',
+    personality: 'Childlike but terrifying; controls the arena like a puppet stage.',
+    design: 'Marionette with crescent moon halo; crimson strings; porcelain face with crack.',
+    arenaModifier: 'Puppet strings visible across arena; touching them briefly slows player.',
+    dialog: ['Dance. The strings do not lie.', 'Shhhh. The moon is watching.'],
+    attacks: ['stringPull', 'puppetDance', 'moonDrop', 'crystalRain', 'bloodCurtain', 'puppetDance', 'moonShatter', 'puppetDance', 'moonDrop', 'stringPull', 'puppetDance', 'moonShatter', 'stringPull', 'bloodCurtain', 'puppetDance', 'crystalRain', 'puppetDance', 'bloodCurtain', 'puppetDance', 'moonDrop', 'crystalRain', 'moonShatter', 'stringPull'],
+    dmg: 56, atkDur: 10,
+    waves: [
+      { id: 'lu1', name: 'String Pull', description: 'Diagonal forced movement + bullets.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 160, spawnRate: 6, damage: 56, arenaEffect: 'pull', patternTags: ['pull', 'homing'], execute: 'stringPull' },
+      { id: 'lu2', name: 'Puppet Dance', description: 'Laser walls with narrow safe path.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 130, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall', 'combo'], execute: 'puppetDance' },
+      { id: 'lu3', name: 'Moon Drop', description: 'Giant slow bullets fall.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 110, spawnRate: 2, damage: 56, arenaEffect: 'none', patternTags: ['rain', 'large'], execute: 'moonDrop' },
+      { id: 'lu4', name: 'Crystal Strings', description: 'Crystal rain attack.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 12, damage: 56, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'lu5', name: 'Blood Curtain', description: 'Fast sweeping red laser.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 56, arenaEffect: 'none', patternTags: ['laser', 'fast'], execute: 'bloodCurtain' },
+      { id: 'lu6', name: 'Puppet Dance II', description: 'Tighter wall path.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 140, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu7', name: 'Moon Shatter', description: 'Ring contracts then shatters.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 160, spawnRate: 24, damage: 56, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'moonShatter' },
+      { id: 'lu8', name: 'Puppet Dance III', description: 'Wall + rain combo.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 145, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu9', name: 'Moon Drop II', description: 'More moon drops.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 110, spawnRate: 3, damage: 56, arenaEffect: 'none', patternTags: ['rain'], execute: 'moonDrop' },
+      { id: 'lu10', name: 'String Pull II', description: 'Heavier diagonal pull.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 170, spawnRate: 6, damage: 56, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
+      { id: 'lu11', name: 'Puppet Dance IV', description: 'Max wall pressure.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 150, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu12', name: 'Moon Shatter II', description: 'Faster moon shatter.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 170, spawnRate: 24, damage: 56, arenaEffect: 'none', patternTags: ['ring'], execute: 'moonShatter' },
+      { id: 'lu13', name: 'String Pull III', description: 'Cross-diagonal pull.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 175, spawnRate: 6, damage: 56, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
+      { id: 'lu14', name: 'Blood Curtain II', description: 'Double curtain sweep.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 56, arenaEffect: 'none', patternTags: ['laser'], execute: 'bloodCurtain' },
+      { id: 'lu15', name: 'Puppet Dance V', description: 'Final wall dance.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 155, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu16', name: 'Crystal Moon', description: 'Crystal rain finale.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 190, spawnRate: 12, damage: 56, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'lu17', name: 'Puppet Dance VI', description: 'Heavy puppet rain.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 160, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu18', name: 'Blood Curtain III', description: 'Triple sweep.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 56, arenaEffect: 'none', patternTags: ['laser'], execute: 'bloodCurtain' },
+      { id: 'lu19', name: 'Puppet Dance VII', description: 'Max puppet pressure.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 165, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu20', name: 'Moon Drop III', description: 'Max moon drops.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 110, spawnRate: 4, damage: 56, arenaEffect: 'none', patternTags: ['rain'], execute: 'moonDrop' },
+      { id: 'lu21', name: 'Crystal Final', description: 'Final crystal.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 200, spawnRate: 12, damage: 56, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'lu22', name: 'Moon Shatter III', description: 'Final shatter burst.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 180, spawnRate: 24, damage: 56, arenaEffect: 'none', patternTags: ['ring'], execute: 'moonShatter' },
+      { id: 'lu23', name: 'String Final', description: 'Final string pull.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 180, spawnRate: 6, damage: 56, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
+    ],
+  },
+  {
+    name: 'Soulvex',
+    title: 'the First Mistake',
+    color: '#ffffff', color2: '#ff4444', bgTint: '#000000',
+    difficultyLabel: 'Impossible',
+    personality: 'The concept of original error; knows every pattern ever learned.',
+    design: 'Pure white sphere cracked with red veins; all 19 boss silhouettes orbit it.',
+    arenaModifier: 'Arena randomly shifts between all previous boss bgTints.',
+    dialog: ['I am everything that came before.', 'There is no pattern I have not already used on you.'],
+    attacks: ['regretSpiral', 'bossMemoryChain', 'brokenControls', 'soulDuel', 'regretSpiral', 'finalRule', 'crystalRain', 'regretSpiral', 'bitStorm', 'finalRule', 'clockSlash', 'impossibleScript', 'currentSurge', 'boneRain', 'falseStar', 'finalRule', 'ruleRewrite', 'velvetSwarm', 'soundBars', 'gravityPull', 'waxDrip', 'webGrid', 'tinyApocalypse', 'paperCuts', 'firstMistake'],
+    dmg: 60, atkDur: 12,
+    waves: [
+      { id: 's1', name: 'Regret Spiral', description: 'Dense 8-arm bullet spiral.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 170, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['spiral', 'dense'], execute: 'regretSpiral' },
+      { id: 's2', name: 'Boss Memory Chain', description: 'Cycles through all 10 bosses rapidly.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 60, arenaEffect: 'memory', patternTags: ['chain', 'replay'], execute: 'bossMemoryChain' },
+      { id: 's3', name: 'Broken Controls', description: 'Flipped controls + bullet rain.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 200, spawnRate: 10, damage: 60, arenaEffect: 'flip', patternTags: ['rain', 'flip'], execute: 'brokenControls' },
+      { id: 's4', name: 'Soul Duel', description: 'Mirror soul fires at you.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 160, spawnRate: 5, damage: 60, arenaEffect: 'mirror', patternTags: ['mirror'], execute: 'soulDuel' },
+      { id: 's5', name: 'Regret Spiral II', description: 'Denser regret spiral.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 175, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
+      { id: 's6', name: 'Final Rule', description: 'All boss replay sequence.', duration: 9, attackType: 'sequence', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 60, arenaEffect: 'all', patternTags: ['sequence', 'replay'], execute: 'finalRule' },
+      { id: 's7', name: 'Crystal Echo', description: 'Crystal rain attack.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 200, spawnRate: 12, damage: 60, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 's8', name: 'Regret Spiral III', description: 'Max density spiral.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 180, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
+      { id: 's9', name: 'Bit Error', description: 'Bit storm surge.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 210, spawnRate: 10, damage: 60, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 's10', name: 'Final Rule II', description: 'Second replay sequence.', duration: 9, attackType: 'sequence', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 60, arenaEffect: 'all', patternTags: ['sequence'], execute: 'finalRule' },
+      { id: 's11', name: 'Clock Cut', description: 'Clock slash arms.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 3, damage: 60, arenaEffect: 'none', patternTags: ['orbit'], execute: 'clockSlash' },
+      { id: 's12', name: 'Impossible Return', description: 'Impossible script columns.', duration: 7, attackType: 'column', warningType: 'column', bulletSpeed: 170, spawnRate: 10, damage: 60, arenaEffect: 'none', patternTags: ['column'], execute: 'impossibleScript' },
+      { id: 's13', name: 'Current Memory', description: 'Sweeping current.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 190, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['sweep'], execute: 'currentSurge' },
+      { id: 's14', name: 'Bone Chain', description: 'Bone rain aimed.', duration: 6, attackType: 'aimed', warningType: 'top', bulletSpeed: 175, spawnRate: 5, damage: 60, arenaEffect: 'none', patternTags: ['aimed'], execute: 'boneRain' },
+      { id: 's15', name: 'False Self', description: 'False star decoy.', duration: 5, attackType: 'decoy', warningType: 'glow', bulletSpeed: 150, spawnRate: 1, damage: 60, arenaEffect: 'none', patternTags: ['decoy'], execute: 'falseStar' },
+      { id: 's16', name: 'Final Rule III', description: 'Third replay.', duration: 9, attackType: 'sequence', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 60, arenaEffect: 'all', patternTags: ['sequence'], execute: 'finalRule' },
+      { id: 's17', name: 'Rule Rewrite', description: 'Axiom rule rewrite.', duration: 7, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 60, arenaEffect: 'rewrite', patternTags: ['rewrite'], execute: 'ruleRewrite' },
+      { id: 's18', name: 'Velvet Memory', description: 'Velvet swarm homing.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 140, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['homing'], execute: 'velvetSwarm' },
+      { id: 's19', name: 'Sound Memory', description: 'Sound bars laser.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 60, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+      { id: 's20', name: 'Gravity Memory', description: 'Gravity pull arc.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 80, spawnRate: 7, damage: 60, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
+      { id: 's21', name: 'Wax Memory', description: 'Wax drip bullets.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['rain'], execute: 'waxDrip' },
+      { id: 's22', name: 'Web Memory', description: 'Web grid laser.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['laser'], execute: 'webGrid' },
+      { id: 's23', name: 'Apocalypse Memory', description: 'Tiny apocalypse combo.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 150, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['combo'], execute: 'tinyApocalypse' },
+      { id: 's24', name: 'Paper Memory', description: 'Paper cut diagonals.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 60, arenaEffect: 'none', patternTags: ['diag'], execute: 'paperCuts' },
+      { id: 's25', name: 'The First Mistake', description: 'Maximum chaos finale — rings, lasers, bullets simultaneously.', duration: 6, attackType: 'chaos', warningType: 'all', bulletSpeed: 200, spawnRate: 20, damage: 60, arenaEffect: 'all', patternTags: ['chaos', 'finale'], execute: 'firstMistake' },
+    ],
+  },
+];
+
+// ================================================================
+// ITEMS (20 collectibles — one reward pool per boss)
+// ================================================================
+
+const ITEMS: Item[] = [
+  { id: 'moth_wing', name: 'Moth Wing', type: 'speed', description: 'Grants ethereal speed for 3 seconds. Your movement doubles briefly.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'wing', themeColor: '#88ff44', effect: 'speedBoost3s', bossSource: 'Vyrial', rarity: 'common', useFunction: 'useSpeedBoost' },
+  { id: 'velvet_spore', name: 'Velvet Spore', type: 'decoy', description: 'Leaves a smoke decoy at current position, drawing bullets for 1.5 seconds.', maxStack: 3, usable: true, allowedInLeaderboard: true, iconShape: 'cloud', themeColor: '#ff8844', effect: 'spawnDecoy', bossSource: 'Vyrial', rarity: 'uncommon', useFunction: 'useDecoy' },
+  { id: 'echo_fragment', name: 'Echo Fragment', type: 'utility', description: 'Freezes all current bullets for 0.5 seconds.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'wave', themeColor: '#ff44aa', effect: 'freezeBullets0.5s', bossSource: 'Echora', rarity: 'common', useFunction: 'useEchoFreeze' },
+  { id: 'choir_mask', name: 'Choir Mask', type: 'defense', description: 'Absorbs the next laser hit entirely.', maxStack: 1, usable: true, allowedInLeaderboard: true, iconShape: 'mask', themeColor: '#44aaff', effect: 'absorbLaser', bossSource: 'Echora', rarity: 'rare', useFunction: 'useChoirMask' },
+  { id: 'gravity_lens', name: 'Gravity Lens', type: 'utility', description: 'Inverts all bullet pull directions for 3 seconds.', maxStack: 1, usable: true, allowedInLeaderboard: true, iconShape: 'lens', themeColor: '#8844ff', effect: 'invertGravity3s', bossSource: 'Vantus', rarity: 'rare', useFunction: 'useGravityInvert' },
+  { id: 'orbit_stone', name: 'Orbit Stone', type: 'defense', description: 'Orbiting shield blocks 3 bullets before shattering.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'ring', themeColor: '#44ffcc', effect: 'orbitShield3', bossSource: 'Vantus', rarity: 'uncommon', useFunction: 'useOrbitShield' },
+  { id: 'wax_seal', name: 'Wax Seal', type: 'defense', description: 'Encases you in protective wax for 1 second — immune to damage.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'circle', themeColor: '#ffaa22', effect: 'invincible1s', bossSource: 'Caloric', rarity: 'uncommon', useFunction: 'useWaxSeal' },
+  { id: 'candle_ash', name: 'Candle Ash', type: 'healing', description: 'Restores 8 HP immediately.', maxStack: 3, usable: true, allowedInLeaderboard: true, iconShape: 'drop', themeColor: '#ff4422', effect: 'heal8', bossSource: 'Caloric', rarity: 'common', useFunction: 'useHeal8' },
+  { id: 'signal_jam', name: 'Signal Jam', type: 'utility', description: 'Scrambles all bullet tracking for 3 seconds — homing bullets lose target.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'spark', themeColor: '#ff44ff', effect: 'jamTracking3s', bossSource: 'Zylvira', rarity: 'rare', useFunction: 'useSignalJam' },
+  { id: 'vhs_loop', name: 'VHS Loop', type: 'utility', description: 'Teleports you back to your position from 2 seconds ago.', maxStack: 1, usable: true, allowedInLeaderboard: true, iconShape: 'tape', themeColor: '#aaffaa', effect: 'rewindPosition2s', bossSource: 'Zylvira', rarity: 'rare', useFunction: 'useVHSLoop' },
+  { id: 'crater_core', name: 'Crater Core', type: 'defense', description: 'Absorbs one large bullet (radius ≥ 12) completely.', maxStack: 2, usable: false, allowedInLeaderboard: true, iconShape: 'rock', themeColor: '#cc8833', effect: 'absorbLargeBullet', bossSource: 'Atlas Minor', rarity: 'uncommon', useFunction: 'useCraterCore' },
+  { id: 'asteroid_belt', name: 'Asteroid Belt', type: 'defense', description: 'Spawns 5 tiny orbiting shields for 2 seconds.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'ring', themeColor: '#ff6644', effect: 'orbitShield5x2s', bossSource: 'Atlas Minor', rarity: 'uncommon', useFunction: 'useAsteroidBelt' },
+  { id: 'paper_crane', name: 'Paper Crane', type: 'defense', description: 'Unfolds into a shield, absorbing all damage for 1 second.', maxStack: 1, usable: true, allowedInLeaderboard: true, iconShape: 'bird', themeColor: '#ffffff', effect: 'invincible1s', bossSource: 'Xiu', rarity: 'rare', useFunction: 'usePaperCrane' },
+  { id: 'ink_blot', name: 'Ink Blot', type: 'utility', description: 'Cancels the current danger zone decree instantly.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'drop', themeColor: '#cc2222', effect: 'clearDangerZones', bossSource: 'Xiu', rarity: 'uncommon', useFunction: 'useInkBlot' },
+  { id: 'memory_stone', name: 'Memory Stone', type: 'checkpoint', description: 'Stores your current HP as a checkpoint. On next death, restore to that value instead.', maxStack: 1, usable: true, allowedInLeaderboard: false, iconShape: 'gem', themeColor: '#44ccff', effect: 'hpCheckpoint', bossSource: 'Mnemovex', rarity: 'legendary', useFunction: 'useMemoryStone' },
+  { id: 'echo_key', name: 'Echo Key', type: 'utility', description: 'Skips the warn phase of the next vault lock — lasers fire instantly.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'key', themeColor: '#ccaaff', effect: 'skipVaultWarn', bossSource: 'Mnemovex', rarity: 'uncommon', useFunction: 'useEchoKey' },
+  { id: 'moonthread', name: 'Moonthread', type: 'utility', description: 'Severs puppet strings — disables forced movement for 3 seconds.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'thread', themeColor: '#cc2244', effect: 'disablePull3s', bossSource: 'Lunara', rarity: 'uncommon', useFunction: 'useMoonthread' },
+  { id: 'blood_vial', name: 'Blood Vial', type: 'healing', description: 'Heals 12 HP — more than candle ash but rarer.', maxStack: 2, usable: true, allowedInLeaderboard: true, iconShape: 'vial', themeColor: '#ffccaa', effect: 'heal12', bossSource: 'Lunara', rarity: 'rare', useFunction: 'useHeal12' },
+  { id: 'soul_echo', name: 'Soul Echo', type: 'utility', description: 'Your next dodge movement is duplicated to a mirror position simultaneously.', maxStack: 1, usable: true, allowedInLeaderboard: true, iconShape: 'ghost', themeColor: '#ffffff', effect: 'mirrorDodge', bossSource: 'Soulvex', rarity: 'legendary', useFunction: 'useSoulEcho' },
+  { id: 'first_light', name: 'First Light', type: 'defense', description: 'Negates the next hit you take — once per run.', maxStack: 1, usable: false, allowedInLeaderboard: true, iconShape: 'star', themeColor: '#ff4444', effect: 'negateOneHit', bossSource: 'Soulvex', rarity: 'legendary', useFunction: 'useFirstLight' },
 ];
 
 // ================================================================
@@ -467,6 +852,14 @@ interface GameData {
   finalRuleStep: number;
   finalRuleStepTimer: number;
 
+  hitsThisWave: number;
+  waveStartHp: number;
+  atkFinishTimer: number;
+  waveEndHp: number;
+  waveEndHits: number;
+  waveEndBossIdx: number;
+  waveEndWaveIdx: number;
+
   shakeX: number; shakeY: number; shakeTimer: number;
   keys: Set<string>;
   nextId: number;
@@ -499,6 +892,8 @@ function createState(): GameData {
     rewrittenBounds: null,
     mirrorSoulActive: false, mirrorSoulX: 0, mirrorSoulY: 0, mirrorSoulPulsing: false,
     finalRuleStep: 0, finalRuleStepTimer: 0,
+    hitsThisWave: 0, waveStartHp: P_MAX_HP, atkFinishTimer: -1,
+    waveEndHp: 0, waveEndHits: 0, waveEndBossIdx: 0, waveEndWaveIdx: 0,
     laserSnapshot: [],
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
@@ -511,8 +906,10 @@ function resetForBoss(g: GameData, idx: number) {
   g.bossIdx = idx;
   g.atkIdx = 0;
   g.atkTimer = BOSSES[idx].atkDur;
+  g.atkFinishTimer = -1;
   g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
   g.bossAngle = 0;
+  g.hitsThisWave = 0; g.waveStartHp = P_MAX_HP;
   clearEntities(g);
   g.ctrlFlipped = false; g.ctrlFlipTimer = 12;
   g.timeDistorted = false; g.timeDistortTimer = 3;
@@ -534,6 +931,7 @@ function clearEntities(g: GameData) {
   g.mirrorSoulActive = false; g.mirrorSoulPulsing = false;
   g.finalRuleStep = 0; g.finalRuleStepTimer = 0;
   g.laserSnapshot = [];
+  g.prevPlayerPositions = []; g.prevPosTimer = 0;
 }
 
 function jumpToBoss(g: GameData, idx: number) {
@@ -720,6 +1118,65 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   if (atk === 'mirrorSoul')         { doMirrorSoul(g, dt, boss);          return; }
   if (atk === 'patternOverload')    { doPatternOverload(g, dt, boss);     return; }
   if (atk === 'finalRule')          { doFinalRule(g, dt, boss);           return; }
+
+  // Bosses 11–20
+  if (atk === 'sporeBloom')        { doSporeBloom(g, dt, boss);          return; }
+  if (atk === 'velvetSwarm')       { doVelvetSwarm(g, dt, boss);         return; }
+  if (atk === 'mothEclipse')       { doMothEclipse(g, dt, boss);         return; }
+  if (atk === 'plagueGarden')      { doPlagueGarden(g, dt, boss);        return; }
+  if (atk === 'feverRings')        { doFeverRings(g, dt, boss);          return; }
+  if (atk === 'plagueCrown')       { doPlagueCrown(g, dt, boss);         return; }
+
+  if (atk === 'soundBars')         { doSoundBars(g, dt, boss);           return; }
+  if (atk === 'choirSplit')        { doChoirSplit(g, dt, boss);          return; }
+  if (atk === 'crescendoCrush')    { doCrescendoCrush(g, dt, boss);      return; }
+  if (atk === 'silentBeat')        { doSilentBeat(g, dt, boss);          return; }
+  if (atk === 'doubleTempo')       { doDoubleTempo(g, dt, boss);         return; }
+
+  if (atk === 'gravityPull')       { doGravityPull(g, dt, boss);         return; }
+  if (atk === 'orbitBreak')        { doOrbitBreak(g, dt, boss);          return; }
+  if (atk === 'collapseRing')      { doCollapseRing(g, dt, boss);        return; }
+  if (atk === 'centerCrush')       { doCenterCrush(g, dt, boss);         return; }
+
+  if (atk === 'waxDrip')           { doWaxDrip(g, dt, boss);             return; }
+  if (atk === 'funeralMarch')      { doFuneralMarch(g, dt, boss);        return; }
+  if (atk === 'candleTears')       { doCandleTears(g, dt, boss);         return; }
+  if (atk === 'lastEmber')         { doLastEmber(g, dt, boss);           return; }
+  if (atk === 'waxFlood')          { doWaxFlood(g, dt, boss);            return; }
+
+  if (atk === 'webGrid')           { doWebGrid(g, dt, boss);             return; }
+  if (atk === 'signalBite')        { doSignalBite(g, dt, boss);          return; }
+  if (atk === 'screenTear')        { doScreenTear(g, dt, boss);          return; }
+  if (atk === 'staticNest')        { doStaticNest(g, dt, boss);          return; }
+  if (atk === 'vhsStorm')          { doVHSStorm(g, dt, boss);            return; }
+
+  if (atk === 'meteorLesson')      { doMeteorLesson(g, dt, boss);        return; }
+  if (atk === 'planetTilt')        { doPlanetTilt(g, dt, boss);          return; }
+  if (atk === 'craterBurst')       { doCraterBurst(g, dt, boss);         return; }
+  if (atk === 'tinyApocalypse')    { doTinyApocalypse(g, dt, boss);      return; }
+
+  if (atk === 'paperCuts')         { doPaperCuts(g, dt, boss);           return; }
+  if (atk === 'foldedWalls')       { doFoldedWalls(g, dt, boss);         return; }
+  if (atk === 'inkDecree')         { doInkDecree(g, dt, boss);           return; }
+  if (atk === 'royalGuillotine')   { doRoyalGuillotine(g, dt, boss);     return; }
+  if (atk === 'origamiSpears')     { doOrigamiSpears(g, dt, boss);       return; }
+
+  if (atk === 'echoTrail')         { doEchoTrail(g, dt, boss);           return; }
+  if (atk === 'memoryReplay')      { doMemoryReplay(g, dt, boss);        return; }
+  if (atk === 'vaultLock')         { doVaultLock(g, dt, boss);           return; }
+  if (atk === 'crystalRepeat')     { doCrystalRepeat(g, dt, boss);       return; }
+
+  if (atk === 'stringPull')        { doStringPull(g, dt, boss);          return; }
+  if (atk === 'puppetDance')       { doPuppetDance(g, dt, boss);         return; }
+  if (atk === 'moonDrop')          { doMoonDrop(g, dt, boss);            return; }
+  if (atk === 'bloodCurtain')      { doBloodCurtain(g, dt, boss);        return; }
+  if (atk === 'moonShatter')       { doMoonShatter(g, dt, boss);         return; }
+
+  if (atk === 'regretSpiral')      { doRegretSpiral(g, dt, boss);        return; }
+  if (atk === 'bossMemoryChain')   { doBossMemoryChain(g, dt, boss);     return; }
+  if (atk === 'brokenControls')    { doBrokenControls(g, dt, boss);      return; }
+  if (atk === 'soulDuel')          { doSoulDuel(g, dt, boss);            return; }
+  if (atk === 'firstMistake')      { doFirstMistake(g, dt, boss);        return; }
 }
 
 // --- BOSS SPECIALS applied every frame ---
@@ -953,6 +1410,7 @@ function doErrorSweep(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
       const isH = Math.random() > 0.35;
+      g.spawnCount = isH ? 1 : 0; // encode sweep axis so reverse pass reuses the SAME axis
       const entryPos = isH ? BY : BX;
       g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos: entryPos, width: 72, timer: 1.1, color: boss.color, fake: false });
     }
@@ -974,13 +1432,12 @@ function doErrorSweep(g: GameData, dt: number, boss: BossConf) {
       else { g.phase = 2; g.phaseTimer = 0; }
     }
   } else if (g.phase === 3) {
-    // Brief pause then reverse sweep
+    // Brief pause then reverse sweep — SAME axis as forward pass (stored in spawnCount)
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.35) {
-      // Add reverse-direction warn
-      const newType = Math.random() > 0.35 ? 'h' : 'v';
-      const startPos = newType === 'h' ? BY + BH : BX + BW;
-      g.laserWarns.push({ id: nid(g), type: newType, pos: startPos, width: 60, timer: 0.8, color: boss.color2, fake: false });
+      const revType: 'h' | 'v' = g.spawnCount === 1 ? 'h' : 'v';
+      const startPos = revType === 'h' ? BY + BH : BX + BW;
+      g.laserWarns.push({ id: nid(g), type: revType, pos: startPos, width: 60, timer: 0.8, color: boss.color2, fake: false });
       g.phase = 4; g.phaseTimer = 0;
     }
   } else if (g.phase === 4) {
@@ -1301,9 +1758,12 @@ function doTimeFreeze(g: GameData, dt: number, boss: BossConf) {
       const newBullets: Bullet[] = [];
       for (const b of g.bullets) {
         b.frozen = false; b.vx *= 1.8; b.vy *= 1.8;
-        // Variant: spawn child bullet perpendicular
+        // Variant: spawn TWO child bullets at ±15° from perpendicular
         if (variant > 0) {
-          newBullets.push({ id: nid(g), x: b.x, y: b.y, vx: b.vy * 0.7, vy: -b.vx * 0.7, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false });
+          const spd2 = Math.hypot(b.vx, b.vy) * 0.7;
+          const baseA = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+          newBullets.push({ id: nid(g), x: b.x, y: b.y, vx: Math.cos(baseA + 0.26) * spd2, vy: Math.sin(baseA + 0.26) * spd2, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false });
+          newBullets.push({ id: nid(g), x: b.x, y: b.y, vx: Math.cos(baseA - 0.26) * spd2, vy: Math.sin(baseA - 0.26) * spd2, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false });
         }
       }
       g.bullets.push(...newBullets);
@@ -1536,6 +1996,7 @@ function doCurrentSurge(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
       const isH = Math.random() > 0.4;
+      g.spawnCount = isH ? 1 : 0; // encode sweep axis so reverse pass reuses it
       const entryPos = isH ? BY : BX;
       g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos: entryPos, width: 64, timer: 1.0, color: boss.color, fake: false });
     }
@@ -1554,12 +2015,12 @@ function doCurrentSurge(g: GameData, dt: number, boss: BossConf) {
     g.lasers = g.lasers.filter(l => l.type === 'h' ? l.pos < BY + BH + 50 : l.pos < BX + BW + 50);
     if (g.lasers.length === 0) { g.phase = 2; g.phaseTimer = 0; }
   } else if (g.phase === 2) {
-    // Brief pause then add reverse warn
+    // Brief pause then add reverse warn — SAME axis as forward pass
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.4) {
-      const newType = Math.random() > 0.4 ? 'h' : 'v';
-      const revPos = newType === 'h' ? BY + BH : BX + BW;
-      g.laserWarns.push({ id: nid(g), type: newType, pos: revPos, width: 56, timer: 0.7, color: boss.color2, fake: false });
+      const revType: 'h' | 'v' = g.spawnCount === 1 ? 'h' : 'v';
+      const revPos = revType === 'h' ? BY + BH : BX + BW;
+      g.laserWarns.push({ id: nid(g), type: revType, pos: revPos, width: 56, timer: 0.7, color: boss.color2, fake: false });
       g.phase = 3; g.phaseTimer = 0;
     }
   } else if (g.phase === 3) {
@@ -1701,19 +2162,17 @@ function doBoneRain(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// Two bone walls close inward from left and right. An 80px gap stays open at the center (BCX).
+// Two bone walls close inward from left and right. Gap is a random width centered at a random X.
 function doRibCage(g: GameData, dt: number, boss: BossConf) {
   const wallWidth = 60;
-  const gapHalf = 40;     // gap is 80px wide, centered at BCX
+  const gapHalf = 40; // 80px gap
   const wallHalf = wallWidth / 2;
-  // Left wall center stops at BCX - gapHalf - wallHalf; right at BCX + gapHalf + wallHalf
-  const stopLeft  = BCX - gapHalf - wallHalf;
-  const stopRight = BCX + gapHalf + wallHalf;
-  const crushSpeed = (stopLeft - BX) / 1.8;
 
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
-      // Warn: two bone walls appearing from both sides
+      // Random gap center — store as integer in spawnCount so phase 1 uses the same value
+      const gapCenter = rand(BX + BW * 0.3, BX + BW * 0.7);
+      g.spawnCount = Math.round(gapCenter);
       g.laserWarns.push({ id: nid(g), type: 'v', pos: BX, width: wallWidth, timer: 1.3, color: boss.color, fake: false });
       g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW, width: wallWidth, timer: 1.3, color: boss.color, fake: false });
     }
@@ -1725,7 +2184,11 @@ function doRibCage(g: GameData, dt: number, boss: BossConf) {
       g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
     }
   } else if (g.phase === 1) {
-    // Move walls inward, stop with 80px gap centered at BCX
+    // Move walls inward toward the randomly chosen gap center
+    const gapCenter = g.spawnCount;
+    const stopLeft  = gapCenter - gapHalf - wallHalf;
+    const stopRight = gapCenter + gapHalf + wallHalf;
+    const crushSpeed = (stopLeft - BX) / 1.8;
     if (g.lasers.length >= 2) {
       g.lasers[0].pos += crushSpeed * dt;
       g.lasers[1].pos -= crushSpeed * dt;
@@ -1790,16 +2253,19 @@ function doHaloCurse(g: GameData, dt: number, boss: BossConf) {
 // ================================================================
 
 // Real stars = dim purple bullets. Fake = bright gold, do not damage.
+// Phase 0 stores REAL bullet x-positions in starPoints so warn markers telegraph actual danger.
 function doStarfall(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) {
       const total = randInt(12, 16);
       const fakeCount = randInt(3, 4);
-      const fakeIdxs = new Set<number>();
-      while (fakeIdxs.size < fakeCount) fakeIdxs.add(randInt(0, total - 1));
+      // Shuffle: first fakeCount indices are fakes
+      const positions: number[] = Array.from({ length: total }, () => rand(BX + 12, BX + BW - 12));
       for (let i = 0; i < total; i++) {
-        const isFake = fakeIdxs.has(i);
-        g.warnMarkers.push({ id: nid(g), x: rand(BX + 12, BX + BW - 12), y: BY - 2, angle: Math.PI / 2, r: isFake ? 9 : 5, color: isFake ? boss.color2 : boss.color, timer: 1.2, maxTimer: 1.2 });
+        const isFake = i < fakeCount;
+        g.warnMarkers.push({ id: nid(g), x: positions[i], y: BY - 2, angle: Math.PI / 2, r: isFake ? 9 : 5, color: isFake ? boss.color2 : boss.color, timer: 1.2, maxTimer: 1.2 });
+        // Store real bullet positions in starPoints so phase 1 can spawn from the SAME spots
+        if (!isFake) g.starPoints.push({ id: nid(g), x: positions[i], y: BY - 2 });
       }
     }
     g.phaseTimer += dt;
@@ -1808,21 +2274,22 @@ function doStarfall(g: GameData, dt: number, boss: BossConf) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
       g.spawnTimer = st(0.11, g);
-      g.spawnCount++;
       const spd = sm(g);
-      const isFake = Math.random() < 0.25;
-      g.bullets.push({
-        id: nid(g), x: rand(BX + 12, BX + BW - 12), y: BY - 8,
-        vx: rand(-12, 12) * spd, vy: rand(150, 240) * spd,
-        r: isFake ? 8 : 5,
-        color: isFake ? boss.color2 + '44' : boss.color, // Fake stars are transparent and won't collide
-        shape: 'diamond', rot: rand(0, Math.PI * 2), rotSpd: rand(-2, 2), frozen: isFake,  // frozen = no collision
-      });
+      if (g.spawnCount < g.starPoints.length) {
+        // First batch: real bullets at the TELEGRAPHED positions
+        const pt = g.starPoints[g.spawnCount];
+        g.bullets.push({ id: nid(g), x: pt.x, y: BY - 8, vx: rand(-8, 8) * spd, vy: rand(150, 240) * spd, r: 5, color: boss.color, shape: 'diamond', rot: rand(0, Math.PI * 2), rotSpd: rand(-2, 2), frozen: false });
+      } else {
+        // Subsequent bullets: random mix of real and decoy
+        const isFake = Math.random() < 0.25;
+        g.bullets.push({ id: nid(g), x: rand(BX + 12, BX + BW - 12), y: BY - 8, vx: rand(-12, 12) * spd, vy: rand(150, 240) * spd, r: isFake ? 8 : 5, color: isFake ? boss.color2 + '44' : boss.color, shape: 'diamond', rot: rand(0, Math.PI * 2), rotSpd: rand(-2, 2), frozen: isFake });
+      }
+      g.spawnCount++;
     }
     moveBullets(g, dt);
     g.bullets = g.bullets.filter(b => b.y < BY + BH + 20 && b.x > BX - 20 && b.x < BX + BW + 20);
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+    if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; g.starPoints = []; }
   } else {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
@@ -1908,28 +2375,24 @@ function doFalseStar(g: GameData, dt: number, boss: BossConf) {
 // BOSS 9: Ruin Engine Omega
 // ================================================================
 
-// Piston blocks slam from left+right or top+bottom. Gap in center.
+// Piston blocks slam from left+right or top+bottom. Gap size scales with difficulty.
+// Configuration stored: spawnCount=horizontal(1/0), engineSpinAngle=gapSize
 function doPistonCrush(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.pistonBlocks.length === 0) {
-      const horizontal = Math.random() > 0.5; // h = slabs from top+bottom, v = from left+right
-      const gapSize = Math.max(60, 120 - (g.diffMult - 1) * 40); // harder = smaller gap
-      const gapCenter = BCY;
-
+      const horizontal = Math.random() > 0.5;
+      const gapSize = Math.max(60, 120 - (g.diffMult - 1) * 40); // harder = tighter gap
+      g.spawnCount = horizontal ? 1 : 0;
+      g.engineSpinAngle = gapSize; // repurposed as storage between phases
       if (horizontal) {
-        // Top slab: wide, entering from top
         g.pistonBlocks.push({ id: nid(g), x: BX, y: BY - 120, w: BW, h: 120, vx: 0, vy: 180, warnTimer: 1.1, active: false });
-        // Bottom slab: entering from bottom
         g.pistonBlocks.push({ id: nid(g), x: BX, y: BY + BH, w: BW, h: 120, vx: 0, vy: -180, warnTimer: 1.1, active: false });
       } else {
-        // Left slab entering from left
         g.pistonBlocks.push({ id: nid(g), x: BX - 160, y: BY, w: 160, h: BH, vx: 200, vy: 0, warnTimer: 1.1, active: false });
-        // Right slab entering from right
         g.pistonBlocks.push({ id: nid(g), x: BX + BW, y: BY, w: 160, h: BH, vx: -200, vy: 0, warnTimer: 1.1, active: false });
       }
       g.arenaShrunken = false;
     }
-    // Count down warn timers
     for (const pb of g.pistonBlocks) pb.warnTimer -= dt;
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.1) {
@@ -1938,29 +2401,29 @@ function doPistonCrush(g: GameData, dt: number, boss: BossConf) {
       g.phase = 1; g.phaseTimer = 0; shake(g);
     }
   } else if (g.phase === 1) {
-    // Move pistons
-    const stopDist = 70; // how far they go
+    const gapSz = g.engineSpinAngle; // stored in phase 0
     for (const pb of g.pistonBlocks) {
       pb.x += pb.vx * dt;
       pb.y += pb.vy * dt;
-      // Stop when they've entered enough
-      if (pb.vx > 0 && pb.x > BX + stopDist) { pb.vx = 0; }
-      if (pb.vx < 0 && pb.x + pb.w < BX + BW - stopDist) { pb.vx = 0; }
-      if (pb.vy > 0 && pb.y > BY + stopDist) { pb.vy = 0; }
-      if (pb.vy < 0 && pb.y + pb.h < BY + BH - stopDist) { pb.vy = 0; }
+      // Stop when leading edge reaches gap boundary centered at BCX / BCY
+      if (pb.vy > 0 && pb.y + pb.h >= BCY - gapSz / 2) { pb.y = BCY - gapSz / 2 - pb.h; pb.vy = 0; }
+      if (pb.vy < 0 && pb.y <= BCY + gapSz / 2)         { pb.y = BCY + gapSz / 2;         pb.vy = 0; }
+      if (pb.vx > 0 && pb.x + pb.w >= BCX - gapSz / 2)  { pb.x = BCX - gapSz / 2 - pb.w;  pb.vx = 0; }
+      if (pb.vx < 0 && pb.x <= BCX + gapSz / 2)         { pb.x = BCX + gapSz / 2;         pb.vx = 0; }
     }
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.8) { g.phase = 2; g.phaseTimer = 0; }
   } else if (g.phase === 2) {
-    // Retract
     for (const pb of g.pistonBlocks) {
-      if (pb.vy > 0 || (pb.vy === 0 && pb.y > BY - 120)) { pb.vy = pb.vy !== 0 ? -180 : -180; }
-      if (pb.vx > 0 || (pb.vx === 0 && pb.x > BX - 160)) { pb.vx = pb.vx !== 0 ? -200 : -200; }
+      if (pb.vy >= 0 && pb.y > BY - 120)  { pb.vy = -180; }
+      if (pb.vy <= 0 && pb.y + pb.h < BY) { pb.vy = -180; }
+      if (pb.vx >= 0 && pb.x > BX - 160)  { pb.vx = -200; }
+      if (pb.vx <= 0 && pb.x + pb.w < BX) { pb.vx = -200; }
       pb.x += pb.vx * dt;
       pb.y += pb.vy * dt;
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.pistonBlocks = []; g.arenaShrunken = false; g.phase = 3; g.phaseTimer = 0; }
+    if (g.phaseTimer >= 1.0) { g.pistonBlocks = []; g.arenaShrunken = false; g.engineSpinAngle = 0; g.phase = 3; g.phaseTimer = 0; }
   } else {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; }
@@ -2251,7 +2714,773 @@ function doFinalRule(g: GameData, dt: number, boss: BossConf) {
     g.finalRuleStepTimer = 0;
     clearEntities(g);
     g.mirrorSoulActive = false;
+    // Reset phase/spawn state so the next sub-attack starts clean
+    g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
   }
+}
+
+// ================================================================
+// BOSSES 11–20: ATTACK FUNCTIONS
+// ================================================================
+
+// Boss 11 — Vyrial
+function doSporeBloom(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 55, y: BCY + Math.sin(a) * 55, angle: a, r: 6, color: boss.color, timer: 0.9, maxTimer: 0.9 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.08, g); g.spawnCount++;
+      const spd = sm(g);
+      for (let arm = 0; arm < 8; arm++) { const a = (arm / 8) * Math.PI * 2 + g.spawnCount * 0.14; g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 100 * spd, vy: Math.sin(a) * 100 * spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -80 && b.x < W + 80 && b.y > -80 && b.y < H + 80);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doVelvetSwarm(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 6; i++) g.warnMarkers.push({ id: nid(g), x: rand(BX + 20, BX + BW - 20), y: BY - 8, angle: Math.PI / 2, r: 5, color: boss.color2, timer: 0.8, maxTimer: 0.8 });
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.12, g);
+      const spd = sm(g) * 0.7; const a = Math.atan2(g.player.y - BY - 30, g.player.x - BCX) + rand(-0.3, 0.3);
+      g.bullets.push({ id: nid(g), x: rand(BX + 20, BX + BW - 20), y: BY - 6, vx: Math.cos(a) * 120 * spd, vy: Math.abs(Math.sin(a)) * 120 * spd + 60, r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 30);
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doMothEclipse(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 180, y: BCY + Math.sin(a) * 180, angle: a, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) {
+      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 180, speed: -80 * sm(g), thick: 28, gaps: [g.bossAngle], gapSz: 0.45, color: boss.color });
+      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g);
+    }
+  } else if (g.phase === 1) {
+    for (const ring of g.rings) { ring.r += ring.speed * dt; ring.gaps[0] += 1.4 * dt; }
+    g.rings = g.rings.filter(r => r.r > 20);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.2) { g.rings = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doPlagueGarden(g: GameData, dt: number, boss: BossConf) {
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0 && g.dangerZones.length < 7) {
+    g.spawnTimer = rand(0.4, 0.8); const zw = rand(55, 100), zh = rand(45, 85);
+    g.dangerZones.push({ id: nid(g), x: rand(BX + 4, BX + BW - zw - 4), y: rand(BY + 4, BY + BH - zh - 4), w: zw, h: zh, warnTimer: 1.0, activeTimer: 1.2, color: boss.color });
+  }
+  for (const dz of g.dangerZones) { if (dz.warnTimer > 0) dz.warnTimer -= dt; else dz.activeTimer -= dt; }
+  g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
+}
+function doFeverRings(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 50, y: BCY + Math.sin(a) * 50, angle: a, r: 4, color: boss.color2, timer: 0.7, maxTimer: 0.7 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.7) {
+      const spd = sm(g); const gaps = [0, (Math.PI * 2) / 3, (Math.PI * 4) / 3];
+      for (let i = 0; i < 3; i++) g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 10 + i * 30, speed: (90 + i * 20) * spd, thick: 16, gaps: [...gaps], gapSz: 0.55, color: i === 0 ? boss.color : boss.color2 });
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    for (const ring of g.rings) { ring.r += ring.speed * dt; ring.gaps = ring.gaps.map(a => a + 1.1 * dt); }
+    g.rings = g.rings.filter(r => r.r < 300);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.0) { g.rings = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doPlagueCrown(g: GameData, dt: number, boss: BossConf) {
+  const corners: [number, number][] = [[BX, BY], [BX + BW, BY], [BX, BY + BH], [BX + BW, BY + BH]];
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (const [cx, cy] of corners) for (let i = 0; i < 4; i++) { const a = Math.atan2(BCY - cy, BCX - cx) + rand(-0.4, 0.4); g.warnMarkers.push({ id: nid(g), x: cx + Math.cos(a) * i * 18, y: cy + Math.sin(a) * i * 18, angle: a, r: 5, color: boss.color, timer: 1.1, maxTimer: 1.1 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.1) {
+      const spd = sm(g);
+      for (const [cx, cy] of corners) { const baseA = Math.atan2(BCY - cy, BCX - cx); for (let i = 0; i < 6; i++) { const a = baseA + rand(-0.55, 0.55); g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 150 * spd, vy: Math.sin(a) * 150 * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); } }
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 12 — Echora
+function doSoundBars(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0)
+      for (let i = 0; i < 4; i++) g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW * (i / 3), width: 38, timer: 0.9, color: boss.color, fake: i % 2 !== 0 });
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) {
+      for (const lw of g.laserWarns) if (!lw.fake) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 38, timer: 3.5, color: boss.color });
+      g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    for (const l of g.lasers) { l.pos += (l.pos < BCX ? 1 : -1) * 60 * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.timer > 0);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.0) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doChoirSplit(g: GameData, dt: number, boss: BossConf) {
+  const dirs: [number, number][] = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (const [dx, dy] of dirs) for (let d = 1; d <= 3; d++) g.warnMarkers.push({ id: nid(g), x: BCX + dx * d * 40, y: BCY + dy * d * 30, angle: Math.atan2(dy, dx), r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 });
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) {
+      const spd = sm(g);
+      for (const [dx, dy] of dirs) for (let i = 0; i < 5; i++) { const a = Math.atan2(dy, dx) + rand(-0.4, 0.4); g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-2, 2), frozen: false }); }
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doCrescendoCrush(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) g.laserWarns.push({ id: nid(g), type: 'h', pos: BY, width: 48, timer: 0.8, color: boss.color, fake: false });
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 48, timer: 8.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    const sweepSpd = (30 + g.phaseTimer * 80) * sm(g);
+    for (const l of g.lasers) { l.pos += sweepSpd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.pos < BY + BH + 60 && l.timer > 0);
+    g.phaseTimer += dt; if (g.lasers.length === 0 || g.phaseTimer >= 4.0) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doSilentBeat(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) g.warnMarkers.push({ id: nid(g), x: BCX, y: BCY, angle: 0, r: 80, color: boss.color, timer: 2.0, maxTimer: 2.0 });
+    for (const wm of g.warnMarkers) { wm.timer -= dt; }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 2.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); shake(g); }
+  } else if (g.phase === 1) {
+    if (g.spawnCount === 0) {
+      g.spawnCount = 1; const spd = sm(g);
+      for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2; g.bullets.push({ id: nid(g), x: BCX + Math.cos(a) * 10, y: BCY + Math.sin(a) * 10, vx: Math.cos(a) * 200 * spd, vy: Math.sin(a) * 200 * spd, r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); g.bullets.push({ id: nid(g), x: BCX + Math.cos(a + 0.13) * 10, y: BCY + Math.sin(a + 0.13) * 10, vx: Math.cos(a + 0.13) * 130 * spd, vy: Math.sin(a + 0.13) * 130 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doDoubleTempo(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) g.laserWarns.push({ id: nid(g), type: 'h', pos: BY, width: 56, timer: 0.7, color: boss.color, fake: false });
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.7) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 56, timer: 4.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    const spd = sm(g); for (const l of g.lasers) { l.pos += (BH + 80) / 1.6 * spd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.pos < BY + BH + 50 && l.timer > 0);
+    if (g.lasers.length === 0) { g.phase = 2; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.3) { g.laserWarns.push({ id: nid(g), type: 'v', pos: BX, width: 48, timer: 0.5, color: boss.color2, fake: false }); g.phase = 3; g.phaseTimer = 0; }
+  } else if (g.phase === 3) {
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.5) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 48, timer: 4.0, color: lw.color }); g.laserWarns = []; g.phase = 4; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 4) {
+    const spd = sm(g); for (const l of g.lasers) { l.pos += (BW + 80) / 1.4 * spd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.pos < BX + BW + 50 && l.timer > 0);
+    if (g.lasers.length === 0) { g.phase = 5; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 13 — Vantus
+function doGravityPull(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 55, y: BCY + Math.sin(a) * 55, angle: a + Math.PI, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.15, g); const spd = sm(g); const edge = randInt(0, 3);
+      let bx = 0, by = 0;
+      if (edge === 0) { bx = rand(BX, BX + BW); by = BY; } else if (edge === 1) { bx = rand(BX, BX + BW); by = BY + BH; } else if (edge === 2) { bx = BX; by = rand(BY, BY + BH); } else { bx = BX + BW; by = rand(BY, BY + BH); }
+      const a = Math.atan2(BCY - by, BCX - bx) + rand(-0.5, 0.5);
+      g.bullets.push({ id: nid(g), x: bx, y: by, vx: Math.cos(a) * 80 * spd, vy: Math.sin(a) * 80 * spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+    }
+    for (const b of g.bullets) { const dx = BCX - b.x, dy = BCY - b.y; const dist = Math.hypot(dx, dy); if (dist > 10) { b.vx += dx / dist * 30 * dt; b.vy += dy / dist * 30 * dt; } }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > BX - 30 && b.x < BX + BW + 30 && b.y > BY - 30 && b.y < BY + BH + 30);
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doOrbitBreak(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 90, y: BCY + Math.sin(a) * 90, angle: a, r: 5, color: boss.color, timer: 0.9, maxTimer: 0.9 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 90, speed: 0, thick: 20, gaps: [Math.random() * Math.PI * 2], gapSz: 0.7, color: boss.color }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.5 && g.rings.length > 0) {
+      const ring = g.rings[0]; const spd = sm(g);
+      for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2; g.bullets.push({ id: nid(g), x: ring.cx + Math.cos(a) * ring.r, y: ring.cy + Math.sin(a) * ring.r, vx: Math.cos(a) * 200 * spd, vy: Math.sin(a) * 200 * spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+      g.rings = []; shake(g); g.phase = 2; g.phaseTimer = 0;
+    }
+  } else if (g.phase === 2) {
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.0) { g.phase = 3; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doCollapseRing(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 170, y: BCY + Math.sin(a) * 170, angle: a, r: 4, color: boss.color2, timer: 0.9, maxTimer: 0.9 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 170, speed: -75 * sm(g), thick: 22, gaps: [Math.random() * Math.PI * 2], gapSz: 0.6, color: boss.color2 }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const ring of g.rings) { ring.r += ring.speed * dt; ring.gaps[0] += 0.7 * dt; }
+    g.rings = g.rings.filter(r => r.r > 15);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5 || g.rings.length === 0) { g.rings = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doCenterCrush(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.pistonBlocks.length === 0) {
+      const gapSz = Math.max(50, 100 - (g.diffMult - 1) * 30);
+      g.engineSpinAngle = gapSz;
+      g.pistonBlocks.push({ id: nid(g), x: BX, y: BY - 80, w: BW, h: 80, vx: 0, vy: 160, warnTimer: 1.0, active: false });
+      g.pistonBlocks.push({ id: nid(g), x: BX, y: BY + BH, w: BW, h: 80, vx: 0, vy: -160, warnTimer: 1.0, active: false });
+      g.pistonBlocks.push({ id: nid(g), x: BX - 100, y: BY, w: 100, h: BH, vx: 170, vy: 0, warnTimer: 1.0, active: false });
+      g.pistonBlocks.push({ id: nid(g), x: BX + BW, y: BY, w: 100, h: BH, vx: -170, vy: 0, warnTimer: 1.0, active: false });
+      g.arenaShrunken = false;
+    }
+    for (const pb of g.pistonBlocks) pb.warnTimer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { for (const pb of g.pistonBlocks) { pb.active = true; pb.warnTimer = 0; } g.arenaShrunken = true; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    const gap = g.engineSpinAngle;
+    for (const pb of g.pistonBlocks) {
+      pb.x += pb.vx * dt; pb.y += pb.vy * dt;
+      if (pb.vy > 0 && pb.y + pb.h >= BCY - gap / 2) { pb.y = BCY - gap / 2 - pb.h; pb.vy = 0; }
+      if (pb.vy < 0 && pb.y <= BCY + gap / 2)         { pb.y = BCY + gap / 2;         pb.vy = 0; }
+      if (pb.vx > 0 && pb.x + pb.w >= BCX - gap / 2)  { pb.x = BCX - gap / 2 - pb.w;  pb.vx = 0; }
+      if (pb.vx < 0 && pb.x <= BCX + gap / 2)         { pb.x = BCX + gap / 2;         pb.vx = 0; }
+    }
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.phase = 2; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    for (const pb of g.pistonBlocks) {
+      if (pb.vy === 0 && pb.y + pb.h > BCY) pb.vy = -160;
+      if (pb.vy === 0 && pb.y < BCY)        pb.vy = -160;
+      if (pb.vx === 0 && pb.x + pb.w > BCX) pb.vx = -170;
+      if (pb.vx === 0 && pb.x < BCX)        pb.vx = -170;
+      pb.x += pb.vx * dt; pb.y += pb.vy * dt;
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { g.pistonBlocks = []; g.arenaShrunken = false; g.engineSpinAngle = 0; g.phase = 3; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 14 — Caloric
+function doWaxDrip(g: GameData, dt: number, boss: BossConf) {
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = st(0.13, g); const spd = sm(g); const x = rand(BX + 10, BX + BW - 10);
+    const drift = Math.sin(g.time * 3.0 + x * 0.05) * 25;
+    g.bullets.push({ id: nid(g), x, y: BY - 6, vx: drift * spd, vy: rand(120, 200) * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+  }
+  moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 20);
+}
+function doFuneralMarch(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 8; i++) g.warnMarkers.push({ id: nid(g), x: BX + BW * (i / 7), y: BY + 12, angle: Math.PI / 2, r: 6, color: boss.color, timer: 1.0, maxTimer: 1.0 });
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0 && g.spawnCount < 8) {
+      g.spawnTimer = st(0.25, g); const spd = sm(g) * 0.55;
+      for (let i = 0; i < 8; i++) g.bullets.push({ id: nid(g), x: BX + BW * (i / 7), y: BY - 5, vx: 0, vy: 80 * spd, r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+      g.spawnCount++;
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 30);
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doCandleTears(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 5; i++) g.warnMarkers.push({ id: nid(g), x: BX + BW * (i / 4), y: BY - 4, angle: Math.PI * 0.6 + i * 0.08, r: 5, color: boss.color2, timer: 0.8, maxTimer: 0.8 });
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.09, g); g.spawnCount++; const spd = sm(g);
+      for (let i = 0; i < 5; i++) { const arc = Math.sin(g.spawnCount * 0.18 + i * 0.6) * 0.5; const a = Math.PI / 2 + arc; g.bullets.push({ id: nid(g), x: BX + BW * (i / 4), y: BY - 4, vx: Math.cos(a) * 140 * spd, vy: Math.sin(a) * 140 * spd, r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 30 && b.x > BX - 40 && b.x < BX + BW + 40);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doLastEmber(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) g.warnMarkers.push({ id: nid(g), x: BCX, y: BCY, angle: 0, r: 100, color: boss.color, timer: 2.5, maxTimer: 2.5 });
+    for (const wm of g.warnMarkers) { wm.timer -= dt; wm.r = 100 * (wm.timer / wm.maxTimer); }
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); shake(g); }
+  } else if (g.phase === 1) {
+    if (g.spawnCount === 0) {
+      g.spawnCount = 1; const spd = sm(g);
+      for (let i = 0; i < 32; i++) { const a = (i / 32) * Math.PI * 2; g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 175 * spd, vy: Math.sin(a) * 175 * spd, r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); if (i % 4 === 0) g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a + 0.1) * 100 * spd, vy: Math.sin(a + 0.1) * 100 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doWaxFlood(g: GameData, dt: number, boss: BossConf) {
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0 && g.dangerZones.length < 8) {
+    g.spawnTimer = rand(0.3, 0.6); const zw = rand(60, 120);
+    g.dangerZones.push({ id: nid(g), x: rand(BX + 4, BX + BW - zw - 4), y: BY + 4, w: zw, h: rand(40, 70), warnTimer: 0.7, activeTimer: 1.0, color: boss.color });
+  }
+  for (const dz of g.dangerZones) { if (dz.warnTimer > 0) dz.warnTimer -= dt; else dz.activeTimer -= dt; }
+  g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
+}
+
+// Boss 15 — Zylvira
+function doWebGrid(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) {
+      const count = 2 + waveVariant(g);
+      for (let i = 0; i < count; i++) { g.laserWarns.push({ id: nid(g), type: 'h', pos: BY + BH * (i / count + 0.5 / count), width: 30, timer: 0.9, color: boss.color, fake: false }); g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW * (i / count + 0.5 / count), width: 30, timer: 0.9, color: boss.color2, fake: false }); }
+    }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 30, timer: 2.5, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doSignalBite(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 5; i++) g.warnMarkers.push({ id: nid(g), x: g.player.x, y: g.player.y, angle: Math.PI * 2 * i / 5, r: 5 + i * 3, color: boss.color, timer: 0.8, maxTimer: 0.8 });
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0 && g.spawnCount < 6) {
+      g.spawnTimer = st(0.3, g); g.spawnCount++; const spd = sm(g); const tx = g.player.x, ty = g.player.y;
+      for (let i = 0; i < 5; i++) { const a = Math.atan2(ty - BCY + Math.sin(i * 1.2) * 40, tx - BCX + Math.cos(i * 1.2) * 40); g.bullets.push({ id: nid(g), x: BCX, y: BY - 20, vx: Math.cos(a) * 150 * spd, vy: Math.sin(a) * 150 * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doScreenTear(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) { const y = rand(BY + BH * 0.2, BY + BH * 0.8); g.spawnCount = Math.round(y); g.laserWarns.push({ id: nid(g), type: 'h', pos: y, width: 50, timer: 0.6, color: boss.color, fake: false }); }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.6) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 50, timer: 0.5, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
+    if (g.lasers.length === 0) { g.phase = 2; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.3) { g.laserWarns.push({ id: nid(g), type: 'h', pos: rand(BY + BH * 0.2, BY + BH * 0.8), width: 50, timer: 0.5, color: boss.color2, fake: false }); g.phase = 3; g.phaseTimer = 0; }
+  } else if (g.phase === 3) {
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.5) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 50, timer: 0.5, color: boss.color2 }); g.laserWarns = []; g.phase = 4; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 4) {
+    for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
+    if (g.lasers.length === 0) { g.phase = 5; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doStaticNest(g: GameData, dt: number, boss: BossConf) {
+  const corners: [number, number][] = [[BX + 8, BY + 8], [BX + BW - 8, BY + 8], [BX + 8, BY + BH - 8], [BX + BW - 8, BY + BH - 8]];
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (const [cx, cy] of corners) g.warnMarkers.push({ id: nid(g), x: cx, y: cy, angle: Math.atan2(BCY - cy, BCX - cx), r: 12, color: boss.color, timer: 0.9, maxTimer: 0.9 });
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) {
+      const spd = sm(g);
+      for (const [cx, cy] of corners) { const baseA = Math.atan2(BCY - cy, BCX - cx); for (let i = 0; i < 8; i++) { const a = baseA + rand(-0.8, 0.8); g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); } }
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doVHSStorm(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 18; i++) { const t = i / 18; const pos = t < 0.25 ? { x: BX + BW * (t / 0.25), y: BY } : t < 0.5 ? { x: BX + BW, y: BY + BH * ((t - 0.25) / 0.25) } : t < 0.75 ? { x: BX + BW * (1 - (t - 0.5) / 0.25), y: BY + BH } : { x: BX, y: BY + BH * (1 - (t - 0.75) / 0.25) }; g.warnMarkers.push({ id: nid(g), x: pos.x, y: pos.y, angle: Math.atan2(BCY - pos.y, BCX - pos.x), r: 4, color: boss.color, timer: 0.7, maxTimer: 0.7 }); }
+    }
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.07, g); const spd = sm(g); const edge = randInt(0, 3); let bx = 0, by = 0;
+      if (edge === 0) { bx = rand(BX, BX + BW); by = BY; } else if (edge === 1) { bx = rand(BX, BX + BW); by = BY + BH; } else if (edge === 2) { bx = BX; by = rand(BY, BY + BH); } else { bx = BX + BW; by = rand(BY, BY + BH); }
+      const a = Math.atan2(BCY - by, BCX - bx) + rand(-0.7, 0.7);
+      g.bullets.push({ id: nid(g), x: bx, y: by, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 4, color: Math.random() > 0.5 ? boss.color : boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > BX - 30 && b.x < BX + BW + 30 && b.y > BY - 30 && b.y < BY + BH + 30);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 16 — Atlas Minor
+function doMeteorLesson(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) { const count = 4 + Math.floor(g.diffMult); for (let i = 0; i < count; i++) { const x = rand(BX + 20, BX + BW - 20); g.warnMarkers.push({ id: nid(g), x, y: BCY, angle: 0, r: 22, color: boss.color, timer: 1.2, maxTimer: 1.2 }); g.starPoints.push({ id: nid(g), x, y: BCY }); } }
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    if (g.spawnCount < g.starPoints.length) { g.spawnTimer -= dt; if (g.spawnTimer <= 0) { g.spawnTimer = 0.2; const pt = g.starPoints[g.spawnCount]; g.bullets.push({ id: nid(g), x: pt.x, y: BY - 20, vx: 0, vy: 200 * sm(g) * 0.8, r: 16, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); g.spawnCount++; } }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 40);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; g.starPoints = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doPlanetTilt(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let arm = 0; arm < 6; arm++) { const a = (arm / 6) * Math.PI * 2; for (let d = 1; d <= 3; d++) g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * d * 35, y: BCY + Math.sin(a) * d * 35, angle: a, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.07, g); const spd = sm(g); const baseA = g.time * 1.6;
+      for (let arm = 0; arm < 6; arm++) { const a = baseA + (arm / 6) * Math.PI * 2; g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 155 * spd, vy: Math.sin(a) * 155 * spd, r: 6, color: arm % 2 === 0 ? boss.color : boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -80 && b.x < W + 80 && b.y > -80 && b.y < H + 80);
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doCraterBurst(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) { const cx = rand(BX + BW * 0.25, BX + BW * 0.75); const cy = rand(BY + BH * 0.25, BY + BH * 0.75); g.starPoints.push({ id: nid(g), x: cx, y: cy }); for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: cx + Math.cos(a) * 30, y: cy + Math.sin(a) * 30, angle: a, r: 6, color: boss.color, timer: 1.0, maxTimer: 1.0 }); } }
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
+  } else if (g.phase === 1) {
+    if (g.spawnCount === 0 && g.starPoints.length > 0) { g.spawnCount = 1; const pt = g.starPoints[0]; const spd = sm(g); for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2; g.bullets.push({ id: nid(g), x: pt.x, y: pt.y, vx: Math.cos(a) * 185 * spd, vy: Math.sin(a) * 185 * spd, r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); if (i % 5 === 0) g.bullets.push({ id: nid(g), x: pt.x, y: pt.y, vx: Math.cos(a) * 90 * spd, vy: Math.sin(a) * 90 * spd, r: 9, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); } }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; g.starPoints = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doTinyApocalypse(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 70, y: BCY + Math.sin(a) * 70, angle: a, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) {
+      const spd = sm(g);
+      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 20, speed: 95 * spd, thick: 18, gaps: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2 + Math.PI], gapSz: 0.5, color: boss.color });
+      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 80, speed: 110 * spd, thick: 14, gaps: [Math.random() * Math.PI * 2], gapSz: 0.6, color: boss.color2 });
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 130 * spd, vy: Math.sin(a) * 130 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false }); }
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    for (const ring of g.rings) { ring.r += ring.speed * dt; ring.gaps = ring.gaps.map(a => a + 1.2 * dt); }
+    g.rings = g.rings.filter(r => r.r < 300);
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.rings = []; g.bullets = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 17 — Xiu
+function doPaperCuts(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.diagWarns.length === 0) { const count = 2 + waveVariant(g); for (let i = 0; i < count; i++) { const y = BY + BH * (i / (count + 1) + 0.25); const angle = i % 2 === 0 ? 0.4 : -0.4; g.diagWarns.push({ id: nid(g), x1: BX, y1: y, x2: BX + BW, y2: y + Math.tan(angle) * BW, width: 12, timer: 0.8, color: boss.color, fake: false }); } }
+    for (const dw of g.diagWarns) dw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) { g.diagLasers = g.diagWarns.map(dw => ({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: 12, timer: 1.2, color: boss.color })); g.diagWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const dl of g.diagLasers) dl.timer -= dt; g.diagLasers = g.diagLasers.filter(dl => dl.timer > 0);
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.diagLasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doFoldedWalls(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) { const n = 3 + waveVariant(g); for (let i = 0; i < n; i++) g.laserWarns.push({ id: nid(g), type: 'v', pos: i % 2 === 0 ? BX : BX + BW, width: 35, timer: 0.85, color: boss.color, fake: false }); }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.85) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 35, timer: 3.5, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    const spd = sm(g); for (const l of g.lasers) { l.pos += (l.pos < BCX ? 1 : -1) * 55 * spd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.timer > 0 && Math.abs(l.pos - BCX) > 20);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.0) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doInkDecree(g: GameData, dt: number, boss: BossConf) {
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0 && g.dangerZones.length < 6) {
+    g.spawnTimer = rand(0.45, 0.75); const col = g.dangerZones.length % 3; const row = Math.floor(g.dangerZones.length / 3);
+    const zw = BW / 3 - 8, zh = BH / 2 - 8;
+    g.dangerZones.push({ id: nid(g), x: BX + 4 + col * (zw + 4), y: BY + 4 + row * (zh + 4), w: zw, h: zh, warnTimer: 0.9, activeTimer: 1.1, color: boss.color2 });
+  }
+  for (const dz of g.dangerZones) { if (dz.warnTimer > 0) dz.warnTimer -= dt; else dz.activeTimer -= dt; }
+  g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
+}
+function doRoyalGuillotine(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) { const x = rand(BX + BW * 0.2, BX + BW * 0.8); g.spawnCount = Math.round(x); g.laserWarns.push({ id: nid(g), type: 'v', pos: x, width: 55, timer: 1.0, color: boss.color, fake: false }); }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { g.lasers.push({ id: nid(g), type: 'v', pos: g.laserWarns[0]?.pos ?? BCX, width: 55, timer: 0.8, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
+    if (g.lasers.length === 0) { const spd = sm(g); for (let i = 0; i < 12; i++) { const a = Math.PI / 2 + rand(-0.8, 0.8); g.bullets.push({ id: nid(g), x: g.spawnCount, y: BY, vx: Math.cos(a) * 170 * spd, vy: Math.sin(a) * 170 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false }); } g.phase = 2; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 2) {
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.0) { g.phase = 3; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doOrigamiSpears(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.diagWarns.length === 0)
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; const len = 240; g.diagWarns.push({ id: nid(g), x1: BCX, y1: BCY, x2: BCX + Math.cos(a) * len, y2: BCY + Math.sin(a) * len, width: 18, timer: 0.9, color: boss.color, fake: i % 2 !== 0 }); }
+    for (const dw of g.diagWarns) dw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { g.diagLasers = g.diagWarns.filter(dw => !dw.fake).map(dw => ({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: 18, timer: 0.9, color: boss.color })); g.diagWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const dl of g.diagLasers) dl.timer -= dt; g.diagLasers = g.diagLasers.filter(dl => dl.timer > 0);
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.2) { g.diagLasers = []; g.diagWarns = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 18 — Mnemovex
+function doEchoTrail(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) { const pp = g.prevPlayerPositions[0] ?? { x: g.player.x, y: g.player.y }; for (let i = 0; i < 6; i++) g.warnMarkers.push({ id: nid(g), x: pp.x + rand(-30, 30), y: pp.y + rand(-30, 30), angle: 0, r: 8, color: boss.color, timer: 0.9, maxTimer: 0.9 }); }
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0 && g.spawnCount < 12) {
+      g.spawnTimer = st(0.18, g); g.spawnCount++; const spd = sm(g);
+      const pp = g.prevPlayerPositions[g.spawnCount] ?? { x: rand(BX + 20, BX + BW - 20), y: rand(BY + 20, BY + BH - 20) };
+      for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2; g.bullets.push({ id: nid(g), x: pp.x, y: pp.y, vx: Math.cos(a) * 130 * spd, vy: Math.sin(a) * 130 * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doMemoryReplay(g: GameData, dt: number, boss: BossConf) {
+  const REPLAYS = ['crystalRain', 'bitStorm', 'haloSpiral', 'clockSlash', 'impossibleScript'];
+  if (g.phase === 0) {
+    if (g.spawnCount === 0) g.spawnCount = randInt(1, REPLAYS.length);
+    const subBoss: BossConf = { ...BOSSES[g.spawnCount - 1], attacks: [REPLAYS[g.spawnCount - 1]] };
+    const saved = g.atkIdx; g.atkIdx = 0;
+    updateAttack(g, dt, subBoss);
+    g.atkIdx = saved;
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.0) { g.phase = 1; g.phaseTimer = 0; clearEntities(g); }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doVaultLock(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) { for (let i = 1; i <= 2; i++) { g.laserWarns.push({ id: nid(g), type: 'h', pos: BY + BH * (i / 3), width: 32, timer: 0.7, color: boss.color, fake: false }); g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW * (i / 3), width: 32, timer: 0.7, color: boss.color2, fake: false }); } }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.7) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 32, timer: 1.2, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.4) { for (let i = 1; i <= 2; i++) { g.lasers.push({ id: nid(g), type: 'h', pos: BY + BH * (i === 1 ? 0.25 : 0.75), width: 32, timer: 1.2, color: boss.color }); g.lasers.push({ id: nid(g), type: 'v', pos: BX + BW * (i === 1 ? 0.25 : 0.75), width: 32, timer: 1.2, color: boss.color2 }); } shake(g); g.phase = 3; g.phaseTimer = 0; }
+  } else if (g.phase === 3) {
+    for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.lasers = []; g.phase = 4; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doCrystalRepeat(g: GameData, dt: number, boss: BossConf) {
+  const variant = g.phase < 3 ? 0 : 1;
+  if (g.phase === 0 || g.phase === 3) {
+    if (g.warnMarkers.length === 0) { const offset = variant === 1 ? BW * 0.15 : 0; for (let i = 0; i < 10; i++) g.warnMarkers.push({ id: nid(g), x: BX + offset + (BW - offset * 2) * (i / 9), y: BY, angle: Math.PI / 2, r: 5, color: boss.color, timer: 0.6, maxTimer: 0.6 }); }
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase++; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1 || g.phase === 4) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) { g.spawnTimer = st(0.07, g); g.spawnCount++; const spd = sm(g); const x = rand(BX + (variant === 1 ? BW * 0.1 : 4), BX + BW - 4); g.bullets.push({ id: nid(g), x, y: BY - 6, vx: rand(-14, 14) * spd, vy: rand(150, 230) * spd, r: 4, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 20);
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.8) { g.phase++; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 3; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.bullets = []; g.spawnCount = 0; } }
+}
+
+// Boss 19 — Lunara
+function doStringPull(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      const diagX = Math.random() > 0.5 ? 1 : -1; const diagY = Math.random() > 0.5 ? 1 : -1;
+      g.currentPullX = diagX * 28; g.currentPullY = diagY * 22;
+      const a = Math.atan2(diagY, diagX);
+      for (let i = 0; i < 5; i++) g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * i * 45, y: BCY + Math.sin(a) * i * 45, angle: a, r: 8, color: boss.color, timer: 1.0, maxTimer: 1.0 });
+    }
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.pullActive = true; g.spawnTimer = 0; }
+  } else if (g.phase === 1) {
+    g.player.x = Math.max(BX + P_HIT_R, Math.min(BX + BW - P_HIT_R, g.player.x + g.currentPullX));
+    g.player.y = Math.max(BY + P_HIT_R, Math.min(BY + BH - P_HIT_R, g.player.y + g.currentPullY));
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.18, g); const spd = sm(g); const len = Math.hypot(g.currentPullX, g.currentPullY);
+      const a = Math.atan2(g.currentPullY, g.currentPullX);
+      g.bullets.push({ id: nid(g), x: g.player.x - (g.currentPullX / len) * BW * 0.4, y: g.player.y - (g.currentPullY / len) * BH * 0.4, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > BX - 30 && b.x < BX + BW + 30 && b.y > BY - 30 && b.y < BY + BH + 30);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.pullActive = false; g.currentPullX = 0; g.currentPullY = 0; g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doPuppetDance(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) { const gapY = rand(BY + BH * 0.2, BY + BH * 0.7); g.spawnCount = Math.round(gapY); g.laserWarns.push({ id: nid(g), type: 'h', pos: gapY - 30, width: 35, timer: 0.9, color: boss.color, fake: false }); g.laserWarns.push({ id: nid(g), type: 'h', pos: gapY + 30, width: 35, timer: 0.9, color: boss.color2, fake: false }); }
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 35, timer: 3.0, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    const spd = sm(g); for (const l of g.lasers) { l.pos += (l.pos < g.spawnCount ? 1 : -1) * 45 * spd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.timer > 0 && Math.abs(l.pos - g.spawnCount) > 18);
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) { g.spawnTimer = st(0.14, g); const bspd = sm(g); g.bullets.push({ id: nid(g), x: rand(BX + 5, BX + BW - 5), y: BY - 5, vx: rand(-10, 10) * bspd, vy: rand(130, 200) * bspd, r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 20);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.0 || g.lasers.length === 0) { g.lasers = []; g.bullets = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doMoonDrop(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) { const count = 2 + Math.floor(g.diffMult * 0.5); for (let i = 0; i < count; i++) { const x = rand(BX + 30, BX + BW - 30); g.warnMarkers.push({ id: nid(g), x, y: BCY, angle: 0, r: 28, color: boss.color, timer: 1.5, maxTimer: 1.5 }); g.starPoints.push({ id: nid(g), x, y: BCY }); } }
+    g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    if (g.spawnCount < g.starPoints.length) { g.spawnTimer -= dt; if (g.spawnTimer <= 0) { g.spawnTimer = 0.3; const pt = g.starPoints[g.spawnCount]; g.bullets.push({ id: nid(g), x: pt.x, y: BY - 30, vx: 0, vy: 110, r: 22, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); g.spawnCount++; } }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 40);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; g.starPoints = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; } }
+}
+function doBloodCurtain(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.laserWarns.length === 0) g.laserWarns.push({ id: nid(g), type: 'h', pos: BY, width: 60, timer: 0.7, color: boss.color, fake: false });
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.7) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 60, timer: 5.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    const spd = sm(g); for (const l of g.lasers) { l.pos += (BH + 80) / 1.2 * spd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.pos < BY + BH + 60 && l.timer > 0);
+    if (g.lasers.length === 0) { g.phase = 2; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.25) { g.laserWarns.push({ id: nid(g), type: 'h', pos: BY + BH, width: 55, timer: 0.5, color: boss.color2, fake: false }); g.phase = 3; g.phaseTimer = 0; }
+  } else if (g.phase === 3) {
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.5) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 55, timer: 5.0, color: lw.color }); g.laserWarns = []; g.phase = 4; g.phaseTimer = 0; shake(g); }
+  } else if (g.phase === 4) {
+    const spd = sm(g); for (const l of g.lasers) { l.pos -= (BH + 80) / 1.3 * spd * dt; l.timer -= dt; }
+    g.lasers = g.lasers.filter(l => l.pos > BY - 60 && l.timer > 0);
+    if (g.lasers.length === 0) { g.phase = 5; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doMoonShatter(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 18; i++) { const a = (i / 18) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 150, y: BCY + Math.sin(a) * 150, angle: a, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 150, speed: -65 * sm(g), thick: 20, gaps: [], gapSz: 0.0, color: boss.color }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; }
+  } else if (g.phase === 1) {
+    for (const ring of g.rings) ring.r += ring.speed * dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.8) {
+      const spd = sm(g); const ring = g.rings[0]; if (ring) for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2; g.bullets.push({ id: nid(g), x: ring.cx + Math.cos(a) * ring.r, y: ring.cy + Math.sin(a) * ring.r, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+      g.rings = []; shake(g); g.phase = 2; g.phaseTimer = 0;
+    }
+  } else if (g.phase === 2) {
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 3; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+
+// Boss 20 — Soulvex
+function doRegretSpiral(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 20, y: BCY + Math.sin(a) * 20, angle: a, r: 5, color: boss.color, timer: 0.7, maxTimer: 0.7 }); }
+    g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.055, g); g.spawnCount++; const spd = sm(g); const baseA = g.spawnCount * 0.2;
+      for (let arm = 0; arm < 8; arm++) { const a = baseA + (arm / 8) * Math.PI * 2; g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 170 * spd, vy: Math.sin(a) * 170 * spd, r: 5, color: arm % 2 === 0 ? boss.color : boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -80 && b.x < W + 80 && b.y > -80 && b.y < H + 80);
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.0) { g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doBossMemoryChain(g: GameData, dt: number, boss: BossConf) {
+  const CHAIN = ['crystalRain', 'bitStorm', 'haloSpiral', 'gearMaze', 'impossibleScript', 'currentSurge', 'boneRain', 'starfall', 'pistonCrush', 'finalRule'];
+  const STEP_DUR = 2.5, WARN_DUR = 0.4;
+  if (g.finalRuleStep >= CHAIN.length) { g.finalRuleStep = 0; g.finalRuleStepTimer = 0; g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 0; g.phaseTimer = 0; clearEntities(g); } return; }
+  g.finalRuleStepTimer += dt;
+  if (g.finalRuleStepTimer < WARN_DUR) { if (g.warnMarkers.length === 0) for (let i = 0; i < 8; i++) g.warnMarkers.push({ id: nid(g), x: rand(BX, BX + BW), y: BY + rand(0, BH), angle: rand(0, Math.PI * 2), r: 5, color: boss.color, timer: WARN_DUR, maxTimer: WARN_DUR }); }
+  else { g.warnMarkers = []; const subBoss: BossConf = { ...BOSSES[g.finalRuleStep % 10], attacks: [CHAIN[g.finalRuleStep]] }; const saved = g.atkIdx; g.atkIdx = 0; updateAttack(g, dt, subBoss); g.atkIdx = saved; }
+  if (g.finalRuleStepTimer >= STEP_DUR) { g.finalRuleStep++; g.finalRuleStepTimer = 0; clearEntities(g); g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0; }
+}
+function doBrokenControls(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 8; i++) g.warnMarkers.push({ id: nid(g), x: BCX + rand(-80, 80), y: BCY + rand(-50, 50), angle: rand(0, Math.PI * 2), r: 6, color: boss.color, timer: 1.0, maxTimer: 1.0 });
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { g.ctrlFlipped = true; g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) { g.spawnTimer = st(0.1, g); const spd = sm(g); g.bullets.push({ id: nid(g), x: rand(BX + 5, BX + BW - 5), y: BY - 5, vx: rand(-20, 20) * spd, vy: rand(150, 260) * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 20);
+    g.phaseTimer += dt; if (g.phaseTimer >= 3.5) { g.ctrlFlipped = false; g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doSoulDuel(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) g.warnMarkers.push({ id: nid(g), x: BCX + (BCX - g.player.x), y: BCY + (BCY - g.player.y), angle: 0, r: 10, color: boss.color2, timer: 1.0, maxTimer: 1.0 });
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { g.mirrorSoulActive = true; g.mirrorSoulX = BCX + (BCX - g.player.x); g.mirrorSoulY = BCY + (BCY - g.player.y); g.mirrorSoulPulsing = true; g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+  } else if (g.phase === 1) {
+    g.mirrorSoulX = BCX + (BCX - g.player.x); g.mirrorSoulY = BCY + (BCY - g.player.y);
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.18, g); const spd = sm(g); const a = Math.atan2(g.player.y - g.mirrorSoulY, g.player.x - g.mirrorSoulX);
+      for (let i = 0; i < 3; i++) { const spread = (i - 1) * 0.3; g.bullets.push({ id: nid(g), x: g.mirrorSoulX, y: g.mirrorSoulY, vx: Math.cos(a + spread) * 160 * spd, vy: Math.sin(a + spread) * 160 * spd, r: 6, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
+    }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 4.0) { g.mirrorSoulActive = false; g.mirrorSoulPulsing = false; g.phase = 2; g.phaseTimer = 0; g.bullets = []; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; } }
+}
+function doFirstMistake(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0)
+      for (let i = 0; i < 32; i++) { const a = (i / 32) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 80, y: BCY + Math.sin(a) * 80, angle: a, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 }); }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) {
+      const spd = sm(g);
+      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 15, speed: 120 * spd, thick: 20, gaps: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2 + Math.PI], gapSz: 0.45, color: boss.color });
+      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 100, speed: 100 * spd, thick: 16, gaps: [Math.random() * Math.PI * 2], gapSz: 0.5, color: boss.color2 });
+      g.laserWarns.push({ id: nid(g), type: 'h', pos: BCY, width: 44, timer: 0.5, color: boss.color, fake: false });
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); shake(g);
+    }
+  } else if (g.phase === 1) {
+    for (const lw of g.laserWarns) lw.timer -= dt;
+    if (g.laserWarns.length > 0 && g.laserWarns[0].timer <= 0) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 44, timer: 5.0, color: lw.color }); g.laserWarns = []; shake(g); }
+    const spd = sm(g);
+    for (const l of g.lasers) { l.pos += (BH + 80) / 2.0 * spd * dt; l.timer -= dt; } g.lasers = g.lasers.filter(l => l.pos < BY + BH + 60 && l.timer > 0);
+    for (const ring of g.rings) { ring.r += ring.speed * dt; ring.gaps = ring.gaps.map(a => a + 1.4 * dt); } g.rings = g.rings.filter(r => r.r < 320);
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) { g.spawnTimer = st(0.09, g); g.bullets.push({ id: nid(g), x: rand(BX + 4, BX + BW - 4), y: BY - 5, vx: rand(-16, 16) * spd, vy: rand(160, 260) * spd, r: 4, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); const a = g.time * 3.0; g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false }); }
+    moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
+    g.phaseTimer += dt; if (g.phaseTimer >= 5.0) { g.rings = []; g.lasers = []; g.bullets = []; g.phase = 2; g.phaseTimer = 0; }
+  } else { g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; } }
 }
 
 // ================================================================
@@ -2335,6 +3564,9 @@ function update(
     return;
   }
 
+  // ---- WAVE END — React overlay handles interaction ----
+  if (g.state === 'waveEnd') return;
+
   // ---- PLAYING ----
   if ((g.keys.has('r') || g.keys.has('R')) && !inputFocused) {
     resetForBoss(g, 0); g.state = 'title'; return;
@@ -2391,18 +3623,16 @@ function update(
   g.player.x = Math.max(cbx + P_HIT_R, Math.min(cbx + cbw - P_HIT_R, g.player.x));
   g.player.y = Math.max(cby + P_HIT_R, Math.min(cby + cbh - P_HIT_R, g.player.y));
 
-  // Push player away from advancing piston slabs when arena is shrunken
+  // Push player away from advancing piston slabs — 20px inset keeps player visible
   if (g.arenaShrunken) {
     for (const pb of g.pistonBlocks) {
       if (!pb.active) continue;
       if (pb.w >= BW * 0.6) {
-        // Horizontal slab (full-width, entering top or bottom)
-        if (pb.y + pb.h / 2 < BCY) g.player.y = Math.max(g.player.y, pb.y + pb.h + P_HIT_R);
-        else                        g.player.y = Math.min(g.player.y, pb.y - P_HIT_R);
+        if (pb.y + pb.h / 2 < BCY) g.player.y = Math.max(g.player.y, pb.y + pb.h + 20);
+        else                        g.player.y = Math.min(g.player.y, pb.y - 20);
       } else {
-        // Vertical slab (full-height, entering left or right)
-        if (pb.x + pb.w / 2 < BCX) g.player.x = Math.max(g.player.x, pb.x + pb.w + P_HIT_R);
-        else                        g.player.x = Math.min(g.player.x, pb.x - P_HIT_R);
+        if (pb.x + pb.w / 2 < BCX) g.player.x = Math.max(g.player.x, pb.x + pb.w + 20);
+        else                        g.player.x = Math.min(g.player.x, pb.x - 20);
       }
     }
   }
@@ -2434,6 +3664,7 @@ function update(
 
   // Collision & damage
   if (checkHit(g)) {
+    g.hitsThisWave++;
     g.player.hp -= boss.dmg * g.diffMult;
     g.player.invTimer = P_INV;
     shake(g);
@@ -2445,17 +3676,36 @@ function update(
     }
   }
 
+  // Count down main timer; when it runs out start a short grace window
+  // so the boss completes its current move before the wave clears.
   g.atkTimer -= cap;
-  if (g.atkTimer <= 0) {
-    g.atkIdx++;
-    if (g.atkIdx >= boss.attacks.length) {
-      g.state = 'bossWin';
-      g.postBossTimer = 0;
-      clearEntities(g);
-    } else {
-      clearEntities(g);
-      g.atkTimer = boss.atkDur;
-      g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
+  if (g.atkTimer <= 0 && g.atkFinishTimer < 0) {
+    g.atkFinishTimer = 0.55;
+  }
+  if (g.atkFinishTimer >= 0) {
+    g.atkFinishTimer -= cap;
+    if (g.atkFinishTimer < 0) {
+      const waveHp    = Math.round(g.player.hp);
+      const waveHits  = g.hitsThisWave;
+      const prevBoss  = g.bossIdx;
+      const prevWave  = g.atkIdx;
+      g.hitsThisWave  = 0;
+      g.atkIdx++;
+      if (g.atkIdx >= boss.attacks.length) {
+        g.state = 'bossWin';
+        g.postBossTimer = 0;
+        clearEntities(g);
+      } else {
+        clearEntities(g);
+        g.atkTimer = boss.atkDur;
+        g.atkFinishTimer = -1;
+        g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
+        g.waveEndHp      = waveHp;
+        g.waveEndHits    = waveHits;
+        g.waveEndBossIdx = prevBoss;
+        g.waveEndWaveIdx = prevWave;
+        g.state = 'waveEnd';
+      }
     }
   }
 }
@@ -2480,7 +3730,7 @@ function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: nu
 
 function drawBullet(ctx: CanvasRenderingContext2D, b: Bullet) {
   ctx.save();
-  ctx.shadowBlur = 10; ctx.shadowColor = b.color;
+  ctx.shadowBlur = 0; // skip per-bullet shadow blur for performance
   ctx.fillStyle = b.color;
   ctx.translate(b.x, b.y);
   ctx.rotate(b.rot);
@@ -2827,8 +4077,9 @@ function drawBackground(ctx: CanvasRenderingContext2D, g: GameData) {
   const grad = ctx.createRadialGradient(BCX, BCY, 40, BCX, H * 0.55, 420);
   grad.addColorStop(0, boss.bgTint); grad.addColorStop(1, '#000000');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(0,0,0,0.1)';
-  for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
+  // Single pass scanline overlay — much cheaper than per-row fillRect loop
+  ctx.fillStyle = 'rgba(0,0,0,0.08)';
+  ctx.fillRect(0, 0, W, H);
 
   // Boss 6: underwater shimmer effect
   if (g.bossIdx === 5) {
@@ -3008,7 +4259,7 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
     ctx.fillStyle = '#00ffcc'; ctx.shadowBlur = 8; ctx.shadowColor = '#00ffcc';
     ctx.font = 'bold 11px "Courier New", monospace'; ctx.textAlign = 'left';
     ctx.fillText(`[ADMIN] ${dl.label} ${dl.mult}x`, HP_X, HP_Y + 58);
-    ctx.fillText('1-9: boss 1-9  0: boss 10  E/F: difficulty', HP_X, HP_Y + 70);
+    ctx.fillText(`1-9: boss 1-9  0: boss 10  shift+1-0: boss 11-20  E/F: difficulty`, HP_X, HP_Y + 70);
     ctx.shadowBlur = 0;
   }
 
@@ -3373,6 +4624,7 @@ function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
     case 'title':    renderTitle(ctx, g.time);                   break;
     case 'intro':    renderIntro(ctx, g);                        break;
     case 'playing':  renderPlaying(ctx, g, adminMode, diffIdx);  break;
+    case 'waveEnd':  renderPlaying(ctx, g, adminMode, diffIdx);  break; // frozen frame under the React overlay
     case 'bossWin':  renderBossWin(ctx, g);                      break;
     case 'gameOver': renderGameOver(ctx, g);                     break;
     case 'victory':       renderVictory(ctx, g.time);       break;
@@ -3420,6 +4672,12 @@ export default function SoulRush() {
   const [bossGuideOpen,  setBossGuideOpen]  = useState(false);
   const [diffIdx,        setDiffIdxState]   = useState(2);
   const [adminMsg,       setAdminMsg]       = useState('');
+
+  type LbEntry = { name: string; hp: number; hits: number; ts: number };
+  const [playerName,    setPlayerName]    = useState<string>(() => { try { return localStorage.getItem('soulrush_name') ?? 'PLAYER'; } catch { return 'PLAYER'; } });
+  const [nameInput,     setNameInput]     = useState<string>('');
+  const [waveEndVisible, setWaveEndVisible] = useState<boolean>(false);
+  const [waveEndData,   setWaveEndData]   = useState<{ bossIdx: number; waveIdx: number; hp: number; hits: number } | null>(null);
 
   const enableAdmin = () => {
     adminModeRef.current = true;
@@ -3520,9 +4778,37 @@ export default function SoulRush() {
     margin: 3,
   });
 
+  const continueWave = () => {
+    const finalName = nameInput.trim() || playerName;
+    try {
+      localStorage.setItem('soulrush_name', finalName);
+      if (waveEndData) {
+        const key = `soulrush_lb_b${waveEndData.bossIdx}_w${waveEndData.waveIdx}`;
+        const existing: LbEntry[] = JSON.parse(localStorage.getItem(key) ?? '[]');
+        const updated = [...existing, { name: finalName, hp: waveEndData.hp, hits: waveEndData.hits, ts: Date.now() }]
+          .sort((a, b) => b.hp - a.hp || a.hits - b.hits)
+          .slice(0, 10);
+        localStorage.setItem(key, JSON.stringify(updated));
+      }
+    } catch { /* ignore storage errors */ }
+    setPlayerName(finalName);
+    setWaveEndVisible(false);
+    setWaveEndData(null);
+    gameRef.current.state = 'playing';
+    inputFocusedRef.current = false;
+  };
+
   const [, forceRender] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => forceRender(n => n + 1), 200);
+    const id = setInterval(() => {
+      forceRender(n => n + 1);
+      const g = gameRef.current;
+      if (g.state === 'waveEnd') {
+        setWaveEndData({ bossIdx: g.waveEndBossIdx, waveIdx: g.waveEndWaveIdx, hp: g.waveEndHp, hits: g.waveEndHits });
+        setNameInput(prev => prev || playerName);
+        setWaveEndVisible(true);
+      }
+    }, 200);
     return () => clearInterval(id);
   }, []);
   const showAdminInput = gameRef.current.state !== 'playing';
@@ -3536,6 +4822,88 @@ export default function SoulRush() {
           height={H}
           style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }}
         />
+
+        {/* Wave-end leaderboard overlay */}
+        {waveEndVisible && waveEndData && (() => {
+          const boss   = BOSSES[waveEndData.bossIdx];
+          const lbKey  = `soulrush_lb_b${waveEndData.bossIdx}_w${waveEndData.waveIdx}`;
+          let lbEntries: LbEntry[] = [];
+          try { lbEntries = JSON.parse(localStorage.getItem(lbKey) ?? '[]'); } catch { /* ignore */ }
+          const hpColor = waveEndData.hp > 60 ? '#44ff88' : waveEndData.hp > 30 ? '#ffcc00' : '#ff4444';
+          return (
+            <div style={OVERLAY_STYLE}>
+              <div style={{ ...PANEL_STYLE, minWidth: 440, maxWidth: 540 }}>
+                <div style={{ color: boss.color, fontSize: 13, fontWeight: 'bold', marginBottom: 4, textShadow: `0 0 12px ${boss.color}88` }}>
+                  {boss.name}
+                </div>
+                <div style={{ color: '#44ffaa', fontSize: 20, fontWeight: 'bold', marginBottom: 18, letterSpacing: 3, textShadow: '0 0 16px #44ffaa88' }}>
+                  WAVE {waveEndData.waveIdx + 1} SURVIVED
+                </div>
+
+                <div style={{ display: 'flex', gap: 16, marginBottom: 18, padding: '12px 16px', background: '#0a0a1a', borderRadius: 6, border: '1px solid #ffffff0f' }}>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: 10, color: '#555', marginBottom: 4, letterSpacing: 1 }}>HP REMAINING</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold', color: hpColor, textShadow: `0 0 12px ${hpColor}66` }}>{waveEndData.hp}</div>
+                  </div>
+                  <div style={{ width: 1, background: '#ffffff0f' }} />
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: 10, color: '#555', marginBottom: 4, letterSpacing: 1 }}>TIMES HIT</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold', color: waveEndData.hits === 0 ? '#44ffaa' : '#ff8844' }}>
+                      {waveEndData.hits}{waveEndData.hits === 0 ? ' ✦' : ''}
+                    </div>
+                  </div>
+                </div>
+
+                {lbEntries.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, color: '#444', letterSpacing: 1, marginBottom: 6 }}>— BEST RUNS THIS WAVE —</div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: '"Courier New", monospace' }}>
+                      <thead>
+                        <tr style={{ color: '#444' }}>
+                          <th style={{ textAlign: 'left', padding: '2px 6px', fontWeight: 'normal' }}>#</th>
+                          <th style={{ textAlign: 'left', padding: '2px 6px', fontWeight: 'normal' }}>NAME</th>
+                          <th style={{ textAlign: 'right', padding: '2px 6px', fontWeight: 'normal' }}>HP</th>
+                          <th style={{ textAlign: 'right', padding: '2px 6px', fontWeight: 'normal' }}>HITS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lbEntries.slice(0, 5).map((e, i) => (
+                          <tr key={i} style={{ color: i === 0 ? '#ffcc00' : '#777', borderTop: '1px solid #ffffff08' }}>
+                            <td style={{ padding: '3px 6px' }}>{i + 1}</td>
+                            <td style={{ padding: '3px 6px', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.name}</td>
+                            <td style={{ padding: '3px 6px', textAlign: 'right', color: e.hp > 60 ? '#44ff88' : e.hp > 30 ? '#ffcc00' : '#ff4444' }}>{e.hp}</td>
+                            <td style={{ padding: '3px 6px', textAlign: 'right' }}>{e.hits}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 10, color: '#444', letterSpacing: 1, marginBottom: 6 }}>YOUR NAME</div>
+                  <input
+                    type="text"
+                    value={nameInput}
+                    maxLength={20}
+                    onChange={e => setNameInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') continueWave(); }}
+                    onFocus={() => { inputFocusedRef.current = true; }}
+                    onBlur={() => { inputFocusedRef.current = false; }}
+                    style={{ width: '100%', background: '#0a0a14', border: '1px solid #333', borderRadius: 4, color: '#aaccff', fontFamily: '"Courier New", monospace', fontSize: 14, padding: '8px 12px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <button
+                  onClick={continueWave}
+                  style={{ ...btnStyle('#44ffaa'), width: '100%', fontSize: 15, padding: '10px 0', fontWeight: 'bold', letterSpacing: 2, background: '#44ffaa11', textShadow: '0 0 10px #44ffaa88' }}
+                >
+                  CONTINUE ▶
+                </button>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Admin panel overlay */}
         {adminPanelOpen && (
@@ -3583,7 +4951,7 @@ export default function SoulRush() {
               </div>
 
               <div style={{ fontSize: 11, color: '#444', borderTop: '1px solid #222', paddingTop: 12 }}>
-                Keyboard: &nbsp;<span style={{ color: '#666' }}>1–9</span> boss 1–9 · <span style={{ color: '#666' }}>0</span> boss 10 · <span style={{ color: '#666' }}>E</span> easier · <span style={{ color: '#666' }}>F</span> harder
+                Keyboard: &nbsp;<span style={{ color: '#666' }}>1–9</span> boss 1–9 · <span style={{ color: '#666' }}>0</span> boss 10 · <span style={{ color: '#666' }}>shift+1–0</span> boss 11–20 · <span style={{ color: '#666' }}>E</span> easier · <span style={{ color: '#666' }}>F</span> harder
               </div>
             </div>
           </div>
@@ -3593,7 +4961,7 @@ export default function SoulRush() {
         {bossGuideOpen && (
           <div style={OVERLAY_STYLE}>
             <div style={{ ...PANEL_STYLE, maxWidth: 560, maxHeight: '90vh', overflowY: 'auto' }}>
-              <div style={{ color: '#cc44ff', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>BOSS GUIDE — 10 BOSSES</div>
+              <div style={{ color: '#cc44ff', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>BOSS GUIDE — {BOSSES.length} BOSSES</div>
               {BOSS_TIPS.map((tip, i) => (
                 <div key={i} style={{ marginBottom: 16 }}>
                   <div style={{ color: BOSSES[i].color, fontSize: 13, fontWeight: 'bold', marginBottom: 5 }}>

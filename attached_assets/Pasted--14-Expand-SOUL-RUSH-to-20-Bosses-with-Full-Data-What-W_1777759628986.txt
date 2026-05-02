@@ -1,0 +1,61 @@
+#14 - Expand SOUL RUSH to 20 Bosses with Full Data
+What & Why
+Expand the game from 10 bosses to 20 bosses. Introduce a rich, data-driven BOSSES array where each boss carries full metadata (name, title, difficulty, theme colors, personality, design description, arena modifier, reward item pool, and a waves array). Each wave object carries all fields needed to describe and execute it: id, name, description, duration, attackType, warningType, bulletSpeed, spawnRate, damage, arenaEffect, patternTags, and an execute string that maps to an attack function. Add a parallel ITEMS array of 20 collectible items, each with full metadata. The UI should derive wave counts from boss.waves.length dynamically.
+
+Done looks like
+The game has 20 distinct bosses, each with its own intro, theme colors, attack sequence, and post-boss screen.
+Each boss correctly has the exact number of named waves specified (Boss 1 = 5, Boss 2 = 6, … Boss 20 = 25).
+Every wave listed by name in the spec exists as a real wave object in the boss data AND has a working attack implementation that fires bullets/lasers/effects.
+A BOSSES array and ITEMS array are declared at the top of SoulRush.tsx (TypeScript, not script.js) with all required fields per the spec.
+The UI (boss intro screen, boss-win screen, title) reads boss.waves.length to display the wave total rather than hardcoding it.
+All 20 items exist in the ITEMS array with every required field (id, name, type, description, maxStack, usable, allowedInLeaderboard, iconShape, themeColor, effect, bossSource, rarity, useFunction).
+TypeScript has zero errors after the change.
+All 10 existing bosses are preserved exactly, with their attack behaviors unchanged; new bosses 11–20 each have at least 3 handcrafted signature attack functions and the remainder filled with remixed variants.
+Out of scope
+Visual item inventory or item use UI (future task)
+Leaderboard integration (Task #11)
+Tutorial (Task #12)
+Sound (Task #13)
+Changing the canvas/render engine or splitting into multiple files
+Steps
+Extend the BossConf and Wave interfaces — Add title, difficultyLabel, themeColors, personality, design, arenaModifier, rewardItemPool, and waves: Wave[] to the existing BossConf TypeScript interface. Add a Wave interface with all required fields. Keep the existing attacks: string[] field — it is derived from waves.map(w => w.execute) so existing attack dispatch logic continues to work unchanged.
+
+Expand BOSSES array entries 1–10 — Update each existing boss entry to include the new metadata fields and a properly structured waves array. Boss 1 gets 5 waves (Crystal Rain, Mirror Walls, Shatter Pulse, Prism Crossfire, Prism Prison); Bosses 2–10 get their specified wave names matching the existing attack functions already implemented. The attacks array should be derived automatically from waves.map(w => w.execute).
+
+Add ITEMS array — Declare the ITEMS array of 20 items (Prism Apple, Glitch Cookie, Halo Thread, Clock Tea, Crown Shard, Deep Battery, Bone Charm, Star Jam, Engine Core, Rule Eraser, Velvet Antidote, Choir Bell, Gravity Pin, Ember Mint, Static Patch, Atlas Crumb, Ink Fold, Echo Pearl, Moon String, Mistake Heart) with all required fields per spec.
+
+Add bosses 11–20 data entries — Write the full boss data objects for bosses 11–20 including all required metadata and wave objects. Boss 11 (15 waves), Boss 12 (16), Boss 13 (17), Boss 14 (18), Boss 15 (19), Boss 16 (20), Boss 17 (21), Boss 18 (22), Boss 19 (23), Boss 20 (25). Wave names per boss are specified in the plan. The execute string in each wave must map to one of the attack function names defined in step 5.
+
+Implement attack functions for bosses 11–20 — Write at least 3 distinct handcrafted attack functions per new boss (signature waves), plus shared/remixed variants for the remaining waves. Each attack function must have: a warning phase (visual marker before bullets appear), an active phase with real bullet/laser/entity spawning, and a cooldown. Reuse existing attack primitives (rings, clockHands, pistonBlocks, diagLasers, etc.) and vary parameters to create distinct feel. Implement all 10 new boss attack dispatch blocks in updateAttack().
+
+Wire wave count into UI — Update the boss intro screen, boss-win screen, and title screen to display boss.waves.length instead of any hardcoded wave count. Ensure the wave progress indicator (if any) uses the live count from the waves array.
+
+Typecheck and verify — Run pnpm --filter @workspace/soul-rush run typecheck with zero errors. Use the admin panel (password: Orcas@0112, guide: solution0112) to jump to each new boss and confirm attacks fire without runtime errors.
+
+Boss wave name reference
+Boss 1 (5 waves): Crystal Rain, Mirror Walls, Shatter Pulse, Prism Crossfire, Prism Prison
+Boss 2 (6 waves): Bit Storm, Error Sweep, Devour Lane, Corrupted Download, Input Rot, Cache Bite
+Boss 3 (7 waves): Halo Spiral, Judgment Beams, Wing Barrage, False Judgment, Null Verdict, Seraphic Cage, Broken Halo
+Boss 4 (8 waves): Gear Maze, Time Freeze, Clock Hand Slash, Rewind Strike, Midnight Loop, Second Hand Spiral, Pendulum Crush, Time Debt
+Boss 5 (9 waves): Impossible Script, Crown Collapse, Reality Tear, Broken Sentence, Crown of Static, Lost Paragraph, Glyph Spiral, Unreadable Maze, Royal Redaction
+Boss 6 (10 waves): Current Surge, Coil Trap, Undertow Pull, Deep Shock, Whirlpool Circuit, Abyss Spark, Tide Cage, Voltage Riptide, Serpent Loop, Blackwater Flash
+Boss 7 (11 waves): Bone Rain, Rib Cage, Halo Curse, Grave Hymn, Saint's Ossuary, Marrow Spiral, Skull Lanterns, Tomb Step, Bone Lattice, Red Prayer, Final Relic
+Boss 8 (12 waves): Starfall, Constellation Lines, False Star, Supernova Waltz, Royal Eclipse, Meteor Crown, Astral Mirror, Nebula Bloom, Comet Thread, Dark Sky Court, Star Map Trap, Queen's Nova
+Boss 9 (13 waves): Piston Crush, Engine Spin, Overheat, Compression Cycle, Meltdown Protocol, Furnace Lane, Cog Barrage, Rust Storm, Hydraulic Snap, Core Vent, Redline Grid, Shutdown Fakeout, Omega Cycle
+Boss 10 (14 waves): Rule Rewrite, Axis Collapse, Mirror Soul, Rule Stack, Undefined Behavior, Null Coordinate, Logic Spiral, Broken Equation, False Safe Zone, Geometry Collapse, Input Paradox, Axiom Cage, End of Pattern, Rule Zero
+Boss 11 (15 waves): Spore Bloom, Wing Dust, Infection Zones, Velvet Swarm, Plague Garden, Toxic Waltz, Moth Eclipse, Fever Rings, Velvet Veil, Antidote Fakeout, Green Cathedral, Rotting Petals, Spore Spiral, Plague Crown, Final Bloom
+Boss 12 (16 waves): Sound Bars, Choir Split, Silent Beat, Crescendo Crush, Dissonance Finale, Bass Drop, Mask Canon, Broken Rhythm, Echo Measure, Red Note Rain, Syncopation Trap, Chrome Hymn, Rest Note Fakeout, Double Tempo, Choir Wall, Final Chord
+Boss 13 (17 waves): Gravity Pull, Orbiting Teeth, Collapse Ring, Gravity Flip, Royal Singularity, Crown Well, Heavy Step, Orbit Break, Dark Matter Rain, Tidal Bite, Center Crush, Gravity Maze, Void Roar, Silver Orbit, Falling Crown, Singularity Cage, Rex Collapse
+Boss 14 (18 waves): Wax Drip, Flame Flicker, Funeral March, Last Ember, Melting Cathedral, Candle Tears, Wick Spiral, Blue Flame Lane, Wax Flood, Ember Cross, Flicker Fakeout, Smoke Veil, Mourning Bells, Lantern Drop, Cathedral Collapse, Final Candle, Ash Ring, Grave Flame
+Boss 15 (19 waves): Web Grid, Signal Bite, Screen Tear, Static Nest, Widow's Broadcast, Antenna Strike, Pink Noise, Pixel Web, Dead Channel, Signal Lag, Glitch Fang, Web Collapse, VHS Storm, Static Mirror, Corrupt Frame, Spider Pulse, Broken Feed, Final Broadcast, Widow Crash
+Boss 16 (20 waves): Meteor Lesson, Planet Tilt, Crater Burst, Tiny Apocalypse, World Drop, Magma Steps, Orbit Pebbles, Titan Toss, Continent Crack, Falling Lesson, Gravity Playground, Little Cataclysm, Planet Spin, Stone Rain, Cracked Horizon, Atlas Shrug, Moon Bounce, Small Extinction, Core Break, World Lesson
+Boss 17 (21 waves): Paper Cuts, Folded Walls, Ink Decree, Royal Guillotine, Thousand Folds, Origami Spears, Ink Rain, Scroll Maze, Paper Fan, Fold Trap, Red Stamp, Blade Script, Emperor's Letter, Paper Storm, Ink Mirror, Crown Fold, White Edge, Guillotine Hall, Final Decree, Shredded Throne, Thousand Cuts
+Boss 18 (22 waves): Echo Trail, Memory Replay, Vault Lock, Shattered Recall, Perfect Echo, Crystal Repeat, Ghost Step, Delayed Ring, Memory Shards, Past Mistake, Locked Reflection, Replayed Rain, Echo Cage, Vault Spiral, Familiar Beam, Old Pattern New Rules, Delayed Mirror, Recall Storm, Archive Collapse, Memory Leak, Crystal Afterimage, Final Echo
+Boss 19 (23 waves): String Pull, Puppet Dance, Moon Drop, Final Bow, Red Stage Collapse, Marionette Waltz, Lunar Strings, Blood Curtain, Dance Step Trap, Silver Hook, Puppet Spin, Moon Shatter, String Cage, Red Spotlight, Theater Crush, Cruel Applause, Hanging Thread, Blood Moon Rain, Stage Tilt, Last Dance, Curtain Call, Broken Puppet, Moonlit Finale
+Boss 20 (25 waves): Regret Spiral, Boss Memory Chain, Broken Controls, Soul Duel, Memory Overload, Last Mistake, Final Error, Crystal Regret, Glitch Hunger, Null Prayer, Clock Debt, Unreadable Crown, Deep Current Memory, Bone Confession, False Star Memory, Omega Ruin, Axiom Rewrite, Velvet Infection, Iron Dissonance, Gravity Sin, Candle Mourning, Static Widow Memory, Atlas Burden, Paper Judgment, First Mistake
+Item list
+Prism Apple, Glitch Cookie, Halo Thread, Clock Tea, Crown Shard, Deep Battery, Bone Charm, Star Jam, Engine Core, Rule Eraser, Velvet Antidote, Choir Bell, Gravity Pin, Ember Mint, Static Patch, Atlas Crumb, Ink Fold, Echo Pearl, Moon String, Mistake Heart
+
+Relevant files
+artifacts/soul-rush/src/game/SoulRush.tsx
+artifacts/soul-rush/package.json
