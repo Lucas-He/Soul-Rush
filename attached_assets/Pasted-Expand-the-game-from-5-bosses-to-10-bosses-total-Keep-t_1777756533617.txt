@@ -1,0 +1,116 @@
+Expand the game from 5 bosses to 10 bosses total.
+
+Keep the first 5 bosses:
+1. Virel, the Glass Warden
+2. Mawbyte, the Hungry Code
+3. Seraph Null
+4. Orryx, the Clock Eater
+5. The Unreadable King
+
+Add 5 new bosses after them:
+
+Boss 6: “Nyxcoil, the Deep Current”
+Difficulty: Beyond Insane
+Design:
+- A giant electric eel/sea serpent made of glowing blue coils.
+- Dark ocean background with lightning-like currents.
+Personality:
+- Silent, predatory, fast.
+Moves:
+1. Current Surge: electric lines sweep across the battle box after warning flashes.
+2. Coil Trap: curved bullet streams form temporary cages.
+3. Undertow Pull: the player is gently pulled toward one side while dodging.
+Special:
+- Adds water-current physics that push the player slightly.
+
+Boss 7: “Marrow Saint”
+Difficulty: Nightmare
+Design:
+- A floating skeletal priest with bone wings and a cracked halo.
+- White, gray, and crimson theme.
+Personality:
+- Quiet, ritualistic, haunting.
+Moves:
+1. Bone Rain: bone-shaped bullets fall in offset patterns.
+2. Rib Cage: vertical bone walls close inward, leaving small gaps.
+3. Halo Curse: circular bullets orbit the player briefly before flying outward.
+Special:
+- Some attacks track the player’s previous position, not their current position.
+
+Boss 8: “Luxora, Queen of False Stars”
+Difficulty: Ultra Nightmare
+Design:
+- Cosmic queen with starry cloak, glowing crown, and floating constellations.
+- Purple, gold, and cosmic blue theme.
+Personality:
+- Elegant, proud, deceptive.
+Moves:
+1. Starfall: stars fall from the top with warning sparkles.
+2. Constellation Lines: laser lines connect stars inside the battle box.
+3. False Star: fake warning markers appear, but only brighter ones become real hazards.
+Special:
+- Teaches the player to read visual priority carefully.
+
+Boss 9: “Ruin Engine Omega”
+Difficulty: Impossible
+Design:
+- Massive broken machine core with rotating arms, pistons, and red warning lights.
+- Industrial black, orange, and steel theme.
+Personality:
+- Cold machine logic.
+Moves:
+1. Piston Crush: large blocks slam from the sides after warnings.
+2. Engine Spin: rotating bullet arms sweep around the box.
+3. Overheat: danger zones appear on the floor and explode after a delay.
+Special:
+- The arena temporarily shrinks during some attacks.
+
+Boss 10: “Axiom, the End of Rules”
+Difficulty: Final Unfair-but-Dodgeable
+Design:
+- Abstract godlike boss made of floating equations, eyes, shattered masks, and broken geometry.
+- White, black, neon cyan, and red theme.
+Personality:
+- Calm, impossible, reality-breaking.
+Moves:
+1. Rule Rewrite: the battle box changes shape temporarily.
+2. Axis Collapse: vertical and horizontal laser grids appear with safe gaps.
+3. Mirror Soul: a fake heart mirrors movement, but touching the fake heart also causes damage.
+4. Pattern Overload: combines spiral bullets, lasers, falling symbols, and shrinking arena.
+5. Final Rule: for the last survival wave, every previous boss’s signature attack appears briefly in sequence.
+Special:
+- This should be the hardest boss in the game.
+- It must be visually overwhelming but still readable with warning indicators.
+
+Update Game Flow:
+- Title screen should say “10-Boss Rush Mode.”
+- After each boss, continue to the next boss.
+- After Boss 10, show final victory screen:
+  “You survived the end of rules.”
+- Update admin panel to include Boss 1 through Boss 10.
+- After admin mode is enabled, number keys should work like this:
+  - 1 = Boss 1
+  - 2 = Boss 2
+  - 3 = Boss 3
+  - 4 = Boss 4
+  - 5 = Boss 5
+  - 6 = Boss 6
+  - 7 = Boss 7
+  - 8 = Boss 8
+  - 9 = Boss 9
+  - 0 = Boss 10
+
+Admin Panel Requirements:
+- Add buttons for all 10 bosses.
+- Boss switching must reset HP, bullets, hazards, timers, warnings, screen shake, fake hearts, and arena effects.
+- Difficulty controls should still work for all bosses.
+- F = harder.
+- E = easier.
+- Show current difficulty multiplier.
+
+Important:
+- Do not remove the existing admin command input box.
+- The admin code is still: Orcas@0112
+- Do not make the new bosses copies of old bosses.
+- Each boss must have a unique design, color theme, personality, and at least 3 unique attacks.
+- The 10th boss should combine mechanics from the whole game.
