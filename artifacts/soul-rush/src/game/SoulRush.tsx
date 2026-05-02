@@ -955,29 +955,33 @@ function doGearMaze(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// clockSlash: Two clock hands warm up then sweep. The warm-up glow IS the warning.
+// clockSlash: Phase 0 — clock hands spawn in warming=true (dim, non-damaging) for 1.2s
+// as a visible telegraph. Phase 1 — hands flip to warming=false (bright, damaging).
 function doClockSlash(g: GameData, dt: number, boss: BossConf) {
-  if (g.clockHands.length === 0 && g.phase === 0) {
-    g.phase = 1; g.phaseTimer = 1.0;
-  }
-  if (g.phase === 1) {
-    g.phaseTimer -= dt;
-    if (g.phaseTimer <= 0 && g.clockHands.length === 0) {
+  if (g.phase === 0) {
+    if (g.clockHands.length === 0) {
       const spd = sm(g);
       g.clockHands.push({
         id: nid(g), cx: BCX, cy: BCY,
         len: BW * 0.44, wid: 12,
-        angle: 0, rotSpd: 1.25 * spd, color: boss.color, warming: false,
+        angle: 0, rotSpd: 1.25 * spd, color: boss.color, warming: true,
       });
       g.clockHands.push({
         id: nid(g), cx: BCX, cy: BCY,
         len: BW * 0.28, wid: 16,
-        angle: Math.PI, rotSpd: -0.9 * spd, color: boss.color2, warming: false,
+        angle: Math.PI, rotSpd: -0.9 * spd, color: boss.color2, warming: true,
       });
+    }
+    g.phaseTimer += dt;
+    for (const hand of g.clockHands) hand.angle += hand.rotSpd * dt;
+    if (g.phaseTimer >= 1.2) {
+      g.phase = 1;
+      for (const hand of g.clockHands) hand.warming = false;
       shake(g);
     }
+  } else {
+    for (const hand of g.clockHands) hand.angle += hand.rotSpd * dt;
   }
-  for (const hand of g.clockHands) hand.angle += hand.rotSpd * dt;
 }
 
 // timeFreeze: Spawns bullets, FREEZES them with warning text, then resumes at high speed.
@@ -1228,6 +1232,8 @@ function update(
   }
   if (g.state === 'intro') {
     g.introTimer += cap;
+    // R or Escape restarts from title from any screen
+    if (g.keys.has('r') || g.keys.has('R')) { resetForBoss(g, 0); g.state = 'title'; return; }
     const boss = BOSSES[g.bossIdx];
     if (g.introTimer >= 2.0 && g.introLine < boss.dialog.length - 1 && (g.keys.has('Enter') || g.keys.has(' '))) {
       g.introLine++; g.introTimer = 0;
@@ -1241,6 +1247,7 @@ function update(
   }
   if (g.state === 'bossWin') {
     g.postBossTimer += cap;
+    if (g.keys.has('r') || g.keys.has('R')) { resetForBoss(g, 0); g.state = 'title'; return; }
     if (g.postBossTimer >= 3.0 && (g.keys.has('Enter') || g.keys.has(' '))) {
       const next = g.bossIdx + 1;
       if (next >= BOSSES.length) { g.state = 'victory'; }
@@ -1250,11 +1257,11 @@ function update(
   }
   if (g.state === 'gameOver') {
     g.gameOverTimer += cap;
-    if (g.gameOverTimer >= 1.5 && g.keys.has('r')) { resetForBoss(g, 0); g.state = 'title'; g.gameOverTimer = 0; }
+    if (g.gameOverTimer >= 1.5 && (g.keys.has('r') || g.keys.has('R'))) { resetForBoss(g, 0); g.state = 'title'; g.gameOverTimer = 0; }
     return;
   }
   if (g.state === 'victory') {
-    if (g.keys.has('r') || g.keys.has('Enter') || g.keys.has(' ')) { resetForBoss(g, 0); g.state = 'title'; }
+    if (g.keys.has('r') || g.keys.has('R') || g.keys.has('Enter') || g.keys.has(' ')) { resetForBoss(g, 0); g.state = 'title'; }
     return;
   }
 
@@ -1980,23 +1987,29 @@ const PANEL_STYLE: React.CSSProperties = {
 };
 
 export default function SoulRush() {
-  const canvasRef      = useRef<HTMLCanvasElement>(null);
-  const gameRef        = useRef<GameData>(createState());
-  const rafRef         = useRef<number>(0);
-  const lastRef        = useRef<number>(0);
-  const pausedRef      = useRef<boolean>(false);
+  const canvasRef       = useRef<HTMLCanvasElement>(null);
+  const gameRef         = useRef<GameData>(createState());
+  const rafRef          = useRef<number>(0);
+  const lastRef         = useRef<number>(0);
+  const pausedRef       = useRef<boolean>(false);
   const inputFocusedRef = useRef<boolean>(false);
-  const diffIdxRef     = useRef<number>(1);
+  const diffIdxRef      = useRef<number>(1);
+  // adminModeRef is declared BEFORE useEffect so the RAF loop can read it live
+  const adminModeRef    = useRef<boolean>(false);
 
-  const [adminInput,    setAdminInput]    = useState('');
-  const [adminMode,     setAdminMode]     = useState(false);
+  const [adminInput,     setAdminInput]     = useState('');
+  const [adminMode,      setAdminModeState] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
   const [bossGuideOpen,  setBossGuideOpen]  = useState(false);
   const [diffIdx,        setDiffIdxState]   = useState(1);
   const [adminMsg,       setAdminMsg]       = useState('');
-  const [,               forceRedraw]       = useState(0);
 
-  // Keep diffIdxRef and game diffMult in sync
+  // Wrapper that keeps the ref and state in sync
+  const enableAdmin = () => {
+    adminModeRef.current = true;
+    setAdminModeState(true);
+  };
+
   const setDiffIdx = (n: number) => {
     diffIdxRef.current = n;
     setDiffIdxState(n);
@@ -2005,7 +2018,6 @@ export default function SoulRush() {
 
   const jumpBoss = (idx: number) => {
     jumpToBoss(gameRef.current, idx);
-    forceRedraw(v => v + 1);
   };
 
   useEffect(() => {
@@ -2016,7 +2028,7 @@ export default function SoulRush() {
     const g = gameRef.current;
 
     const onDown = (e: KeyboardEvent) => {
-      if (inputFocusedRef.current) return; // suppress game keys when typing in admin input
+      if (inputFocusedRef.current) return;
       g.keys.add(e.key);
       if ((e.key === 'p' || e.key === 'P') && g.state === 'playing') pausedRef.current = !pausedRef.current;
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
@@ -2028,27 +2040,25 @@ export default function SoulRush() {
     window.addEventListener('keydown', onDown);
     window.addEventListener('keyup', onUp);
 
-    let localAdminMode = false;
-    let localDiffIdx = diffIdxRef.current;
-
     const loop = (ts: number) => {
       const dt = Math.min((ts - lastRef.current) / 1000, 0.05);
       lastRef.current = ts;
 
-      // Read latest admin/diff state into local vars for the render call
-      localDiffIdx = diffIdxRef.current;
+      // Read live values from refs — no stale closure issues
+      const isAdmin = adminModeRef.current;
+      const dIdx    = diffIdxRef.current;
 
       if (!pausedRef.current) {
         update(
           g, dt,
-          localAdminMode,
+          isAdmin,
           diffIdxRef,
-          (n) => { setDiffIdx(n); localDiffIdx = n; },
-          (idx) => { jumpBoss(idx); },
+          setDiffIdx,
+          jumpBoss,
           inputFocusedRef.current,
         );
       }
-      render(ctx, g, localAdminMode, localDiffIdx);
+      render(ctx, g, isAdmin, dIdx);
 
       if (pausedRef.current) {
         ctx.fillStyle = 'rgba(0,0,0,0.62)'; ctx.fillRect(0, 0, W, H);
@@ -2062,36 +2072,20 @@ export default function SoulRush() {
     };
 
     lastRef.current = performance.now();
-    rafRef.current = requestAnimationFrame(loop);
-
-    // Expose localAdminMode mutation to React state changes
-    const syncAdmin = setInterval(() => {
-      // Sync localAdminMode from React state via a closure trick
-    }, 500);
+    rafRef.current  = requestAnimationFrame(loop);
 
     return () => {
       window.removeEventListener('keydown', onDown);
       window.removeEventListener('keyup', onUp);
       cancelAnimationFrame(rafRef.current);
-      clearInterval(syncAdmin);
     };
-  }, []);
-
-  // Sync adminMode into the game loop via a ref effect
-  const adminModeRef = useRef(false);
-  useEffect(() => { adminModeRef.current = adminMode; }, [adminMode]);
-
-  // Separate effect to keep the game loop aware of latest admin mode (via closure leak workaround)
-  // The loop reads adminModeRef.current indirectly via the render/update wrapper.
-  // Because loop is a closure defined in the effect, we instead drive it through the canvas re-render.
-
-  const showAdminInput = gameRef.current.state !== 'playing' || pausedRef.current;
+  }, []);  // empty deps — loop reads everything via refs, no re-subscription needed
 
   const handleAdminInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return;
     const val = adminInput.trim();
     if (val === 'Orcas@0112') {
-      setAdminMode(true);
+      enableAdmin();
       setAdminPanelOpen(true);
       setAdminMsg('ADMIN MODE ENABLED.');
       setTimeout(() => setAdminMsg(''), 3000);
@@ -2113,6 +2107,11 @@ export default function SoulRush() {
     margin: 3,
   });
 
+  // Admin input is only shown on non-playing screens (title, intro, bossWin, gameOver, victory)
+  // During active gameplay the input is hidden so it does not distract or intercept keys.
+  const gameState = gameRef.current.state;
+  const showAdminInput = gameState !== 'playing';
+
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', overflow: 'hidden', position: 'relative' }}>
       <div style={{ position: 'relative' }}>
@@ -2127,7 +2126,7 @@ export default function SoulRush() {
         {adminPanelOpen && (
           <div style={OVERLAY_STYLE}>
             <div style={PANEL_STYLE}>
-              <div style={{ color: '#00ffcc', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>⚙ ADMIN PANEL</div>
+              <div style={{ color: '#00ffcc', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>ADMIN PANEL</div>
               <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Difficulty</div>
               <div style={{ marginBottom: 18 }}>
                 {DIFF_LEVELS.map((dl, i) => (
@@ -2143,7 +2142,7 @@ export default function SoulRush() {
                   </button>
                 ))}
               </div>
-              <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Boss Select</div>
+              <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Boss Select (jumps with full HP)</div>
               <div style={{ marginBottom: 18 }}>
                 {BOSSES.map((b, i) => (
                   <button
@@ -2155,8 +2154,8 @@ export default function SoulRush() {
                   </button>
                 ))}
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: '#555', marginBottom: 12 }}>
-                During play: 1-5 jump boss · E/F adjust difficulty
+              <div style={{ marginTop: 4, fontSize: 11, color: '#555', marginBottom: 14 }}>
+                During play: keys 1-5 jump boss · E decrease difficulty · F increase difficulty
               </div>
               <button style={btnStyle('#888')} onClick={() => setAdminPanelOpen(false)}>Close</button>
             </div>
@@ -2166,14 +2165,14 @@ export default function SoulRush() {
         {/* Boss guide overlay */}
         {bossGuideOpen && (
           <div style={OVERLAY_STYLE}>
-            <div style={{ ...PANEL_STYLE, maxWidth: 520 }}>
-              <div style={{ color: '#cc44ff', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>📖 BOSS GUIDE</div>
+            <div style={{ ...PANEL_STYLE, maxWidth: 520, maxHeight: '90vh', overflowY: 'auto' }}>
+              <div style={{ color: '#cc44ff', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>BOSS GUIDE</div>
               {BOSS_TIPS.map((tip, i) => (
-                <div key={i} style={{ marginBottom: 14 }}>
-                  <div style={{ color: BOSSES[i].color, fontSize: 13, fontWeight: 'bold', marginBottom: 4 }}>
+                <div key={i} style={{ marginBottom: 16 }}>
+                  <div style={{ color: BOSSES[i].color, fontSize: 13, fontWeight: 'bold', marginBottom: 5 }}>
                     Boss {i + 1}: {tip.name}
                   </div>
-                  <div style={{ fontSize: 11, color: '#999', lineHeight: 1.55 }}>{tip.tip}</div>
+                  <div style={{ fontSize: 11, color: '#999', lineHeight: 1.6 }}>{tip.tip}</div>
                 </div>
               ))}
               <button style={{ ...btnStyle('#888'), marginTop: 8 }} onClick={() => setBossGuideOpen(false)}>Close</button>
@@ -2181,7 +2180,7 @@ export default function SoulRush() {
           </div>
         )}
 
-        {/* Admin confirmation message */}
+        {/* Admin confirmation toast */}
         {adminMsg && (
           <div style={{
             position: 'absolute', bottom: 60, right: 12,
@@ -2193,30 +2192,32 @@ export default function SoulRush() {
           </div>
         )}
 
-        {/* Admin input box — shown on non-playing screens */}
-        <input
-          type="text"
-          value={adminInput}
-          placeholder="Admin command"
-          onChange={e => setAdminInput(e.target.value)}
-          onKeyDown={handleAdminInput}
-          onFocus={() => { inputFocusedRef.current = true; }}
-          onBlur={() => { inputFocusedRef.current = false; }}
-          style={{
-            position: 'absolute',
-            bottom: 10, right: 10,
-            width: 140,
-            background: '#050505',
-            border: '1px solid #222',
-            color: '#555',
-            fontFamily: '"Courier New", monospace',
-            fontSize: 11,
-            padding: '4px 8px',
-            borderRadius: 3,
-            outline: 'none',
-            opacity: 0.6,
-          }}
-        />
+        {/* Admin input — hidden during active gameplay to prevent key conflicts */}
+        {showAdminInput && (
+          <input
+            type="text"
+            value={adminInput}
+            placeholder="Admin command"
+            onChange={e => setAdminInput(e.target.value)}
+            onKeyDown={handleAdminInput}
+            onFocus={() => { inputFocusedRef.current = true; }}
+            onBlur={() => { inputFocusedRef.current = false; }}
+            style={{
+              position: 'absolute',
+              bottom: 10, right: 10,
+              width: 140,
+              background: '#050505',
+              border: '1px solid #222',
+              color: '#555',
+              fontFamily: '"Courier New", monospace',
+              fontSize: 11,
+              padding: '4px 8px',
+              borderRadius: 3,
+              outline: 'none',
+              opacity: 0.6,
+            }}
+          />
+        )}
       </div>
     </div>
   );
