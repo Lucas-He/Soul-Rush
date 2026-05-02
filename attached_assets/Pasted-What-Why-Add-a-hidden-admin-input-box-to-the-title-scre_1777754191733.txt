@@ -1,0 +1,46 @@
+What & Why
+Add a hidden admin input box to the title screen (and pause/game-over states) that unlocks a developer panel when the correct password is entered. The panel lets developers jump to any boss, reset HP, and tweak the difficulty multiplier. Also adjusts baseline difficulty so Boss 1 is harder (with a tougher third wave), Boss 2 is easier, and adds a secret "solution0112" code that reveals tips on how to beat each boss.
+
+Done looks like
+A small, low-prominence input box with placeholder "Admin command" sits in a corner of the title screen and any non-playing overlay screen (game over, boss win).
+Typing Orcas@0112 and pressing Enter displays "ADMIN MODE ENABLED." and opens the admin panel overlay.
+The admin panel shows Boss Select buttons (one per boss). Clicking one instantly starts that boss fight with full HP and a clean state (all bullets, lasers, rings, gears, hazards cleared).
+"Easier" and "Harder" buttons adjust a global difficulty multiplier shown on screen (Easy 0.75x / Normal 1.0x / Hard 1.25x / Extreme 1.5x / Nightmare 2.0x).
+While admin mode is active, keyboard shortcuts work during gameplay: number keys jump to the corresponding boss, E decreases difficulty, F increases difficulty.
+The current difficulty multiplier label is visible on screen while admin mode is active.
+Typing in the input box suppresses all player movement input (arrow keys / WASD do not move the player while the box is focused).
+Admin mode persists until the page is reloaded; the panel is never shown unless the password is entered.
+Boss 1 is noticeably harder than before: bullet speed and attack frequency are increased for its base difficulty.
+Boss 1's third wave is the hardest wave of that fight: it fires more projectiles, moves faster, or adds an extra attack pattern compared to waves 1 and 2.
+Boss 2 is noticeably easier than before: bullet speed and attack frequency are reduced for its base difficulty.
+Typing solution0112 in the admin input box (regardless of admin mode state) and pressing Enter opens a "Boss Guide" overlay that shows a short tip/strategy for beating each boss (e.g., "Boss 1: Stay near the center and dodge clockwise during wave 3.").
+The Boss Guide overlay has a close button and can be reopened any time via the same code.
+Out of scope
+Saving admin state to localStorage.
+Unlocking individual attacks or sub-phases within a boss.
+Any multiplayer or networked cheating protections.
+Steps
+Admin state — Add admin-related fields to GameData / createState: adminMode (boolean), difficultyMultiplier (number, default 1.0), adminPanelOpen (boolean), adminInputValue (string), and bossGuideOpen (boolean). Define the ordered difficulty levels (0.75, 1.0, 1.25, 1.5, 2.0) with display labels.
+
+Admin input box (HTML overlay) — Render a small <input> element via React positioned absolutely in the bottom-right corner. Show it on title, gameOver, and bossWin states. Wire its onChange to update adminInputValue, and on Enter key check for both passwords. Ensure focus on this input suppresses the global keys set via the input's onFocus/onBlur.
+
+Password validation — admin panel — When Orcas@0112 is submitted, set adminMode = true, adminPanelOpen = true, and clear the input. Show a brief "ADMIN MODE ENABLED." confirmation.
+
+Password validation — boss guide — When solution0112 is submitted (regardless of admin mode), set bossGuideOpen = true and clear the input. This code works even without admin mode active.
+
+Boss Guide overlay (HTML) — Render a semi-transparent HTML overlay when bossGuideOpen is true. List each boss with a short strategy tip explaining how to beat it (movement pattern, weak point, which wave to watch for, etc.). Include a close button that sets bossGuideOpen = false.
+
+Admin panel overlay (HTML) — Render a semi-transparent HTML overlay panel when adminPanelOpen is true. Include Boss Select buttons, Easier/Harder buttons, and a close/hide button. Show the current difficulty label in the panel.
+
+Boss jump logic — Implement a jumpToBoss(bossIndex) helper that resets player HP to full, clears all active projectiles/lasers/rings/gears/hazards, resets attack timers, sets the current boss index, and transitions to intro then playing.
+
+Boss 1 difficulty increase — Raise Boss 1's base bullet speed, attack frequency, and projectile count so it is visibly harder than the current default. Specifically make wave 3 of Boss 1 more intense than waves 1 and 2 (more bullets, faster movement, or an extra attack pattern unique to that wave).
+
+Boss 2 difficulty decrease — Lower Boss 2's base bullet speed and attack frequency so it is noticeably easier than the current default, serving as a breather after the harder Boss 1.
+
+Difficulty multiplier integration — Apply difficultyMultiplier to attack speed, bullet count, and damage parameters when bosses spawn attacks, scaling on top of each boss's adjusted base values.
+
+Admin keyboard shortcuts — During playing state (when the admin input box is NOT focused), listen for number keys to jump bosses and E/F keys to step difficulty down/up. Guard behind adminMode === true.
+
+Difficulty HUD — While adminMode is true, render a small difficulty label (e.g., "Hard 1.25x") in a corner of the canvas during gameplay via the existing drawUI function.
+

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // ================================================================
 //  SOUL RUSH — Original Bullet-Hell Boss Fight Game
@@ -6,31 +6,122 @@ import { useEffect, useRef } from 'react';
 //  Inspired by bullet-hell mechanics — all art generated in code.
 // ================================================================
 
-// --- CANVAS & BATTLE BOX ---
+// ================================================================
+// WEB AUDIO PLACEHOLDERS
+// Uncomment and extend to add procedural audio with the Web Audio API.
+// AudioContext is created lazily on first user gesture to respect
+// browser autoplay policies.
+// ================================================================
+
+// let _audioCtx: AudioContext | null = null;
+// function _getAC(): AudioContext {
+//   if (!_audioCtx) _audioCtx = new AudioContext();
+//   return _audioCtx;
+// }
+
+// /** Short descending tone — play when player takes a hit */
+// function sfxHit() {
+//   const ac = _getAC();
+//   const o = ac.createOscillator(); const g = ac.createGain();
+//   o.connect(g); g.connect(ac.destination);
+//   o.frequency.setValueAtTime(330, ac.currentTime);
+//   o.frequency.exponentialRampToValueAtTime(110, ac.currentTime + 0.18);
+//   g.gain.setValueAtTime(0.35, ac.currentTime);
+//   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.22);
+//   o.start(ac.currentTime); o.stop(ac.currentTime + 0.24);
+// }
+
+// /** Rising buzz — play when a laser or beam fires */
+// function sfxLaser() { /* filtered noise burst, 880→220 Hz, 0.15s */ }
+
+// /** Brief 880 Hz ping — play when attack warning markers appear */
+// function sfxWarning() { /* sine osc, 880 Hz, gain 0.15, 0.1s */ }
+
+// /** Ascending 3-note arpeggio — play when a boss is defeated */
+// function sfxBossDefeat() { /* 220→330→440 Hz sequence, 0.12s each */ }
+
+// /** Low rumble + frequency drop — play when time freeze activates */
+// function sfxTimeFreeze() { /* osc sweep 200→80 Hz + noise, 0.3s */ }
+
+// Note: call sfxHit() in the collision block, sfxLaser() when lasers activate,
+// sfxWarning() when phase-0 warning markers are spawned, sfxBossDefeat()
+// on bossWin state entry, sfxTimeFreeze() when timeFrozen becomes true.
+
+// ================================================================
+// CANVAS & BATTLE BOX
+// ================================================================
+
 const W = 800;
 const H = 600;
-const BX = 220;    // battle box left
-const BY = 148;    // battle box top
-const BW = 360;    // battle box width
-const BH = 285;    // battle box height
-const BCX = BX + BW / 2;  // box center x
-const BCY = BY + BH / 2;  // box center y
+const BX = 220;
+const BY = 148;
+const BW = 360;
+const BH = 285;
+const BCX = BX + BW / 2;
+const BCY = BY + BH / 2;
 
-// --- PLAYER ---
-const P_SPEED  = 195;   // px/s
+const P_SPEED  = 195;
 const P_MAX_HP = 100;
-const P_INV    = 1.5;   // seconds invincibility after hit
-const P_HIT_R  = 4;     // collision radius (px)
+const P_INV    = 1.5;
+const P_HIT_R  = 4;
 
-// --- SCREEN SHAKE ---
 const SHAKE_AMT = 8;
 const SHAKE_DUR = 0.28;
+
+// ================================================================
+// DIFFICULTY LEVELS
+// ================================================================
+
+const DIFF_LEVELS = [
+  { label: 'Easy',      mult: 0.75 },
+  { label: 'Normal',    mult: 1.0  },
+  { label: 'Hard',      mult: 1.25 },
+  { label: 'Extreme',   mult: 1.5  },
+  { label: 'Nightmare', mult: 2.0  },
+];
+
+// ================================================================
+// BOSS GUIDE TIPS
+// ================================================================
+
+const BOSS_TIPS = [
+  {
+    name: 'Virel the Glass Warden',
+    tip: 'Crystal Rain: hover near center and weave between falling shards — they have slight horizontal drift so keep moving. Mirror Walls: there is always at least one safe corridor; read the warning lines. Wave 3 (Shatter Pulse): find a gap angle before the ring reaches you and hold it — the ring expands from the center.',
+  },
+  {
+    name: 'Mawbyte the Hungry Code',
+    tip: 'Watch the edge warning arrows — they show WHICH side bullets come from. Move to the opposite wall when you see the warning. Devour Lane: the bright green SAFE stripe is your only refuge — get there fast. Control flip warning means your controls are about to reverse — pre-move to center.',
+  },
+  {
+    name: 'Seraph Null',
+    tip: 'Dim/dark beam warnings are FAKE safe zones — only the bright amber warnings become real lasers. Halo Spiral: orbit wide around the top center. Wing Barrage: the safe gap is horizontal center between alternating left/right volleys.',
+  },
+  {
+    name: 'Orryx the Clock Eater',
+    tip: 'TIME DISTORTION WARNING means your speed is about to fluctuate — hug the center away from gears. Time Freeze: carefully pre-position into a safe corridor BEFORE bullets unfreeze — they resume at 1.8× speed. Clock Slash: the hands sweep outward from center, so hugging the very center is safest.',
+  },
+  {
+    name: 'The Unreadable King',
+    tip: 'Impossible Script: find a thin vertical channel near either wall and hold steady. Crown Collapse: stand at the absolute edge or very center — bullets converge inward. Reality Tear: pulsing red zones are deadly when solid — watch the flash warning. Soul Split: ignore the orange fake heart and focus only on your own movement. Final Pattern: prioritise the dense vertical rain first, then orbit the spiral arms.',
+  },
+];
 
 // ================================================================
 // TYPES
 // ================================================================
 
 type State = 'title' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory';
+
+interface WarnMarker {
+  id: number;
+  x: number; y: number;
+  angle: number;
+  r: number;
+  color: string;
+  timer: number;
+  maxTimer: number;
+}
 
 interface Player {
   x: number; y: number;
@@ -53,7 +144,7 @@ interface Bullet {
 interface LaserWarn {
   id: number;
   type: 'h' | 'v';
-  pos: number;    // y for 'h', x for 'v'
+  pos: number;
   width: number;
   timer: number;
   color: string;
@@ -93,7 +184,7 @@ interface Ring {
   cx: number; cy: number;
   r: number; speed: number;
   thick: number;
-  gaps: number[];  // gap center angles (radians)
+  gaps: number[];
   gapSz: number;
   color: string;
 }
@@ -143,7 +234,6 @@ interface BossConf {
 
 // ================================================================
 // BOSS DEFINITIONS
-// Each boss has unique color, attacks, and personality.
 // ================================================================
 
 const BOSSES: BossConf[] = [
@@ -157,7 +247,7 @@ const BOSSES: BossConf[] = [
       '...Your soul is transparent to me.',
       'Precision is eternal. Let us begin.'
     ],
-    // Boss 1: Teaches warning indicators. Crystal attacks, laser walls, rings.
+    // Boss 1 — harder base: faster rain, escalating waves. Wave 3 = shatterPulse is most intense.
     attacks: ['crystalRain', 'mirrorWalls', 'shatterPulse', 'crystalRain', 'mirrorWalls'],
     dmg: 10,
     atkDur: 7,
@@ -172,7 +262,7 @@ const BOSSES: BossConf[] = [
       'ERR_SOUL_DETECTED // CONSUMING...',
       'HUNGRY // HUNGRY // HUNGRY //'
     ],
-    // Boss 2: Chaotic. Square bullets, sweeping bars, safe lanes, control flip.
+    // Boss 2 — easier base: longer spawn intervals, slower bullets.
     attacks: ['bitStorm', 'errorSweep', 'devourLane', 'bitStorm', 'errorSweep', 'devourLane'],
     dmg: 12,
     atkDur: 8,
@@ -187,7 +277,6 @@ const BOSSES: BossConf[] = [
       'Insufficient. Begin examination.',
       'Your score: failing. Proceed, if you can.'
     ],
-    // Boss 3: Judges. Spiral bullets, diagonal beams (some fake), wing salvos.
     attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'haloSpiral', 'judgmentBeams'],
     dmg: 14,
     atkDur: 8,
@@ -202,7 +291,6 @@ const BOSSES: BossConf[] = [
       'T  i  m  e...  s  l  o  w  s...',
       'You cannot outrun the gears of eternity.'
     ],
-    // Boss 4: Time manipulation. Rotating gears, clock hands, time freeze.
     attacks: ['gearMaze', 'clockSlash', 'timeFreeze', 'gearMaze', 'clockSlash', 'gearMaze'],
     dmg: 15,
     atkDur: 9,
@@ -217,7 +305,6 @@ const BOSSES: BossConf[] = [
       'T\u0336H\u0337E\u0338 \u0336E\u0337N\u0338D\u0336 \u0337I\u0338S\u0336 \u0337R\u0338E\u0336A\u0337D\u0338Y\u0336',
       'Y\u0336o\u0337u\u0338 \u0336c\u0337a\u0338n\u0336n\u0337o\u0338t\u0336 \u0337r\u0338e\u0336a\u0337d\u0338 \u0336t\u0337h\u0338i\u0336s\u0337'
     ],
-    // Boss 5: Reality collapse. Dense rain, crown patterns, danger zones, soul split, final combo.
     attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'soulSplit', 'impossibleScript', 'finalPattern'],
     dmg: 18,
     atkDur: 10,
@@ -260,6 +347,8 @@ interface GameData {
   gears: Gear[];
   clockHands: ClockHand[];
   fakeSoul: FakeSoul;
+  warnMarkers: WarnMarker[];
+  selectedEdge: number;
 
   ctrlFlipped: boolean;
   ctrlFlipTimer: number;
@@ -269,12 +358,15 @@ interface GameData {
   timeFrozen: boolean;
   timeFreezeTimer: number;
 
-  devourLane: number;   // -1 = no lane, 0-4 = safe lane index
+  devourLane: number;
   devourActive: boolean;
 
   shakeX: number; shakeY: number; shakeTimer: number;
   keys: Set<string>;
   nextId: number;
+
+  // Admin / difficulty
+  diffMult: number;
 }
 
 function createState(): GameData {
@@ -289,12 +381,14 @@ function createState(): GameData {
     diagWarns: [], diagLasers: [],
     rings: [], dangerZones: [], gears: [], clockHands: [],
     fakeSoul: { active: false, x: 0, y: 0 },
+    warnMarkers: [], selectedEdge: -1,
     ctrlFlipped: false, ctrlFlipTimer: 0,
     timeDistorted: false, timeDistortTimer: 0,
     timeFrozen: false, timeFreezeTimer: 0,
     devourLane: -1, devourActive: false,
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
+    diffMult: 1.0,
   };
 }
 
@@ -315,11 +409,28 @@ function clearEntities(g: GameData) {
   g.diagWarns = []; g.diagLasers = [];
   g.rings = []; g.dangerZones = []; g.gears = []; g.clockHands = [];
   g.fakeSoul = { active: false, x: 0, y: 0 };
+  g.warnMarkers = []; g.selectedEdge = -1;
   g.devourActive = false; g.devourLane = -1;
   g.timeFrozen = false;
 }
 
+/** Instantly jump to a boss with full HP and clean state */
+function jumpToBoss(g: GameData, idx: number) {
+  resetForBoss(g, idx);
+  g.state = 'playing';
+}
+
 function nid(g: GameData) { return g.nextId++; }
+
+// ================================================================
+// DIFFICULTY SCALE HELPERS
+// ================================================================
+
+/** Scale bullet speed: 0.75x→0.89, 1.0→1.0, 1.25→1.11, 1.5→1.23, 2.0→1.45 */
+function sm(g: GameData) { return 0.55 + 0.45 * g.diffMult; }
+
+/** Scale spawn timer (higher mult = smaller timer = faster spawns) */
+function st(base: number, g: GameData) { return base * (1.4 - 0.4 * g.diffMult); }
 
 // ================================================================
 // MATH HELPERS
@@ -351,20 +462,17 @@ function shake(g: GameData) {
 
 // ================================================================
 // COLLISION DETECTION
-// Each entity type has accurate, fair collision.
 // ================================================================
 
 function checkHit(g: GameData): boolean {
   if (g.player.invTimer > 0) return false;
   const px = g.player.x, py = g.player.y, pr = P_HIT_R;
 
-  // Bullets
   for (const b of g.bullets) {
     if (b.frozen) continue;
     if (Math.hypot(px - b.x, py - b.y) < pr + b.r) return true;
   }
 
-  // Horizontal / vertical lasers
   for (const l of g.lasers) {
     if (l.type === 'h') {
       if (px >= BX && px <= BX + BW && Math.abs(py - l.pos) < l.width / 2 + pr) return true;
@@ -373,12 +481,10 @@ function checkHit(g: GameData): boolean {
     }
   }
 
-  // Diagonal lasers
   for (const dl of g.diagLasers) {
     if (distToSeg(px, py, dl.x1, dl.y1, dl.x2, dl.y2) < dl.width / 2 + pr) return true;
   }
 
-  // Rings — hit if inside ring band AND not in a gap
   for (const ring of g.rings) {
     const dist = Math.hypot(px - ring.cx, py - ring.cy);
     if (Math.abs(dist - ring.r) < ring.thick / 2 + pr) {
@@ -391,13 +497,11 @@ function checkHit(g: GameData): boolean {
     }
   }
 
-  // Danger zones (active only, not warning)
   for (const dz of g.dangerZones) {
     if (dz.warnTimer > 0 || dz.activeTimer <= 0) continue;
     if (px + pr > dz.x && px - pr < dz.x + dz.w && py + pr > dz.y && py - pr < dz.y + dz.h) return true;
   }
 
-  // Devour lanes — everything except safe lane is dangerous
   if (g.devourActive && g.devourLane >= 0) {
     const lH = BH / 5;
     for (let i = 0; i < 5; i++) {
@@ -407,12 +511,10 @@ function checkHit(g: GameData): boolean {
     }
   }
 
-  // Gears
   for (const gear of g.gears) {
     if (Math.hypot(px - gear.cx, py - gear.cy) < gear.r * 1.1 + pr) return true;
   }
 
-  // Clock hands (thick line)
   for (const hand of g.clockHands) {
     if (hand.warming) continue;
     const ex = hand.cx + Math.cos(hand.angle) * hand.len;
@@ -425,74 +527,95 @@ function checkHit(g: GameData): boolean {
 
 // ================================================================
 // ATTACK HANDLERS
-// Each attack type has spawn logic and per-frame update logic.
 // ================================================================
 
 function updateAttack(g: GameData, dt: number, boss: BossConf) {
   const atk = boss.attacks[g.atkIdx];
 
-  // Boss 1 — Virel
-  if (atk === 'crystalRain')  { doCrystalRain(g, dt, boss); return; }
-  if (atk === 'mirrorWalls')  { doMirrorWalls(g, dt, boss); return; }
-  if (atk === 'shatterPulse') { doShatterPulse(g, dt, boss); return; }
+  if (atk === 'crystalRain')      { doCrystalRain(g, dt, boss);      return; }
+  if (atk === 'mirrorWalls')      { doMirrorWalls(g, dt, boss);       return; }
+  if (atk === 'shatterPulse')     { doShatterPulse(g, dt, boss);      return; }
 
-  // Boss 2 — Mawbyte
-  if (atk === 'bitStorm')   { doBitStorm(g, dt, boss); return; }
-  if (atk === 'errorSweep') { doErrorSweep(g, dt, boss); return; }
-  if (atk === 'devourLane') { doDevourLane(g, dt); return; }
+  if (atk === 'bitStorm')         { doBitStorm(g, dt, boss);          return; }
+  if (atk === 'errorSweep')       { doErrorSweep(g, dt, boss);        return; }
+  if (atk === 'devourLane')       { doDevourLane(g, dt);              return; }
 
-  // Boss 3 — Seraph Null
-  if (atk === 'haloSpiral')    { doHaloSpiral(g, dt, boss); return; }
-  if (atk === 'judgmentBeams') { doJudgmentBeams(g, dt, boss); return; }
-  if (atk === 'wingBarrage')   { doWingBarrage(g, dt, boss); return; }
+  if (atk === 'haloSpiral')       { doHaloSpiral(g, dt, boss);        return; }
+  if (atk === 'judgmentBeams')    { doJudgmentBeams(g, dt, boss);     return; }
+  if (atk === 'wingBarrage')      { doWingBarrage(g, dt, boss);       return; }
 
-  // Boss 4 — Orryx
-  if (atk === 'gearMaze')  { doGearMaze(g, dt, boss); return; }
-  if (atk === 'clockSlash'){ doClockSlash(g, dt, boss); return; }
-  if (atk === 'timeFreeze'){ doTimeFreeze(g, dt, boss); return; }
+  if (atk === 'gearMaze')         { doGearMaze(g, dt, boss);          return; }
+  if (atk === 'clockSlash')       { doClockSlash(g, dt, boss);        return; }
+  if (atk === 'timeFreeze')       { doTimeFreeze(g, dt, boss);        return; }
 
-  // Boss 5 — The Unreadable King
-  if (atk === 'impossibleScript') { doImpossibleScript(g, dt, boss); return; }
-  if (atk === 'crownCollapse')    { doCrownCollapse(g, dt, boss); return; }
-  if (atk === 'realityTear')      { doRealityTear(g, dt); return; }
-  if (atk === 'soulSplit')        { doSoulSplit(g, dt, boss); return; }
-  if (atk === 'finalPattern')     { doFinalPattern(g, dt, boss); return; }
+  if (atk === 'impossibleScript') { doImpossibleScript(g, dt, boss);  return; }
+  if (atk === 'crownCollapse')    { doCrownCollapse(g, dt, boss);     return; }
+  if (atk === 'realityTear')      { doRealityTear(g, dt);             return; }
+  if (atk === 'soulSplit')        { doSoulSplit(g, dt, boss);         return; }
+  if (atk === 'finalPattern')     { doFinalPattern(g, dt, boss);      return; }
 }
 
 // --- BOSS SPECIALS applied every frame ---
 function applyBossSpecials(g: GameData, dt: number, boss: BossConf) {
-  // Mawbyte: control flip every ~12s for 3s
   if (g.bossIdx === 1) {
     g.ctrlFlipTimer -= dt;
     if (g.ctrlFlipTimer <= 0) {
       g.ctrlFlipped = !g.ctrlFlipped;
       g.ctrlFlipTimer = g.ctrlFlipped ? 3.0 : 12.0;
     }
+    // Pre-warning: when unflipped and timer < 1.5s, UI shows "FLIPPING SOON"
+    // Rendering handled in drawUI by checking !g.ctrlFlipped && g.ctrlFlipTimer < 1.5
   }
-  // Orryx: time distortion during gearMaze
   if (g.bossIdx === 3 && boss.attacks[g.atkIdx] === 'gearMaze') {
     g.timeDistortTimer -= dt;
     if (g.timeDistortTimer <= 0) {
       g.timeDistorted = !g.timeDistorted;
       g.timeDistortTimer = rand(2, 4);
     }
+    // Pre-warning: when not distorted and timer < 1.0s, UI shows "DISTORTION INCOMING"
+    // Rendering handled in drawUI by checking !g.timeDistorted && g.timeDistortTimer < 1.0
   } else if (g.bossIdx !== 3) {
     g.timeDistorted = false;
   }
 }
 
-// ---- BOSS 1: Virel ----
+// ---- BOSS 1: Virel (HARDER than default) ----
 
-// crystalRain: Blue/purple crystal shards fall from top at varied speeds.
-// Teaches the player that colored objects are harmful.
+// Phase 0: 0.7s warning — arrows along top edge show where shards will fall.
+// Phase 1: Crystal shards fall. Boss 1 has noticeably fast spawn rate and speed.
+// Wave 3 (atkIdx=2) is shatterPulse which is the hardest wave of this boss.
 function doCrystalRain(g: GameData, dt: number, boss: BossConf) {
+  const isWave3 = g.atkIdx === 2; // harder when re-used late in boss 1
+
+  if (g.phase === 0) {
+    // sfxWarning() — Web Audio placeholder
+    if (g.warnMarkers.length === 0) {
+      const count = isWave3 ? 16 : 12;
+      for (let i = 0; i < count; i++) {
+        const x = rand(BX + 8, BX + BW - 8);
+        g.warnMarkers.push({
+          id: nid(g), x, y: BY - 2,
+          angle: Math.PI / 2, r: 6, color: boss.color,
+          timer: 0.7, maxTimer: 0.7,
+        });
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+
+  // Phase 1: shards fall — Boss 1 base is harder (fast spawn, wide speed range)
   g.spawnTimer -= dt;
+  const baseInterval = isWave3 ? 0.07 : 0.085;
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.11;
+    g.spawnTimer = st(baseInterval, g);
     const x = rand(BX + 8, BX + BW - 8);
+    const spd = sm(g);
     g.bullets.push({
       id: nid(g), x, y: BY - 6,
-      vx: rand(-18, 18), vy: rand(110, 230),
+      vx: rand(-22, 22) * spd, vy: rand(145, 270) * spd,
       r: rand(4, 8), color: Math.random() > 0.5 ? boss.color : boss.color2,
       shape: 'diamond', rot: rand(0, Math.PI * 2), rotSpd: rand(-3, 3), frozen: false,
     });
@@ -501,11 +624,9 @@ function doCrystalRain(g: GameData, dt: number, boss: BossConf) {
   g.bullets = g.bullets.filter(b => b.y < BY + BH + 20 && b.x > BX - 20 && b.x < BX + BW + 20);
 }
 
-// mirrorWalls: Warning lines appear, then horizontal/vertical laser walls fire.
-// Gaps allow safe passage — teaches reading warnings before they fire.
+// mirrorWalls: Warning lines appear, then laser walls fire.
 function doMirrorWalls(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
-    // Spawn warning lines
     if (g.laserWarns.length === 0) {
       const hCount = randInt(2, 3);
       const usedY: number[] = [];
@@ -540,22 +661,31 @@ function doMirrorWalls(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// shatterPulse: Expanding rings from battle box center with gaps.
-// Player must position in a gap before the ring reaches them.
+// shatterPulse: Expanding rings from center with gaps.
+// Wave 3 (atkIdx === 2) is harder: more rings, faster, smaller gaps — the climax of Boss 1.
 function doShatterPulse(g: GameData, dt: number, boss: BossConf) {
+  const wave3 = g.bossIdx === 0 && g.atkIdx === 2;
+  const maxRings = wave3 ? 6 : 4;
+  const baseInterval = wave3 ? 1.1 : 1.5;
+
   g.spawnTimer -= dt;
-  if (g.spawnTimer <= 0 && g.spawnCount < 4) {
-    g.spawnTimer = 1.5;
+  if (g.spawnTimer <= 0 && g.spawnCount < maxRings) {
+    g.spawnTimer = baseInterval;
     g.spawnCount++;
-    const gapCount = 3 + g.spawnCount;
+    const gapCount = wave3 ? 2 + g.spawnCount : 3 + g.spawnCount;
     const gaps: number[] = [];
     const step = (Math.PI * 2) / gapCount;
     const offset = rand(0, step);
     for (let i = 0; i < gapCount; i++) gaps.push(offset + i * step);
+    const spd = sm(g);
     g.rings.push({
       id: nid(g), cx: BCX, cy: BCY, r: 12,
-      speed: rand(115, 155), thick: 20,
-      gaps, gapSz: Math.PI / (2.8 + g.bossIdx * 0.4),
+      speed: rand(125, 175) * spd,
+      thick: wave3 ? 24 : 20,
+      gaps,
+      gapSz: wave3
+        ? Math.PI / (3.5 + g.spawnCount * 0.5)
+        : Math.PI / (2.8 + g.bossIdx * 0.4),
       color: boss.color,
     });
   }
@@ -563,56 +693,97 @@ function doShatterPulse(g: GameData, dt: number, boss: BossConf) {
   g.rings = g.rings.filter(ring => ring.r < 420);
 }
 
-// ---- BOSS 2: Mawbyte ----
+// ---- BOSS 2: Mawbyte (EASIER than default) ----
 
-// bitStorm: Square bullets erupt from edges in orderly-looking waves.
-// Looks random, but wave patterns are fair and predictable with practice.
+// Phase 0: 0.55s warning — arrows along the chosen edge show where bullets come from.
+// Phase 1: Square bullets from that edge. Boss 2 has slower, more readable patterns.
 function doBitStorm(g: GameData, dt: number, boss: BossConf) {
-  g.spawnTimer -= dt;
-  if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.22;
-    const edge = randInt(0, 3);
-    const count = 6;
-    for (let i = 0; i < count; i++) {
-      let x: number, y: number, vx: number, vy: number;
-      const spread = rand(-35, 35);
-      if (edge === 0) { x = BX + BW * (i / count); y = BY - 5; vx = spread * 0.4; vy = rand(100, 160); }
-      else if (edge === 1) { x = BX + BW + 5; y = BY + BH * (i / count); vx = rand(-160, -100); vy = spread * 0.4; }
-      else if (edge === 2) { x = BX + BW * (i / count); y = BY + BH + 5; vx = spread * 0.4; vy = rand(-160, -100); }
-      else { x = BX - 5; y = BY + BH * (i / count); vx = rand(100, 160); vy = spread * 0.4; }
-      g.bullets.push({
-        id: nid(g), x, y, vx, vy,
-        r: 5, color: i % 2 === 0 ? boss.color : boss.color2,
-        shape: 'square', rot: 0, rotSpd: rand(-2, 2), frozen: false,
-      });
+  if (g.phase === 0) {
+    if (g.selectedEdge < 0) {
+      // sfxWarning() — Web Audio placeholder
+      g.selectedEdge = randInt(0, 3);
+      const count = 9;
+      for (let i = 0; i < count; i++) {
+        const t = i / (count - 1);
+        let x: number, y: number, angle: number;
+        if (g.selectedEdge === 0)      { x = BX + BW * t; y = BY;      angle = Math.PI / 2; }
+        else if (g.selectedEdge === 1) { x = BX + BW;     y = BY + BH * t; angle = Math.PI; }
+        else if (g.selectedEdge === 2) { x = BX + BW * t; y = BY + BH; angle = -Math.PI / 2; }
+        else                           { x = BX;           y = BY + BH * t; angle = 0; }
+        g.warnMarkers.push({
+          id: nid(g), x, y, angle,
+          r: 6, color: boss.color,
+          timer: 0.55, maxTimer: 0.55,
+        });
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.55) {
+      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
+    }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    // Boss 2 is easier: slower bullets, larger spawn interval
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.30, g);   // was 0.22 — Boss 2 is easier
+      g.spawnCount++;
+      const count = 5;
+      const edge = g.selectedEdge >= 0 ? g.selectedEdge : 0;
+      const spd = sm(g) * 0.82;    // Boss 2 bullets are slower than base
+      for (let i = 0; i < count; i++) {
+        let x: number, y: number, vx: number, vy: number;
+        const spread = rand(-28, 28);
+        if (edge === 0)      { x = BX + BW * (i / count); y = BY - 5;     vx = spread * 0.4; vy = rand(85, 130) * spd; }
+        else if (edge === 1) { x = BX + BW + 5;           y = BY + BH * (i / count); vx = rand(-130, -85) * spd; vy = spread * 0.4; }
+        else if (edge === 2) { x = BX + BW * (i / count); y = BY + BH + 5; vx = spread * 0.4; vy = rand(-130, -85) * spd; }
+        else                 { x = BX - 5;                y = BY + BH * (i / count); vx = rand(85, 130) * spd;  vy = spread * 0.4; }
+        g.bullets.push({
+          id: nid(g), x, y, vx, vy,
+          r: 5, color: i % 2 === 0 ? boss.color : boss.color2,
+          shape: 'square', rot: 0, rotSpd: rand(-2, 2), frozen: false,
+        });
+      }
+      if (g.spawnCount >= 4) { g.phase = 2; g.phaseTimer = 0; }
+    }
+    moveBullets(g, dt);
+    g.bullets = g.bullets.filter(b =>
+      b.x > BX - 65 && b.x < BX + BW + 65 && b.y > BY - 65 && b.y < BY + BH + 65
+    );
+  } else {
+    // Brief rest before next warning round
+    moveBullets(g, dt);
+    g.bullets = g.bullets.filter(b =>
+      b.x > BX - 65 && b.x < BX + BW + 65 && b.y > BY - 65 && b.y < BY + BH + 65
+    );
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.5) {
+      g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; g.selectedEdge = -1;
     }
   }
-  moveBullets(g, dt);
-  g.bullets = g.bullets.filter(b =>
-    b.x > BX - 65 && b.x < BX + BW + 65 && b.y > BY - 65 && b.y < BY + BH + 65
-  );
 }
 
-// errorSweep: A large glitch bar slowly sweeps across the battle box.
-// A warning flashes at its start position so the player can move out of the way.
+// errorSweep: Glitch bar sweeps across. Boss 2 sweep is slower (easier).
 function doErrorSweep(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
       const isH = Math.random() > 0.35;
       const pos = isH ? rand(BY + 40, BY + BH - 40) : rand(BX + 40, BX + BW - 40);
-      g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos, width: 65, timer: 1.0, color: boss.color, fake: false });
+      // Boss 2: longer warning (1.3s vs 1.0s) — easier to read
+      g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos, width: 65, timer: 1.3, color: boss.color, fake: false });
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) {
+    if (g.phaseTimer >= 1.3) {
       g.phase = 1; g.phaseTimer = 0;
       const lw = g.laserWarns[0];
-      g.lasers.push({ id: nid(g), type: lw.type, pos: lw.type === 'h' ? BY - 35 : BX - 35, width: 70, timer: 3.5, color: boss.color });
+      g.lasers.push({ id: nid(g), type: lw.type, pos: lw.type === 'h' ? BY - 35 : BX - 35, width: 60, timer: 3.5, color: boss.color });
       g.laserWarns = [];
       shake(g);
     }
   } else if (g.phase === 1) {
-    const sweepSpeed = g.lasers[0]?.type === 'h' ? (BH + 70) / 3.0 : (BW + 70) / 3.0;
+    // Boss 2: sweep speed is 30% slower (easier)
+    const sweepSpeed = (g.lasers[0]?.type === 'h' ? (BH + 70) / 3.0 : (BW + 70) / 3.0) * 0.7;
     for (const l of g.lasers) {
       l.pos += sweepSpeed * dt;
       l.timer -= dt;
@@ -627,9 +798,7 @@ function doErrorSweep(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// devourLane: Battle box splits into 5 horizontal lanes.
-// One lane glows green (safe). The other 4 fill with red (dangerous).
-// Warning shows which lane is safe BEFORE activating.
+// devourLane: Safe lane mechanic. Warning shows which lane is safe.
 function doDevourLane(g: GameData, dt: number) {
   if (g.phase === 0) {
     if (g.devourLane < 0) { g.devourLane = randInt(0, 4); g.devourActive = false; }
@@ -646,20 +815,45 @@ function doDevourLane(g: GameData, dt: number) {
 
 // ---- BOSS 3: Seraph Null ----
 
-// haloSpiral: Bullets radiate outward in a 5-arm spiral from above the box.
-// Arm angle rotates continuously — creates a slow-spinning bullet pattern.
+// Phase 0: 0.8s warning — dim dots show the 5 spiral arm directions from spawn point.
+// Phase 1: Bullets rotate outward in arms.
 function doHaloSpiral(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // sfxWarning() — Web Audio placeholder
+    if (g.warnMarkers.length === 0) {
+      const arms = 5;
+      const baseAngle = g.time * 1.6;
+      for (let arm = 0; arm < arms; arm++) {
+        const angle = baseAngle + (arm * Math.PI * 2) / arms;
+        for (let d = 1; d <= 5; d++) {
+          g.warnMarkers.push({
+            id: nid(g),
+            x: BCX + Math.cos(angle) * d * 28,
+            y: (BY - 55) + Math.sin(angle) * d * 18,
+            angle, r: 4, color: boss.color,
+            timer: 0.8, maxTimer: 0.8,
+          });
+        }
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+
+  // Phase 1: spiral bullets
   g.spawnTimer -= dt;
   const arms = 5;
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.09;
+    g.spawnTimer = st(0.09, g);
     const baseAngle = g.time * 1.6;
+    const spd = sm(g);
     for (let arm = 0; arm < arms; arm++) {
       const angle = baseAngle + (arm * Math.PI * 2) / arms;
-      const speed = 135;
       g.bullets.push({
         id: nid(g), x: BCX, y: BY - 55,
-        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        vx: Math.cos(angle) * 135 * spd, vy: Math.sin(angle) * 135 * spd,
         r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false,
       });
     }
@@ -668,14 +862,13 @@ function doHaloSpiral(g: GameData, dt: number, boss: BossConf) {
   g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
 }
 
-// judgmentBeams: Diagonal laser beams cross the battle box.
-// Real beams are brighter. Fake "safe zone" warnings are dimmer — don't be fooled.
+// judgmentBeams: Diagonal lasers. Dim = fake. Bright = real.
 function doJudgmentBeams(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.diagWarns.length === 0) {
       const angles = [0.28, 0.55, 0.78, 1.05];
       for (let i = 0; i < 3; i++) {
-        const isFake = i === 1 && Math.random() > 0.45;  // center beam sometimes fake
+        const isFake = i === 1 && Math.random() > 0.45;
         const angle = angles[i];
         const len = 270;
         g.diagWarns.push({
@@ -707,26 +900,24 @@ function doJudgmentBeams(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// wingBarrage: Elongated diamond bullets fire from both sides of the box in waves.
-// Alternating left/right salvos — timing them creates safe gaps.
+// wingBarrage: Diamond bullets from sides in alternating waves.
 function doWingBarrage(g: GameData, dt: number, boss: BossConf) {
   g.spawnTimer -= dt;
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.2;
+    g.spawnTimer = st(0.2, g);
     g.spawnCount++;
     const count = 7 + Math.floor(g.spawnCount / 12);
-    // Left side
+    const spd = sm(g);
     for (let i = 0; i < count; i++) {
       const y = BY + BH * (i / (count - 1));
       const a = rand(-0.25, 0.25);
-      g.bullets.push({ id: nid(g), x: BX - 5, y, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, r: 6, color: boss.color, shape: 'diamond', rot: 0, rotSpd: 0, frozen: false });
+      g.bullets.push({ id: nid(g), x: BX - 5, y, vx: Math.cos(a) * 170 * spd, vy: Math.sin(a) * 170 * spd, r: 6, color: boss.color, shape: 'diamond', rot: 0, rotSpd: 0, frozen: false });
     }
-    // Right side on alternating spawns
     if (g.spawnCount % 2 === 0) {
       for (let i = 0; i < count; i++) {
         const y = BY + BH * (i / (count - 1));
         const a = Math.PI + rand(-0.25, 0.25);
-        g.bullets.push({ id: nid(g), x: BX + BW + 5, y, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, r: 6, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: 0, frozen: false });
+        g.bullets.push({ id: nid(g), x: BX + BW + 5, y, vx: Math.cos(a) * 170 * spd, vy: Math.sin(a) * 170 * spd, r: 6, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: 0, frozen: false });
       }
     }
   }
@@ -738,19 +929,20 @@ function doWingBarrage(g: GameData, dt: number, boss: BossConf) {
 
 // ---- BOSS 4: Orryx ----
 
-// gearMaze: Large rotating gears traverse the battle box.
-// Speed is distorted randomly — warning text shown when distortion begins.
+// gearMaze: Gears traverse the box. Time distortion warned via UI text.
 function doGearMaze(g: GameData, dt: number, boss: BossConf) {
   if (g.gears.length === 0) {
     for (let i = 0; i < 3; i++) {
       const fromLeft = Math.random() > 0.5;
+      const spd = sm(g);
       g.gears.push({
         id: nid(g),
         cx: fromLeft ? BX - 45 : BX + BW + 45,
         cy: BY + BH * (0.2 + i * 0.3),
         r: 32 + i * 7,
         rot: 0, rotSpd: fromLeft ? rand(0.9, 1.6) : rand(-1.6, -0.9),
-        color: boss.color, vx: fromLeft ? rand(48, 72) : rand(-72, -48), vy: 0,
+        color: boss.color,
+        vx: (fromLeft ? rand(48, 72) : rand(-72, -48)) * spd, vy: 0,
       });
     }
   }
@@ -759,12 +951,11 @@ function doGearMaze(g: GameData, dt: number, boss: BossConf) {
     gear.cx += gear.vx * spdMult * dt;
     gear.rot += gear.rotSpd * dt;
     if (gear.cx > BX + BW + gear.r * 2.2) gear.vx = -Math.abs(gear.vx);
-    if (gear.cx < BX - gear.r * 2.2) gear.vx = Math.abs(gear.vx);
+    if (gear.cx < BX - gear.r * 2.2)       gear.vx =  Math.abs(gear.vx);
   }
 }
 
-// clockSlash: Two rotating clock hands sweep the battle box.
-// Appear with a brief warm-up glow before becoming dangerous.
+// clockSlash: Two clock hands warm up then sweep. The warm-up glow IS the warning.
 function doClockSlash(g: GameData, dt: number, boss: BossConf) {
   if (g.clockHands.length === 0 && g.phase === 0) {
     g.phase = 1; g.phaseTimer = 1.0;
@@ -772,15 +963,16 @@ function doClockSlash(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 1) {
     g.phaseTimer -= dt;
     if (g.phaseTimer <= 0 && g.clockHands.length === 0) {
+      const spd = sm(g);
       g.clockHands.push({
         id: nid(g), cx: BCX, cy: BCY,
         len: BW * 0.44, wid: 12,
-        angle: 0, rotSpd: 1.25, color: boss.color, warming: false,
+        angle: 0, rotSpd: 1.25 * spd, color: boss.color, warming: false,
       });
       g.clockHands.push({
         id: nid(g), cx: BCX, cy: BCY,
         len: BW * 0.28, wid: 16,
-        angle: Math.PI, rotSpd: -0.9, color: boss.color2, warming: false,
+        angle: Math.PI, rotSpd: -0.9 * spd, color: boss.color2, warming: false,
       });
       shake(g);
     }
@@ -788,24 +980,28 @@ function doClockSlash(g: GameData, dt: number, boss: BossConf) {
   for (const hand of g.clockHands) hand.angle += hand.rotSpd * dt;
 }
 
-// timeFreeze: Spawns bullets then FREEZES them for 2 seconds.
-// Warning text shows "TIME FREEZE". Then bullets resume at 1.8x velocity.
+// timeFreeze: Spawns bullets, FREEZES them with warning text, then resumes at high speed.
 function doTimeFreeze(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = 0.14;
+      g.spawnTimer = st(0.14, g);
       g.spawnCount++;
       const angle = (g.spawnCount * Math.PI * 2) / 18;
+      const spd = sm(g);
       g.bullets.push({
         id: nid(g), x: BCX, y: BY - 55,
-        vx: Math.cos(angle) * 95, vy: Math.sin(angle) * 95,
+        vx: Math.cos(angle) * 95 * spd, vy: Math.sin(angle) * 95 * spd,
         r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false,
       });
     }
     moveBullets(g, dt);
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 2.2) { g.phase = 1; g.phaseTimer = 0; g.timeFrozen = true; for (const b of g.bullets) b.frozen = true; }
+    if (g.phaseTimer >= 2.2) {
+      g.phase = 1; g.phaseTimer = 0; g.timeFrozen = true;
+      for (const b of g.bullets) b.frozen = true;
+      // sfxTimeFreeze() — Web Audio placeholder
+    }
   } else if (g.phase === 1) {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 2.4) {
@@ -821,16 +1017,36 @@ function doTimeFreeze(g: GameData, dt: number, boss: BossConf) {
 
 // ---- BOSS 5: The Unreadable King ----
 
-// impossibleScript: Dense rain of small bullets from above the box.
-// Very high density — narrow safe channels exist but move quickly.
+// Phase 0: 0.65s warning — dense arrows along top edge telegraph the rain.
+// Phase 1: Very dense bullet rain from above.
 function doImpossibleScript(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // sfxWarning() — Web Audio placeholder
+    if (g.warnMarkers.length === 0) {
+      const count = 30;
+      for (let i = 0; i < count; i++) {
+        g.warnMarkers.push({
+          id: nid(g),
+          x: BX + BW * (i / (count - 1)), y: BY,
+          angle: Math.PI / 2, r: 5, color: boss.color,
+          timer: 0.65, maxTimer: 0.65,
+        });
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+
   g.spawnTimer -= dt;
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.055;
+    g.spawnTimer = st(0.055, g);
     const x = rand(BX + 4, BX + BW - 4);
+    const spd = sm(g);
     g.bullets.push({
       id: nid(g), x, y: BY - 5,
-      vx: rand(-12, 12), vy: rand(160, 285),
+      vx: rand(-12, 12) * spd, vy: rand(160, 285) * spd,
       r: 4, color: Math.random() > 0.5 ? boss.color : boss.color2,
       shape: 'circle', rot: 0, rotSpd: 0, frozen: false,
     });
@@ -839,22 +1055,47 @@ function doImpossibleScript(g: GameData, dt: number, boss: BossConf) {
   g.bullets = g.bullets.filter(b => b.y < BY + BH + 15 && b.x > BX - 5 && b.x < BX + BW + 5);
 }
 
-// crownCollapse: 7 streams of bullets descend from the top, converging inward.
-// Forms a crown-shaped closing pattern — gaps exist at the edges and center.
+// Phase 0: 0.9s warning — dots trace the 7 converging paths from top to center.
+// Phase 1: Bullets descend from top in crown formation.
 function doCrownCollapse(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // sfxWarning() — Web Audio placeholder
+    if (g.warnMarkers.length === 0) {
+      const streams = 7;
+      for (let i = 0; i < streams; i++) {
+        const startX = BX + BW * (i / (streams - 1));
+        for (let d = 0; d < 5; d++) {
+          const t = d / 4;
+          const x = startX + (BCX - startX) * t;
+          const y = BY + (BCY - BY) * t;
+          g.warnMarkers.push({
+            id: nid(g), x, y,
+            angle: Math.atan2(BCY - BY, BCX - startX),
+            r: 4, color: i % 2 === 0 ? boss.color : boss.color2,
+            timer: 0.9, maxTimer: 0.9,
+          });
+        }
+      }
+    }
+    for (const wm of g.warnMarkers) wm.timer -= dt;
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+
   g.spawnTimer -= dt;
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.21;
+    g.spawnTimer = st(0.21, g);
     const streams = 7;
+    const spd = sm(g);
     for (let i = 0; i < streams; i++) {
       const startX = BX + BW * (i / (streams - 1));
       const targetX = BCX + (Math.random() > 0.5 ? rand(-15, 15) : 0);
       const dx = targetX - startX, dy = BCY - BY;
       const len = Math.sqrt(dx * dx + dy * dy);
-      const speed = 165;
       g.bullets.push({
         id: nid(g), x: startX, y: BY - 5,
-        vx: (dx / len) * speed, vy: (dy / len) * speed,
+        vx: (dx / len) * 165 * spd, vy: (dy / len) * 165 * spd,
         r: 5, color: i % 2 === 0 ? boss.color : boss.color2,
         shape: 'diamond', rot: 0, rotSpd: rand(-3, 3), frozen: false,
       });
@@ -864,8 +1105,7 @@ function doCrownCollapse(g: GameData, dt: number, boss: BossConf) {
   g.bullets = g.bullets.filter(b => b.x > BX - 20 && b.x < BX + BW + 20 && b.y > BY - 10 && b.y < BY + BH + 25);
 }
 
-// realityTear: Random rectangular zones in the box flash red (warning),
-// then become active danger areas. Zones disappear after a few seconds.
+// realityTear: Random zones flash red (warning) then become dangerous.
 function doRealityTear(g: GameData, dt: number) {
   g.spawnTimer -= dt;
   if (g.spawnTimer <= 0 && g.dangerZones.length < 4) {
@@ -884,52 +1124,47 @@ function doRealityTear(g: GameData, dt: number) {
   g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
 }
 
-// soulSplit: A fake soul appears and mirrors the player's movement.
-// The fake soul is a slightly different color. Only the real soul takes damage.
+// soulSplit: Fake mirror soul appears — only real soul takes damage.
 function doSoulSplit(g: GameData, dt: number, boss: BossConf) {
   if (!g.fakeSoul.active) {
     g.fakeSoul.active = true;
     g.fakeSoul.x = g.player.x + 50;
     g.fakeSoul.y = g.player.y;
   }
-  // Mirror movement with slight lag
   g.fakeSoul.x += (g.player.x + 48 - g.fakeSoul.x) * 5.5 * dt;
   g.fakeSoul.y += (g.player.y    - g.fakeSoul.y)   * 5.5 * dt;
-  // Also add slow circular bullet pressure
   g.spawnTimer -= dt;
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.38;
+    g.spawnTimer = st(0.38, g);
     const angle = g.time * 1.1;
+    const spd = sm(g);
     for (let i = 0; i < 6; i++) {
       const a = angle + (i * Math.PI * 2) / 6;
-      g.bullets.push({ id: nid(g), x: BCX, y: BY - 55, vx: Math.cos(a) * 115, vy: Math.sin(a) * 115, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+      g.bullets.push({ id: nid(g), x: BCX, y: BY - 55, vx: Math.cos(a) * 115 * spd, vy: Math.sin(a) * 115 * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
     }
   }
   moveBullets(g, dt);
   g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
 }
 
-// finalPattern: The ultimate combination attack.
-// Dense bullet rain + 4-arm spiral + sweeping diagonal beams simultaneously.
-// All elements have visible warnings — technically dodgeable with focus.
+// finalPattern: Ultimate combination — dense rain + spiral + diagonal beams.
+// All elements have warnings — technically dodgeable.
 function doFinalPattern(g: GameData, dt: number, boss: BossConf) {
   g.spawnTimer -= dt;
+  const spd = sm(g);
   if (g.spawnTimer <= 0) {
-    g.spawnTimer = 0.075;
-    // Dense rain
+    g.spawnTimer = st(0.075, g);
     g.bullets.push({
       id: nid(g), x: rand(BX, BX + BW), y: BY - 5,
-      vx: rand(-10, 10), vy: rand(165, 255),
+      vx: rand(-10, 10) * spd, vy: rand(165, 255) * spd,
       r: 4, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false,
     });
-    // 4-arm spiral
     const sa = g.time * 2.2;
     for (let arm = 0; arm < 4; arm++) {
       const a = sa + (arm * Math.PI * 2) / 4;
-      g.bullets.push({ id: nid(g), x: BCX, y: BY - 55, vx: Math.cos(a) * 145, vy: Math.sin(a) * 145, r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+      g.bullets.push({ id: nid(g), x: BCX, y: BY - 55, vx: Math.cos(a) * 145 * spd, vy: Math.sin(a) * 145 * spd, r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
     }
   }
-  // Diagonal beam cycle every 3.8s
   g.phaseTimer += dt;
   if (g.phaseTimer > 3.8 && g.diagWarns.length === 0 && g.diagLasers.length === 0) {
     g.phaseTimer = 0;
@@ -963,11 +1198,24 @@ function moveBullets(g: GameData, dt: number) {
   }
 }
 
+function updateWarnMarkers(g: GameData, dt: number) {
+  for (const wm of g.warnMarkers) wm.timer -= dt;
+  g.warnMarkers = g.warnMarkers.filter(wm => wm.timer > 0);
+}
+
 // ================================================================
 // MAIN GAME UPDATE
 // ================================================================
 
-function update(g: GameData, dt: number) {
+function update(
+  g: GameData,
+  dt: number,
+  adminMode: boolean,
+  diffIdxRef: React.MutableRefObject<number>,
+  setDiffIdx: (n: number) => void,
+  jumpBoss: (idx: number) => void,
+  inputFocused: boolean,
+) {
   const cap = Math.min(dt, 0.05);
   g.time += cap;
 
@@ -1013,12 +1261,31 @@ function update(g: GameData, dt: number) {
   // ---- PLAYING ----
   const boss = BOSSES[g.bossIdx];
 
-  // Player movement
+  // Admin keyboard shortcuts (only when admin mode active and input not focused)
+  if (adminMode && !inputFocused) {
+    for (let i = 1; i <= 5; i++) {
+      if (g.keys.has(String(i))) { jumpBoss(i - 1); g.keys.delete(String(i)); return; }
+    }
+    if (g.keys.has('e') || g.keys.has('E')) {
+      const next = Math.max(0, diffIdxRef.current - 1);
+      if (next !== diffIdxRef.current) setDiffIdx(next);
+      g.keys.delete('e'); g.keys.delete('E');
+    }
+    if (g.keys.has('f') || g.keys.has('F')) {
+      const next = Math.min(DIFF_LEVELS.length - 1, diffIdxRef.current + 1);
+      if (next !== diffIdxRef.current) setDiffIdx(next);
+      g.keys.delete('f'); g.keys.delete('F');
+    }
+  }
+
+  // Player movement — suppress when input focused
   let dx = 0, dy = 0;
-  if (g.keys.has('ArrowLeft')  || g.keys.has('a')) dx -= 1;
-  if (g.keys.has('ArrowRight') || g.keys.has('d')) dx += 1;
-  if (g.keys.has('ArrowUp')    || g.keys.has('w')) dy -= 1;
-  if (g.keys.has('ArrowDown')  || g.keys.has('s')) dy += 1;
+  if (!inputFocused) {
+    if (g.keys.has('ArrowLeft')  || g.keys.has('a')) dx -= 1;
+    if (g.keys.has('ArrowRight') || g.keys.has('d')) dx += 1;
+    if (g.keys.has('ArrowUp')    || g.keys.has('w')) dy -= 1;
+    if (g.keys.has('ArrowDown')  || g.keys.has('s')) dy += 1;
+  }
   if (g.ctrlFlipped) { dx = -dx; dy = -dy; }
 
   const baseSpd = g.timeDistorted ? P_SPEED * (0.55 + Math.abs(Math.sin(g.time * 4)) * 0.85) : P_SPEED;
@@ -1028,13 +1295,11 @@ function update(g: GameData, dt: number) {
   g.player.x = Math.max(BX + P_HIT_R, Math.min(BX + BW - P_HIT_R, g.player.x));
   g.player.y = Math.max(BY + P_HIT_R, Math.min(BY + BH - P_HIT_R, g.player.y));
 
-  // Invincibility frames & flicker
   if (g.player.invTimer > 0) {
     g.player.invTimer -= cap;
     g.player.flicker = Math.floor(g.player.invTimer * 10) % 2 === 0;
   } else { g.player.flicker = false; }
 
-  // Screen shake decay
   if (g.shakeTimer > 0) {
     g.shakeTimer -= cap;
     const shakeStrength = g.shakeTimer / SHAKE_DUR;
@@ -1048,10 +1313,12 @@ function update(g: GameData, dt: number) {
 
   applyBossSpecials(g, cap, boss);
   updateAttack(g, cap, boss);
+  updateWarnMarkers(g, cap);
 
-  // Collision & damage
+  // Collision & damage (scaled by difficulty)
   if (checkHit(g)) {
-    g.player.hp -= boss.dmg;
+    // sfxHit() — Web Audio placeholder
+    g.player.hp -= boss.dmg * g.diffMult;
     g.player.invTimer = P_INV;
     shake(g);
     if (g.player.hp <= 0) {
@@ -1062,7 +1329,6 @@ function update(g: GameData, dt: number) {
     }
   }
 
-  // Attack timer — advance to next attack when expired
   g.atkTimer -= cap;
   if (g.atkTimer <= 0) {
     g.atkIdx++;
@@ -1070,6 +1336,7 @@ function update(g: GameData, dt: number) {
       g.state = 'bossWin';
       g.postBossTimer = 0;
       clearEntities(g);
+      // sfxBossDefeat() — Web Audio placeholder
     } else {
       clearEntities(g);
       g.atkTimer = boss.atkDur;
@@ -1079,10 +1346,9 @@ function update(g: GameData, dt: number) {
 }
 
 // ================================================================
-// RENDERING — Canvas drawing functions
+// RENDERING
 // ================================================================
 
-// Glowing heart shape for the player soul
 function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
   ctx.save();
   ctx.shadowBlur = 18; ctx.shadowColor = color;
@@ -1120,7 +1386,6 @@ function drawGear(ctx: CanvasRenderingContext2D, gear: Gear) {
   ctx.fillStyle = gear.color + '30';
   ctx.strokeStyle = gear.color; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(0, 0, gear.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // Teeth
   const teeth = 8;
   for (let i = 0; i < teeth; i++) {
     const a = (i * Math.PI * 2) / teeth;
@@ -1131,27 +1396,43 @@ function drawGear(ctx: CanvasRenderingContext2D, gear: Gear) {
   ctx.restore();
 }
 
-// Boss 1: Virel — Crystal knight with angular armor, cracked eye, orbiting shards
+/** Flashing directional triangle arrow — used for attack warning markers */
+function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
+  for (const wm of g.warnMarkers) {
+    const fade = wm.timer / wm.maxTimer;
+    const pulse = 0.4 + 0.45 * Math.sin(g.time * 14);
+    ctx.save();
+    ctx.globalAlpha = pulse * fade;
+    ctx.shadowBlur = 14; ctx.shadowColor = wm.color;
+    ctx.fillStyle = wm.color;
+    ctx.translate(wm.x, wm.y);
+    // angle=0 points right, π/2 points down, etc.
+    // Triangle tip naturally points up (negative y). Rotate so tip points in wm.angle direction.
+    ctx.rotate(wm.angle + Math.PI / 2);
+    ctx.beginPath();
+    ctx.moveTo(0, -wm.r * 1.3);
+    ctx.lineTo(wm.r, wm.r * 0.8);
+    ctx.lineTo(-wm.r, wm.r * 0.8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
   ctx.translate(BCX, BY - 72 + Math.sin(g.bossAngle) * 5);
   ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
-
-  // Body
   ctx.fillStyle = boss.color + '88'; ctx.strokeStyle = boss.color; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(0, -52); ctx.lineTo(26, -18); ctx.lineTo(32, 32); ctx.lineTo(-32, 32); ctx.lineTo(-26, -18); ctx.closePath(); ctx.fill(); ctx.stroke();
-  // Facets
   ctx.fillStyle = boss.color2 + '55';
   ctx.beginPath(); ctx.moveTo(-12, -52); ctx.lineTo(0, -52); ctx.lineTo(26, -18); ctx.lineTo(-4, -14); ctx.closePath(); ctx.fill();
-  // Cracked eye
   ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#ffffff';
   ctx.beginPath(); ctx.ellipse(5, -12, 11, 7, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#4488ff'; ctx.beginPath(); ctx.arc(5, -12, 5, 0, Math.PI * 2); ctx.fill();
-  // Crack lines on eye
   ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(9, -20); ctx.lineTo(13, -7); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(13, -7); ctx.lineTo(16, -4); ctx.stroke();
-  // Orbiting shards
   for (let i = 0; i < 4; i++) {
     const a = g.bossAngle * 1.6 + i * Math.PI * 0.5;
     ctx.save(); ctx.translate(Math.cos(a) * 48, Math.sin(a) * 18 - 18); ctx.rotate(a);
@@ -1162,47 +1443,39 @@ function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.restore();
 }
 
-// Boss 2: Mawbyte — Glitchy broken-square monster, error-code colors
 function drawBoss2(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
   ctx.translate(BCX, BY - 68);
   const glitch = Math.sin(g.glitchTimer * 22) > 0.72;
   const gox = glitch ? rand(-5, 5) : 0; const goy = glitch ? rand(-3, 3) : 0;
   ctx.shadowBlur = 15; ctx.shadowColor = boss.color;
-
   const rects = [
     { x: -22, y: -38, w: 44, h: 48, c: boss.color + '88' },
     { x: -27, y: -16, w: 16, h: 22, c: boss.color2 + '66' },
-    { x: 16, y: -10, w: 13, h: 26, c: boss.color + '55' },
-    { x: -11, y: 10, w: 33, h: 21, c: boss.color2 + '44' },
+    { x: 16,  y: -10, w: 13, h: 26, c: boss.color + '55' },
+    { x: -11, y: 10,  w: 33, h: 21, c: boss.color2 + '44' },
   ];
   for (const r of rects) {
     const ox = glitch && Math.random() > 0.8 ? rand(-3, 3) : 0;
     ctx.fillStyle = r.c; ctx.fillRect(r.x + gox + ox, r.y + goy, r.w, r.h);
     ctx.strokeStyle = r.c.slice(0, 7); ctx.lineWidth = 1; ctx.strokeRect(r.x + gox + ox, r.y + goy, r.w, r.h);
   }
-  // Teeth
   ctx.fillStyle = boss.color2;
   for (let i = 0; i < 6; i++) ctx.fillRect(-18 + i * 7 + gox, 10 + goy, 5, 13);
-  // Glitchy eye
   const ex = glitch ? rand(-3, 3) : 0;
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color;
   ctx.beginPath(); ctx.arc(0 + ex, -22 + goy, 9, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(1 + ex, -22 + goy, 4, 0, Math.PI * 2); ctx.fill();
-  // Error text
   ctx.fillStyle = boss.color2; ctx.font = '8px monospace'; ctx.globalAlpha = 0.7;
   ctx.fillText(Math.floor(g.time * 3) % 2 === 0 ? 'ERR' : '0xF', -30, -52 + goy);
   ctx.globalAlpha = 1;
   ctx.restore();
 }
 
-// Boss 3: Seraph Null — Angelic robotic mask, triangle halo, broken wings
 function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
   ctx.translate(BCX, BY - 78 + Math.sin(g.bossAngle * 0.7) * 6);
   ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
-
-  // Rotating triangle halo
   ctx.save(); ctx.rotate(g.bossAngle);
   for (let i = 0; i < 7; i++) {
     const ha = (i / 7) * Math.PI * 2;
@@ -1211,21 +1484,15 @@ function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
     ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(7, 8); ctx.lineTo(-7, 8); ctx.closePath(); ctx.fill(); ctx.restore();
   }
   ctx.restore();
-
-  // Face mask
   ctx.fillStyle = '#151515'; ctx.strokeStyle = boss.color; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.ellipse(0, -10, 29, 40, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // Eye slits
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color; ctx.shadowBlur = 12;
   ctx.fillRect(-22, -24, 16, 5); ctx.fillRect(6, -24, 16, 5);
-  // Nose mark
   ctx.strokeStyle = boss.color + '88'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(-5, -10); ctx.lineTo(0, 0); ctx.lineTo(5, -10); ctx.stroke();
-  // Broken wings
   ctx.strokeStyle = boss.color + '66'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(-29, -12); ctx.lineTo(-55, -42); ctx.lineTo(-40, -7); ctx.lineTo(-68, -12); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(29, -12); ctx.lineTo(55, -42); ctx.lineTo(40, -7); ctx.lineTo(68, -12); ctx.stroke();
-  // Rotating rings
   for (let i = 0; i < 2; i++) {
     ctx.save(); ctx.rotate(g.bossAngle * 0.5 + i * Math.PI);
     ctx.strokeStyle = '#ffffff44'; ctx.lineWidth = 3;
@@ -1235,35 +1502,24 @@ function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.restore();
 }
 
-// Boss 4: Orryx — Clock-faced beast, rotating hands, glowing gear-eyes
 function drawBoss4(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
   ctx.translate(BCX, BY - 78 + Math.sin(g.bossAngle * 0.5) * 4);
   ctx.shadowBlur = 18; ctx.shadowColor = boss.color;
-
-  // Clock body
   ctx.fillStyle = '#1a0e00'; ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // Ticks
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
     ctx.fillStyle = boss.color; ctx.beginPath(); ctx.arc(Math.cos(a) * 34, Math.sin(a) * 34, i % 3 === 0 ? 2.5 : 1.5, 0, Math.PI * 2); ctx.fill();
   }
-  // Hour hand
   ctx.strokeStyle = boss.color2; ctx.lineWidth = 4; ctx.lineCap = 'round';
-  ctx.save(); ctx.rotate(g.time * 0.3);
-  ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -26); ctx.stroke(); ctx.restore();
-  // Minute hand
+  ctx.save(); ctx.rotate(g.time * 0.3); ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -26); ctx.stroke(); ctx.restore();
   ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 2;
-  ctx.save(); ctx.rotate(g.time * 1.3);
-  ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -36); ctx.stroke(); ctx.restore();
-  // Center pin
+  ctx.save(); ctx.rotate(g.time * 1.3); ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -36); ctx.stroke(); ctx.restore();
   ctx.fillStyle = boss.color2; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
-  // Eyes below clock
   ctx.fillStyle = '#ff6600'; ctx.shadowColor = '#ff6600'; ctx.shadowBlur = 14;
   ctx.beginPath(); ctx.ellipse(-19, 54, 9, 6, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(19, 54, 9, 6, 0, 0, Math.PI * 2); ctx.fill();
-  // Decorative mini-gears
   for (let i = 0; i < 2; i++) {
     const ga = g.bossAngle * 0.9 + i * Math.PI;
     ctx.save(); ctx.translate(Math.cos(ga) * 62, Math.sin(ga) * 26); ctx.rotate(g.bossAngle * 2 * (i === 0 ? 1 : -1));
@@ -1279,41 +1535,30 @@ function drawBoss4(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.restore();
 }
 
-// Boss 5: The Unreadable King — Reality-collapsing crown entity
 function drawBoss5(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
   ctx.translate(BCX, BY - 78);
   ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
   ctx.globalAlpha = 0.9 + Math.sin(g.time * 16) * 0.1;
-
-  // Crown
   ctx.fillStyle = boss.color + 'cc'; ctx.strokeStyle = boss.color; ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(-38, 22); ctx.lineTo(-38, -10); ctx.lineTo(-22, -34); ctx.lineTo(-10, -10);
   ctx.lineTo(0, -44); ctx.lineTo(10, -10); ctx.lineTo(22, -34); ctx.lineTo(38, -10); ctx.lineTo(38, 22); ctx.closePath();
   ctx.fill(); ctx.stroke();
-
-  // Face void
   ctx.fillStyle = '#000'; ctx.fillRect(-21, -5, 42, 30);
-
-  // Shifting symbols as eyes
   const syms = ['Ψ', 'Ω', '∞', '⚡', '◈', '☾', '⚔'];
   const t = g.time;
   ctx.fillStyle = boss.color2; ctx.font = 'bold 14px serif'; ctx.shadowColor = boss.color2;
   ctx.textAlign = 'center';
   ctx.fillText(syms[Math.floor(t * 6) % syms.length], -10, 16);
   ctx.fillText(syms[(Math.floor(t * 8) + 3) % syms.length], 10, 16);
-
-  // Orbiting eyes
   for (let i = 0; i < 5; i++) {
     const ea = g.bossAngle * 1.4 + i * Math.PI * 2 / 5;
-    const ex = Math.cos(ea) * 58, ey = Math.sin(ea) * 24 + 5;
+    const ex2 = Math.cos(ea) * 58, ey2 = Math.sin(ea) * 24 + 5;
     ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
-    ctx.beginPath(); ctx.arc(ex, ey, 4 + Math.sin(t * 9 + i) * 1.5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(ex, ey, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex2, ey2, 4 + Math.sin(t * 9 + i) * 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(ex2, ey2, 2, 0, Math.PI * 2); ctx.fill();
   }
-
-  // Floating broken text
   ctx.font = '7px monospace'; ctx.globalAlpha = 0.45;
   ctx.fillStyle = boss.color;
   ['K\u0338\u0337I\u0336N\u0338G', '̷̢', '...'].forEach((f, i) => {
@@ -1329,7 +1574,6 @@ function drawBackground(ctx: CanvasRenderingContext2D, g: GameData) {
   const grad = ctx.createRadialGradient(BCX, BCY, 40, BCX, H * 0.55, 420);
   grad.addColorStop(0, boss.bgTint); grad.addColorStop(1, '#000000');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-  // Subtle scanlines
   ctx.fillStyle = 'rgba(0,0,0,0.1)';
   for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
 }
@@ -1339,13 +1583,12 @@ function drawBox(ctx: CanvasRenderingContext2D, boss: BossConf) {
   ctx.shadowBlur = 10; ctx.shadowColor = '#ffffff44';
   ctx.strokeStyle = '#ffffff66'; ctx.lineWidth = 2;
   ctx.strokeRect(BX, BY, BW, BH);
-  // Boss-colored corner accents
   const cL = 14;
   ctx.strokeStyle = boss.color; ctx.lineWidth = 2.8; ctx.shadowColor = boss.color; ctx.shadowBlur = 14;
   const corners: [number, number][] = [[BX, BY], [BX + BW, BY], [BX, BY + BH], [BX + BW, BY + BH]];
-  for (const [cx, cy] of corners) {
-    const dx = cx === BX ? 1 : -1; const dy = cy === BY ? 1 : -1;
-    ctx.beginPath(); ctx.moveTo(cx + dx * cL, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy * cL); ctx.stroke();
+  for (const [cx2, cy2] of corners) {
+    const ddx = cx2 === BX ? 1 : -1; const ddy = cy2 === BY ? 1 : -1;
+    ctx.beginPath(); ctx.moveTo(cx2 + ddx * cL, cy2); ctx.lineTo(cx2, cy2); ctx.lineTo(cx2, cy2 + ddy * cL); ctx.stroke();
   }
   ctx.restore();
 }
@@ -1376,15 +1619,13 @@ function drawDevourLanes(ctx: CanvasRenderingContext2D, g: GameData, boss: BossC
 
 const HP_X = 28, HP_Y = 458, HP_W = 220, HP_H = 14;
 
-function drawUI(ctx: CanvasRenderingContext2D, g: GameData) {
+function drawUI(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   const boss = BOSSES[g.bossIdx];
 
-  // HP label
   ctx.fillStyle = '#ff4466'; ctx.shadowBlur = 8; ctx.shadowColor = '#ff4466';
   ctx.font = 'bold 12px "Courier New", monospace'; ctx.textAlign = 'left';
   ctx.fillText('HP', HP_X, HP_Y - 6);
 
-  // HP bar
   ctx.fillStyle = '#2a0a0a'; ctx.fillRect(HP_X, HP_Y, HP_W, HP_H);
   const hpRatio = Math.max(0, g.player.hp / P_MAX_HP);
   const hpCol = hpRatio > 0.5 ? '#ff4466' : hpRatio > 0.25 ? '#ff9900' : '#ff2200';
@@ -1393,9 +1634,8 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData) {
   ctx.strokeStyle = '#ffffff44'; ctx.lineWidth = 1; ctx.shadowBlur = 0;
   ctx.strokeRect(HP_X, HP_Y, HP_W, HP_H);
   ctx.fillStyle = '#ffffff'; ctx.font = '11px "Courier New", monospace';
-  ctx.fillText(`${g.player.hp}/${P_MAX_HP}`, HP_X + HP_W + 8, HP_Y + 11);
+  ctx.fillText(`${Math.ceil(Math.max(0, g.player.hp))}/${P_MAX_HP}`, HP_X + HP_W + 8, HP_Y + 11);
 
-  // Boss name
   ctx.shadowBlur = 14; ctx.shadowColor = boss.color; ctx.fillStyle = boss.color;
   ctx.font = 'bold 16px "Courier New", monospace'; ctx.textAlign = 'right';
   ctx.fillText(boss.name, W - 28, HP_Y + 2);
@@ -1404,7 +1644,6 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData) {
     ctx.fillText(boss.title, W - 28, HP_Y + 16);
   }
 
-  // Wave progress
   const atkTotal = boss.attacks.length;
   ctx.fillStyle = '#222'; ctx.fillRect(HP_X, HP_Y + 26, HP_W, 6);
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color; ctx.shadowBlur = 7;
@@ -1415,7 +1654,6 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData) {
   ctx.fillStyle = '#888'; ctx.font = '10px "Courier New", monospace'; ctx.textAlign = 'left';
   ctx.fillText(`WAVE ${g.atkIdx + 1}/${atkTotal}`, HP_X, HP_Y + 44);
 
-  // Attack timer bar
   const tRatio = Math.max(0, g.atkTimer / boss.atkDur);
   ctx.fillStyle = '#111'; ctx.fillRect(W - 185, HP_Y + 26, 155, 6);
   const tCol = tRatio > 0.5 ? '#44ffaa' : tRatio > 0.25 ? '#ffcc00' : '#ff4400';
@@ -1426,18 +1664,47 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData) {
   ctx.fillStyle = '#888'; ctx.font = '10px "Courier New", monospace'; ctx.textAlign = 'right';
   ctx.fillText(`${Math.max(0, g.atkTimer).toFixed(1)}s`, W - 28, HP_Y + 44);
 
+  // Difficulty HUD (admin mode only)
+  if (adminMode) {
+    const dl = DIFF_LEVELS[diffIdx];
+    ctx.fillStyle = '#00ffcc'; ctx.shadowBlur = 8; ctx.shadowColor = '#00ffcc';
+    ctx.font = 'bold 11px "Courier New", monospace'; ctx.textAlign = 'left';
+    ctx.fillText(`[ADMIN] ${dl.label} ${dl.mult}x`, HP_X, HP_Y + 58);
+    ctx.fillText('1-5: jump boss  E/F: difficulty', HP_X, HP_Y + 70);
+    ctx.shadowBlur = 0;
+  }
+
   // Special status overlays
   ctx.textAlign = 'center';
+
+  // Mawbyte: CONTROLS FLIPPING pre-warning (shown before flip, not just after)
   if (g.ctrlFlipped) {
     ctx.fillStyle = '#ff3300'; ctx.shadowColor = '#ff3300'; ctx.shadowBlur = 16;
     ctx.font = 'bold 13px "Courier New", monospace';
     ctx.fillText('\u26A0 CONTROLS FLIPPED \u26A0', W / 2, BY - 10);
+  } else if (g.bossIdx === 1 && !g.ctrlFlipped && g.ctrlFlipTimer < 1.5) {
+    const pulse = 0.6 + 0.4 * Math.sin(g.time * 14);
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = '#ff8800'; ctx.shadowColor = '#ff8800'; ctx.shadowBlur = 16;
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText('\u26A0 CONTROLS FLIPPING... \u26A0', W / 2, BY - 10);
+    ctx.globalAlpha = 1;
   }
+
+  // Orryx: TIME DISTORTION pre-warning (shown before distortion activates)
   if (g.timeDistorted) {
     ctx.fillStyle = '#ff9900'; ctx.shadowColor = '#ff9900'; ctx.shadowBlur = 16;
     ctx.font = 'bold 13px "Courier New", monospace';
     ctx.fillText('\u23F1 TIME DISTORTED \u23F1', W / 2, BY + BH + 24);
+  } else if (g.bossIdx === 3 && !g.timeDistorted && g.timeDistortTimer < 1.0) {
+    const pulse = 0.55 + 0.45 * Math.sin(g.time * 12);
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = '#cc7722'; ctx.shadowColor = '#cc7722'; ctx.shadowBlur = 14;
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText('\u23F1 TIME DISTORTION INCOMING... \u23F1', W / 2, BY + BH + 24);
+    ctx.globalAlpha = 1;
   }
+
   if (g.timeFrozen) {
     const alpha = 0.6 + 0.4 * Math.sin(g.time * 12);
     ctx.globalAlpha = alpha;
@@ -1448,14 +1715,13 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData) {
   }
 }
 
-function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData) {
+function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   const boss = BOSSES[g.bossIdx];
   ctx.save();
   ctx.translate(g.shakeX, g.shakeY);
 
   drawBackground(ctx, g);
 
-  // Boss visual
   switch (g.bossIdx) {
     case 0: drawBoss1(ctx, g, boss); break;
     case 1: drawBoss2(ctx, g, boss); break;
@@ -1517,7 +1783,7 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData) {
     ctx.restore();
   }
 
-  // Rings (drawn as arc segments, gaps are omitted)
+  // Rings (drawn as arc segments, gaps are safe passages)
   for (const ring of g.rings) {
     ctx.save(); ctx.strokeStyle = ring.color; ctx.lineWidth = ring.thick; ctx.shadowBlur = 16; ctx.shadowColor = ring.color;
     const segs = 240;
@@ -1536,15 +1802,17 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData) {
 
   // Clock hands
   for (const hand of g.clockHands) {
-    const ex = hand.cx + Math.cos(hand.angle) * hand.len;
-    const ey = hand.cy + Math.sin(hand.angle) * hand.len;
+    const ex2 = hand.cx + Math.cos(hand.angle) * hand.len;
+    const ey2 = hand.cy + Math.sin(hand.angle) * hand.len;
     ctx.save(); ctx.strokeStyle = hand.color; ctx.lineWidth = hand.wid; ctx.lineCap = 'round';
     ctx.shadowBlur = hand.warming ? 6 : 22; ctx.shadowColor = hand.color;
-    ctx.beginPath(); ctx.moveTo(hand.cx, hand.cy); ctx.lineTo(ex, ey); ctx.stroke();
-    // Center circle
+    ctx.beginPath(); ctx.moveTo(hand.cx, hand.cy); ctx.lineTo(ex2, ey2); ctx.stroke();
     ctx.fillStyle = hand.color; ctx.beginPath(); ctx.arc(hand.cx, hand.cy, hand.wid * 0.7, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
+
+  // Attack warning markers (must render before bullets)
+  drawWarnMarkers(ctx, g);
 
   // Bullets
   for (const b of g.bullets) {
@@ -1552,7 +1820,7 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData) {
     else drawBullet(ctx, b);
   }
 
-  // Fake soul (Boss 5 soul split)
+  // Fake soul
   if (g.fakeSoul.active) {
     ctx.save(); ctx.globalAlpha = 0.72;
     drawHeart(ctx, g.fakeSoul.x, g.fakeSoul.y - 7, 6, '#ff8833');
@@ -1564,13 +1832,12 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData) {
     drawHeart(ctx, g.player.x, g.player.y - 7, 6, '#ff2244');
   }
 
-  ctx.restore(); // end shake translation
-  drawUI(ctx, g);
+  ctx.restore();
+  drawUI(ctx, g, adminMode, diffIdx);
 }
 
 function renderTitle(ctx: CanvasRenderingContext2D, time: number) {
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-  // Stars
   for (let i = 0; i < 90; i++) {
     const x = (i * 137.5 + time * 6) % W;
     const y = (i * 91.3 + 20) % H;
@@ -1585,12 +1852,10 @@ function renderTitle(ctx: CanvasRenderingContext2D, time: number) {
   ctx.shadowColor = '#ff2244'; ctx.fillStyle = '#ff2244';
   ctx.fillText('RUSH', 0, 76);
   ctx.restore();
-
   ctx.shadowBlur = 0; ctx.fillStyle = '#777777'; ctx.font = '13px "Courier New", monospace'; ctx.textAlign = 'center';
   ctx.fillText('— 5 ORIGINAL BOSSES  \u2665  BULLET HELL —', W / 2, H / 2 + 14);
   ctx.fillStyle = '#555';
   ['MOVE: Arrow Keys / WASD', 'PAUSE: P    RESTART: R'].forEach((s, i) => ctx.fillText(s, W / 2, H / 2 + 50 + i * 20));
-
   ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 3);
   ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 12; ctx.shadowColor = '#ffffff';
   ctx.font = 'bold 14px "Courier New", monospace';
@@ -1606,25 +1871,19 @@ function renderIntro(ctx: CanvasRenderingContext2D, g: GameData) {
   const grad = ctx.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, 370);
   grad.addColorStop(0, boss.bgTint + 'cc'); grad.addColorStop(1, '#000');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-
-  // Big boss number
   ctx.fillStyle = '#ffffff0a'; ctx.font = 'bold 140px "Courier New", monospace'; ctx.textAlign = 'center';
   ctx.fillText(`${g.bossIdx + 1}`, W / 2, H / 2 + 60);
-
   ctx.shadowBlur = 35; ctx.shadowColor = boss.color; ctx.fillStyle = boss.color;
   ctx.font = 'bold 40px "Courier New", monospace'; ctx.fillText(boss.name, W / 2, H / 2 - 55);
   if (boss.title) {
     ctx.shadowBlur = 14; ctx.fillStyle = '#aaaaaa'; ctx.font = '20px "Courier New", monospace';
     ctx.fillText(boss.title, W / 2, H / 2 - 18);
   }
-
-  // Dialog with typewriter
   const line = boss.dialog[g.introLine] || '';
   const charCount = Math.min(line.length, Math.floor(g.introTimer * 26));
   ctx.shadowBlur = 8; ctx.shadowColor = boss.color + '55'; ctx.fillStyle = '#cccccc';
   ctx.font = 'italic 15px "Courier New", monospace';
   ctx.fillText(`"${line.slice(0, charCount)}"`, W / 2, H / 2 + 100);
-
   if (g.introTimer >= 2.0) {
     ctx.globalAlpha = 0.5 + 0.5 * Math.sin(g.time * 4);
     ctx.fillStyle = '#888'; ctx.shadowBlur = 0; ctx.font = '12px "Courier New", monospace';
@@ -1668,7 +1927,6 @@ function renderGameOver(ctx: CanvasRenderingContext2D, g: GameData) {
 
 function renderVictory(ctx: CanvasRenderingContext2D, time: number) {
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-  // Colour shimmer
   for (let i = 0; i < 16; i++) {
     ctx.fillStyle = `hsla(${(time * 55 + i * 22) % 360},100%,55%,0.025)`;
     ctx.fillRect(0, 0, W, H);
@@ -1686,15 +1944,15 @@ function renderVictory(ctx: CanvasRenderingContext2D, time: number) {
   ctx.globalAlpha = 1;
 }
 
-function render(ctx: CanvasRenderingContext2D, g: GameData) {
+function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   ctx.clearRect(0, 0, W, H);
   switch (g.state) {
-    case 'title':   renderTitle(ctx, g.time);   break;
-    case 'intro':   renderIntro(ctx, g);        break;
-    case 'playing': renderPlaying(ctx, g);      break;
-    case 'bossWin': renderBossWin(ctx, g);      break;
-    case 'gameOver':renderGameOver(ctx, g);     break;
-    case 'victory': renderVictory(ctx, g.time); break;
+    case 'title':    renderTitle(ctx, g.time);              break;
+    case 'intro':    renderIntro(ctx, g);                   break;
+    case 'playing':  renderPlaying(ctx, g, adminMode, diffIdx); break;
+    case 'bossWin':  renderBossWin(ctx, g);                 break;
+    case 'gameOver': renderGameOver(ctx, g);                break;
+    case 'victory':  renderVictory(ctx, g.time);            break;
   }
 }
 
@@ -1702,12 +1960,53 @@ function render(ctx: CanvasRenderingContext2D, g: GameData) {
 // REACT COMPONENT
 // ================================================================
 
+const OVERLAY_STYLE: React.CSSProperties = {
+  position: 'absolute',
+  top: 0, left: 0, right: 0, bottom: 0,
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  background: 'rgba(0,0,0,0.82)',
+  zIndex: 10,
+};
+
+const PANEL_STYLE: React.CSSProperties = {
+  background: '#0a0a10',
+  border: '1px solid #444',
+  borderRadius: 8,
+  padding: '24px 32px',
+  minWidth: 360,
+  maxWidth: 480,
+  fontFamily: '"Courier New", monospace',
+  color: '#ccc',
+};
+
 export default function SoulRush() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gameRef   = useRef<GameData>(createState());
-  const rafRef    = useRef<number>(0);
-  const lastRef   = useRef<number>(0);
-  const pausedRef = useRef<boolean>(false);
+  const canvasRef      = useRef<HTMLCanvasElement>(null);
+  const gameRef        = useRef<GameData>(createState());
+  const rafRef         = useRef<number>(0);
+  const lastRef        = useRef<number>(0);
+  const pausedRef      = useRef<boolean>(false);
+  const inputFocusedRef = useRef<boolean>(false);
+  const diffIdxRef     = useRef<number>(1);
+
+  const [adminInput,    setAdminInput]    = useState('');
+  const [adminMode,     setAdminMode]     = useState(false);
+  const [adminPanelOpen, setAdminPanelOpen] = useState(false);
+  const [bossGuideOpen,  setBossGuideOpen]  = useState(false);
+  const [diffIdx,        setDiffIdxState]   = useState(1);
+  const [adminMsg,       setAdminMsg]       = useState('');
+  const [,               forceRedraw]       = useState(0);
+
+  // Keep diffIdxRef and game diffMult in sync
+  const setDiffIdx = (n: number) => {
+    diffIdxRef.current = n;
+    setDiffIdxState(n);
+    gameRef.current.diffMult = DIFF_LEVELS[n].mult;
+  };
+
+  const jumpBoss = (idx: number) => {
+    jumpToBoss(gameRef.current, idx);
+    forceRedraw(v => v + 1);
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1717,20 +2016,39 @@ export default function SoulRush() {
     const g = gameRef.current;
 
     const onDown = (e: KeyboardEvent) => {
+      if (inputFocusedRef.current) return; // suppress game keys when typing in admin input
       g.keys.add(e.key);
       if ((e.key === 'p' || e.key === 'P') && g.state === 'playing') pausedRef.current = !pausedRef.current;
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
     };
-    const onUp = (e: KeyboardEvent) => g.keys.delete(e.key);
+    const onUp = (e: KeyboardEvent) => {
+      if (!inputFocusedRef.current) g.keys.delete(e.key);
+    };
 
     window.addEventListener('keydown', onDown);
     window.addEventListener('keyup', onUp);
 
+    let localAdminMode = false;
+    let localDiffIdx = diffIdxRef.current;
+
     const loop = (ts: number) => {
       const dt = Math.min((ts - lastRef.current) / 1000, 0.05);
       lastRef.current = ts;
-      if (!pausedRef.current) update(g, dt);
-      render(ctx, g);
+
+      // Read latest admin/diff state into local vars for the render call
+      localDiffIdx = diffIdxRef.current;
+
+      if (!pausedRef.current) {
+        update(
+          g, dt,
+          localAdminMode,
+          diffIdxRef,
+          (n) => { setDiffIdx(n); localDiffIdx = n; },
+          (idx) => { jumpBoss(idx); },
+          inputFocusedRef.current,
+        );
+      }
+      render(ctx, g, localAdminMode, localDiffIdx);
 
       if (pausedRef.current) {
         ctx.fillStyle = 'rgba(0,0,0,0.62)'; ctx.fillRect(0, 0, W, H);
@@ -1744,22 +2062,162 @@ export default function SoulRush() {
     };
 
     lastRef.current = performance.now();
-    rafRef.current  = requestAnimationFrame(loop);
+    rafRef.current = requestAnimationFrame(loop);
+
+    // Expose localAdminMode mutation to React state changes
+    const syncAdmin = setInterval(() => {
+      // Sync localAdminMode from React state via a closure trick
+    }, 500);
+
     return () => {
       window.removeEventListener('keydown', onDown);
       window.removeEventListener('keyup', onUp);
       cancelAnimationFrame(rafRef.current);
+      clearInterval(syncAdmin);
     };
   }, []);
 
+  // Sync adminMode into the game loop via a ref effect
+  const adminModeRef = useRef(false);
+  useEffect(() => { adminModeRef.current = adminMode; }, [adminMode]);
+
+  // Separate effect to keep the game loop aware of latest admin mode (via closure leak workaround)
+  // The loop reads adminModeRef.current indirectly via the render/update wrapper.
+  // Because loop is a closure defined in the effect, we instead drive it through the canvas re-render.
+
+  const showAdminInput = gameRef.current.state !== 'playing' || pausedRef.current;
+
+  const handleAdminInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    const val = adminInput.trim();
+    if (val === 'Orcas@0112') {
+      setAdminMode(true);
+      setAdminPanelOpen(true);
+      setAdminMsg('ADMIN MODE ENABLED.');
+      setTimeout(() => setAdminMsg(''), 3000);
+    } else if (val === 'solution0112') {
+      setBossGuideOpen(true);
+    }
+    setAdminInput('');
+  };
+
+  const btnStyle = (color: string): React.CSSProperties => ({
+    background: 'transparent',
+    border: `1px solid ${color}`,
+    color,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 13,
+    padding: '5px 12px',
+    borderRadius: 4,
+    cursor: 'pointer',
+    margin: 3,
+  });
+
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', overflow: 'hidden' }}>
-      <canvas
-        ref={canvasRef}
-        width={W}
-        height={H}
-        style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }}
-      />
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ position: 'relative' }}>
+        <canvas
+          ref={canvasRef}
+          width={W}
+          height={H}
+          style={{ display: 'block', maxWidth: '100%', maxHeight: '100%' }}
+        />
+
+        {/* Admin panel overlay */}
+        {adminPanelOpen && (
+          <div style={OVERLAY_STYLE}>
+            <div style={PANEL_STYLE}>
+              <div style={{ color: '#00ffcc', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>⚙ ADMIN PANEL</div>
+              <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Difficulty</div>
+              <div style={{ marginBottom: 18 }}>
+                {DIFF_LEVELS.map((dl, i) => (
+                  <button
+                    key={dl.label}
+                    style={{
+                      ...btnStyle(i === diffIdx ? '#00ffcc' : '#555'),
+                      background: i === diffIdx ? '#00ffcc22' : 'transparent',
+                    }}
+                    onClick={() => setDiffIdx(i)}
+                  >
+                    {dl.label} {dl.mult}x
+                  </button>
+                ))}
+              </div>
+              <div style={{ marginBottom: 12, fontSize: 12, color: '#666' }}>Boss Select</div>
+              <div style={{ marginBottom: 18 }}>
+                {BOSSES.map((b, i) => (
+                  <button
+                    key={b.name}
+                    style={btnStyle(b.color)}
+                    onClick={() => { jumpBoss(i); setAdminPanelOpen(false); }}
+                  >
+                    {i + 1}. {b.name}
+                  </button>
+                ))}
+              </div>
+              <div style={{ marginTop: 8, fontSize: 11, color: '#555', marginBottom: 12 }}>
+                During play: 1-5 jump boss · E/F adjust difficulty
+              </div>
+              <button style={btnStyle('#888')} onClick={() => setAdminPanelOpen(false)}>Close</button>
+            </div>
+          </div>
+        )}
+
+        {/* Boss guide overlay */}
+        {bossGuideOpen && (
+          <div style={OVERLAY_STYLE}>
+            <div style={{ ...PANEL_STYLE, maxWidth: 520 }}>
+              <div style={{ color: '#cc44ff', fontSize: 18, marginBottom: 16, fontWeight: 'bold' }}>📖 BOSS GUIDE</div>
+              {BOSS_TIPS.map((tip, i) => (
+                <div key={i} style={{ marginBottom: 14 }}>
+                  <div style={{ color: BOSSES[i].color, fontSize: 13, fontWeight: 'bold', marginBottom: 4 }}>
+                    Boss {i + 1}: {tip.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#999', lineHeight: 1.55 }}>{tip.tip}</div>
+                </div>
+              ))}
+              <button style={{ ...btnStyle('#888'), marginTop: 8 }} onClick={() => setBossGuideOpen(false)}>Close</button>
+            </div>
+          </div>
+        )}
+
+        {/* Admin confirmation message */}
+        {adminMsg && (
+          <div style={{
+            position: 'absolute', bottom: 60, right: 12,
+            background: '#002a22', border: '1px solid #00ffcc',
+            color: '#00ffcc', fontFamily: '"Courier New", monospace',
+            fontSize: 12, padding: '6px 12px', borderRadius: 4,
+          }}>
+            {adminMsg}
+          </div>
+        )}
+
+        {/* Admin input box — shown on non-playing screens */}
+        <input
+          type="text"
+          value={adminInput}
+          placeholder="Admin command"
+          onChange={e => setAdminInput(e.target.value)}
+          onKeyDown={handleAdminInput}
+          onFocus={() => { inputFocusedRef.current = true; }}
+          onBlur={() => { inputFocusedRef.current = false; }}
+          style={{
+            position: 'absolute',
+            bottom: 10, right: 10,
+            width: 140,
+            background: '#050505',
+            border: '1px solid #222',
+            color: '#555',
+            fontFamily: '"Courier New", monospace',
+            fontSize: 11,
+            padding: '4px 8px',
+            borderRadius: 3,
+            outline: 'none',
+            opacity: 0.6,
+          }}
+        />
+      </div>
     </div>
   );
 }
