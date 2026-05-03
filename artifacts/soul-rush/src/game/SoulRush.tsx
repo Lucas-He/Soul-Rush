@@ -922,6 +922,7 @@ interface GameData {
   waveEndWaveIdx: number;
 
   speedBoostTimer: number;
+  waveEndIsBossWin: boolean;
 
   shakeX: number; shakeY: number; shakeTimer: number;
   keys: Set<string>;
@@ -957,7 +958,7 @@ function createState(): GameData {
     finalRuleStep: 0, finalRuleStepTimer: 0,
     hitsThisWave: 0, waveStartHp: P_MAX_HP, atkFinishTimer: -1, phaseOnTimerZero: -1,
     waveEndHp: 0, waveEndHits: 0, waveEndBossIdx: 0, waveEndWaveIdx: 0,
-    speedBoostTimer: 0,
+    speedBoostTimer: 0, waveEndIsBossWin: false,
     laserSnapshot: [],
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
@@ -3767,21 +3768,22 @@ function update(
       const prevWave  = g.atkIdx;
       g.hitsThisWave  = 0;
       g.atkIdx++;
+      clearEntities(g);
+      g.waveEndHp         = waveHp;
+      g.waveEndHits       = waveHits;
+      g.waveEndBossIdx    = prevBoss;
+      g.waveEndWaveIdx    = prevWave;
       if (g.atkIdx >= boss.attacks.length) {
-        g.state = 'bossWin';
-        g.postBossTimer = 0;
-        clearEntities(g);
+        // Final wave: still show wave-end overlay so the item drop can appear;
+        // continueWave() will then transition to bossWin.
+        g.waveEndIsBossWin = true;
       } else {
-        clearEntities(g);
+        g.waveEndIsBossWin = false;
         g.atkTimer = boss.atkDur;
         g.atkFinishTimer = -1;
         g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
-        g.waveEndHp      = waveHp;
-        g.waveEndHits    = waveHits;
-        g.waveEndBossIdx = prevBoss;
-        g.waveEndWaveIdx = prevWave;
-        g.state = 'waveEnd';
       }
+      g.state = 'waveEnd';
     }
   }
 }
@@ -4775,6 +4777,8 @@ export default function SoulRush() {
 
   const jumpBoss = (idx: number) => {
     jumpToBoss(gameRef.current, idx);
+    setInventory([]);
+    setPendingItem(null);
   };
 
   const showToast = (msg: string) => {
@@ -4943,7 +4947,14 @@ export default function SoulRush() {
 
     setWaveEndVisible(false);
     setWaveEndData(null);
-    gameRef.current.state = 'playing';
+    const isBossWin = gameRef.current.waveEndIsBossWin;
+    gameRef.current.waveEndIsBossWin = false;
+    if (isBossWin) {
+      gameRef.current.state = 'bossWin';
+      gameRef.current.postBossTimer = 0;
+    } else {
+      gameRef.current.state = 'playing';
+    }
     inputFocusedRef.current = false;
   };
 
@@ -4966,7 +4977,7 @@ export default function SoulRush() {
         const pool = bossConf.rewardItemPool ?? [];
         if (pool.length > 0) {
           const totalWaves = bossConf.attacks.length;
-          const isLastWave = (wIdx === totalWaves - 2); // wIdx is wave just completed (0-based), last wave index = totalWaves-1
+          const isLastWave = (wIdx === totalWaves - 1); // wIdx is 0-based index of wave just completed; last wave = totalWaves-1
           const chance = isLastWave ? 1.0 : 0.4;
           if (Math.random() < chance) {
             const pickedId = pool[Math.floor(Math.random() * pool.length)];
