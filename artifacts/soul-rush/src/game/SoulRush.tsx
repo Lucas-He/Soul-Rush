@@ -1249,7 +1249,7 @@ interface GameData {
   runScore: number;
   wavesCleared: number;
 
-  // Charge animation timer — counts up during phase 0, reset to 0 in other phases
+  // Charge animation progress (0–1, normalized to phaseTimer / warnDur); 0 when not in warn phase
   bossChargeTimer: number;
 
   // Set by updateAttack() before each dispatch so sm()/st() can read wave debuff data
@@ -1306,6 +1306,7 @@ function resetForBoss(g: GameData, idx: number) {
   g.bossX = BCX; g.bossY = BY - 80; g.bossTX = BCX; g.bossTY = BY - 80; g.bossMoveTimer = 0; g.bossFlashTimer = 0;
   g.hitsThisWave = 0; g.waveStartHp = P_MAX_HP;
   g.runScore = 0; g.wavesCleared = 0;
+  g.bossChargeTimer = 0;
   clearEntities(g);
   g.ctrlFlipped = false; g.ctrlFlipTimer = 12;
   g.timeDistorted = false; g.timeDistortTimer = 3;
@@ -1649,8 +1650,8 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   // so boss.waves[g.atkIdx] is always the exact Wave for the current attack.
   g.currentWaveConf = boss.waves?.[g.atkIdx];
 
-  // Charge-ring animation: count up during warn phase, reset otherwise
-  if (g.phase === 0) { g.bossChargeTimer += dt; } else { g.bossChargeTimer = 0; }
+  // Charge-ring animation: normalized 0→1 progress over the warn phase, 0 otherwise
+  if (g.phase === 0) { g.bossChargeTimer = Math.min(g.phaseTimer / warnDur(g, 1.0), 1.0); } else { g.bossChargeTimer = 0; }
 
   if (atk === 'crystalRain')        { doCrystalRain(g, dt, boss);        return; }
   if (atk === 'mirrorWalls')        { doMirrorWalls(g, dt, boss);         return; }
@@ -4211,7 +4212,10 @@ function doBoneColumns(g: GameData, dt: number, boss: BossConf) {
 }
 
 // Sans Barrage — 3 bursts of 5 aimed bone bullets fired in a spread from the boss position.
+// Hard variant (diffMult >= 1.25): a 4th burst fires in the opposite direction.
 function doSansBarrage(g: GameData, dt: number, boss: BossConf) {
+  const isHard = g.diffMult >= 1.25;
+  const BURST_COUNT = isHard ? 4 : 3;
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) {
       for (let i = 0; i < 5; i++) {
@@ -4222,7 +4226,6 @@ function doSansBarrage(g: GameData, dt: number, boss: BossConf) {
     g.phaseTimer += dt;
     if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
   } else if (g.phase === 1) {
-    const BURST_COUNT = 3;
     const BURST_SIZE = 5;
     const BURST_INTERVAL = 0.55;
     g.phaseTimer += dt;
@@ -4231,9 +4234,11 @@ function doSansBarrage(g: GameData, dt: number, boss: BossConf) {
       g.spawnCount = burstIdx + 1;
       const spd = sm(g);
       const baseAngle = Math.atan2(g.player.y - g.bossY, g.player.x - g.bossX);
+      // 4th burst (hard variant only) fires in the opposite direction
+      const fireAngle = (isHard && burstIdx === 3) ? baseAngle + Math.PI : baseAngle;
       for (let i = 0; i < BURST_SIZE; i++) {
         const spread = (i - Math.floor(BURST_SIZE / 2)) * 0.13;
-        const a = baseAngle + spread;
+        const a = fireAngle + spread;
         g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * 185 * spd, vy: Math.sin(a) * 185 * spd, r: 6, color: i % 2 === 0 ? '#ffffff' : '#4488ff', shape: 'square', rot: a, rotSpd: 0, frozen: false });
       }
       shake(g);
@@ -4247,33 +4252,43 @@ function doSansBarrage(g: GameData, dt: number, boss: BossConf) {
   }
 }
 
-// Karma Field — danger circles snap to player positions, then explode in radial bursts after a delay.
+// Karma Field — warn marker circles snap to player positions, then explode radially after 0.3 s.
+// Phase 0: place 4 warn circles near player (snapshot positions in starPoints). warnDur = 1.0 s.
+// Phase 1: after warn, dangerZones at stored positions fire with 0.3 s fuse then 1.0 s active.
 function doKarmaField(g: GameData, dt: number, boss: BossConf) {
+  const WARN_DUR = warnDur(g, 1.0);
+  const EXPLODE_DELAY = 0.3;
+  const ACTIVE_DUR = 1.0;
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) {
-      g.warnMarkers.push({ id: nid(g), x: g.player.x, y: g.player.y, angle: 0, r: 9, color: '#ff4444', timer: warnDur(g, 0.6), maxTimer: warnDur(g, 0.6) });
+      // Snapshot 4 positions around the player and store them for phase 1
+      g.starPoints = [];
+      const offsets = [{ x: 0, y: 0 }, { x: 48, y: -32 }, { x: -48, y: -32 }, { x: 0, y: 56 }];
+      for (const off of offsets) {
+        const px = Math.max(BX + 20, Math.min(BX + BW - 20, g.player.x + off.x));
+        const py = Math.max(BY + 20, Math.min(BY + BH - 20, g.player.y + off.y));
+        g.starPoints.push({ id: nid(g), x: px, y: py });
+        g.warnMarkers.push({ id: nid(g), x: px, y: py, angle: 0, r: 24, color: '#ff4444', timer: WARN_DUR, maxTimer: WARN_DUR });
+      }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= warnDur(g, 0.6)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; g.spawnCount = 0; }
+    if (g.phaseTimer >= WARN_DUR) {
+      // Convert warn positions to danger zones with 0.3 s fuse
+      for (const pt of g.starPoints) {
+        g.dangerZones.push({ id: nid(g), x: pt.x - 24, y: pt.y - 24, w: 48, h: 48, warnTimer: EXPLODE_DELAY, activeTimer: ACTIVE_DUR, color: '#ff4444' });
+      }
+      g.warnMarkers = []; g.starPoints = []; g.phase = 1; g.phaseTimer = 0;
+    }
   } else if (g.phase === 1) {
-    const MAX_CIRCLES = 4;
-    const SPAWN_INTERVAL = 0.75;
-    const EXPLODE_DELAY = 1.05;
     g.phaseTimer += dt;
-    g.spawnTimer -= dt;
-    if (g.spawnTimer <= 0 && g.spawnCount < MAX_CIRCLES) {
-      g.spawnTimer = SPAWN_INTERVAL;
-      g.spawnCount++;
-      g.dangerZones.push({ id: nid(g), x: g.player.x - 32, y: g.player.y - 32, w: 64, h: 64, warnTimer: EXPLODE_DELAY, activeTimer: 0.9, color: '#ff4444' });
-    }
     for (const dz of g.dangerZones) {
       if (dz.warnTimer > 0) {
         dz.warnTimer -= dt;
         if (dz.warnTimer <= 0) {
           const cx = dz.x + dz.w / 2, cy = dz.y + dz.h / 2;
           const spd = sm(g);
-          for (let i = 0; i < 10; i++) {
-            const a = (i / 10) * Math.PI * 2;
+          for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2;
             g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 145 * spd, vy: Math.sin(a) * 145 * spd, r: 5, color: '#ff4444', shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
           }
           shake(g);
@@ -4285,7 +4300,7 @@ function doKarmaField(g: GameData, dt: number, boss: BossConf) {
     g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
     moveBullets(g, dt);
     g.bullets = g.bullets.filter(b => b.x > BX - 80 && b.x < BX + BW + 80 && b.y > BY - 80 && b.y < BY + BH + 80);
-    if (g.phaseTimer >= 5.5) { g.bullets = []; g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
+    if (g.phaseTimer >= EXPLODE_DELAY + ACTIVE_DUR + 0.5) { g.bullets = []; g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
   } else {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
@@ -4630,7 +4645,7 @@ function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
     ctx.beginPath(); ctx.moveTo(0, -9); ctx.lineTo(4, 0); ctx.lineTo(0, 9); ctx.lineTo(-4, 0); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4659,7 +4674,7 @@ function drawBoss2(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillStyle = boss.color2; ctx.font = '8px monospace'; ctx.globalAlpha = 0.7;
   ctx.fillText(Math.floor(g.time * 3) % 2 === 0 ? 'ERR' : '0xF', -30, -52 + goy);
   ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4682,7 +4697,7 @@ function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.strokeStyle = boss.color + '66'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(-29, -12); ctx.lineTo(-55, -42); ctx.lineTo(-40, -7); ctx.lineTo(-68, -12); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(29, -12); ctx.lineTo(55, -42); ctx.lineTo(40, -7); ctx.lineTo(68, -12); ctx.stroke();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4701,7 +4716,7 @@ function drawBoss4(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 2;
   ctx.save(); ctx.rotate(g.time * 1.3); ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -36); ctx.stroke(); ctx.restore();
   ctx.fillStyle = boss.color2; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4722,7 +4737,7 @@ function drawBoss5(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillText(syms[Math.floor(t * 6) % syms.length], -10, 16);
   ctx.fillText(syms[(Math.floor(t * 8) + 3) % syms.length], 10, 16);
   ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4752,7 +4767,7 @@ function drawBoss6(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
   ctx.beginPath(); ctx.ellipse(0, -6, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, -6, 4, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4790,7 +4805,7 @@ function drawBoss7(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.beginPath(); ctx.ellipse(0, -48, 14, 12, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(-5, -48, 4, 4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(5, -48, 4, 4, 0, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4828,7 +4843,7 @@ function drawBoss8(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color;
   ctx.beginPath(); ctx.ellipse(-8, -22, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(8, -22, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4863,7 +4878,7 @@ function drawBoss9(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
     ctx.shadowBlur = warnOn ? 16 : 0;
     ctx.beginPath(); ctx.arc(i * 28, -42, 5, 0, Math.PI * 2); ctx.fill();
   }
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4901,7 +4916,7 @@ function drawBoss10(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.fillStyle = boss.color; ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
   ctx.beginPath(); ctx.arc(0, -14, 10, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, -14, 5, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4935,7 +4950,7 @@ function drawBoss11(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillStyle = i % 2 === 0 ? boss.color : boss.color2; ctx.shadowColor = ctx.fillStyle;
     ctx.beginPath(); ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr * 0.6, 4, 0, Math.PI * 2); ctx.fill();
   }
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4965,7 +4980,7 @@ function drawBoss12(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillRect(-26 - i * 8 - 5, -h / 2, 5, h);
   }
   ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4998,7 +5013,7 @@ function drawBoss13(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r * 0.7, 2.5, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5029,7 +5044,7 @@ function drawBoss14(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   // Core
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color; ctx.shadowBlur = 18;
   ctx.beginPath(); ctx.arc(0, -4, 7, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5062,7 +5077,7 @@ function drawBoss15(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
   ctx.beginPath(); ctx.arc(Math.cos(ca) * 38, Math.sin(ca) * 38, 4, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(Math.cos(ca + Math.PI) * 38, Math.sin(ca + Math.PI) * 38, 4, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5095,7 +5110,7 @@ function drawBoss16(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillRect(-3, -3, 6, 6);
     ctx.restore();
   }
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5126,7 +5141,7 @@ function drawBoss17(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(34, -22); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-34, -22); ctx.stroke();
   ctx.restore(); ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5160,7 +5175,7 @@ function drawBoss18(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillRect(rx - 3, ry - 3, 6, 6);
   }
   ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5184,7 +5199,7 @@ function drawBoss19(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.beginPath(); ctx.moveTo(-14 + sway, -52); ctx.lineTo(-14, -22); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(14 + sway, -52); ctx.lineTo(14, -22); ctx.stroke();
   ctx.globalAlpha = 1;
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -5214,7 +5229,7 @@ function drawBoss20(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   // Void eye at centre
   ctx.fillStyle = '#000';
   ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
-  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+  if (g.bossChargeTimer > 0) { const _n = g.bossChargeTimer; const _cr = 12 + _n * 28; ctx.save(); ctx.globalAlpha = 0.85 * (1 - _n); ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
