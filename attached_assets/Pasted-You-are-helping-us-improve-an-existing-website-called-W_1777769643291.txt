@@ -1,0 +1,356 @@
+You are helping us improve an existing website called WebLiteracy.com for the National AI Challenge.
+
+Context:
+The site lets a user enter a URL and returns a credibility analysis based on 8 rubric criteria:
+1. Verification
+2. Accuracy
+3. Authority
+4. Currency
+5. Bias
+6. Coverage
+7. Purpose
+8. Design
+
+Each criterion is scored from 0–4:
+0 = very poor / not enough evidence
+1 = weak
+2 = mixed or limited
+3 = good
+4 = excellent
+
+Important goal:
+Do NOT redesign the website. Do NOT rebuild the UI. Do NOT create a duplicate rubric table. Keep the demo stable, fast, and visually similar to the current version.
+
+We need to make the AI scoring more evidence-based, auditable, and harder to fake, without adding slow or complex features.
+
+Please update the existing code with the following responsible AI guardrail improvements.
+
+---
+
+1. Criteria-level evidence
+
+For every one of the 8 criteria, the AI must return:
+- score: number from 0–4
+- evidence: short visible evidence from the analyzed page
+- explanation: short explanation connecting the evidence to the score
+- confidence: "high", "medium", or "low"
+
+Evidence must be based only on visible page content or metadata that the system actually retrieved.
+
+The AI should not invent evidence. If evidence is missing, it should say:
+"No clear evidence found."
+
+Do not allow vague evidence such as:
+- "The site seems credible"
+- "The website appears trustworthy"
+- "It is likely reliable"
+- "This looks professional"
+
+Evidence should ideally include visible signals such as:
+- named author or organization
+- publication date or update date
+- cited sources or references
+- links to original data
+- contact/about information
+- clear purpose statement
+- labels such as opinion, sponsored, advertisement, official source, etc.
+
+---
+
+2. 0–4 scoring anchors
+
+Update the AI prompt so it uses these scoring anchors consistently:
+
+Score 0:
+No clear evidence found, criterion cannot be evaluated, or the page gives very poor support.
+
+Score 1:
+Very weak evidence. The page provides minimal, unclear, outdated, or unsupported signals.
+
+Score 2:
+Some evidence exists, but it is incomplete, mixed, unclear, or only partially supports credibility.
+
+Score 3:
+Good evidence exists. The page gives mostly clear and useful credibility signals, though not perfect.
+
+Score 4:
+Strong evidence exists. The page gives clear, specific, and well-supported signals for this criterion.
+
+Important:
+High scores of 3 or 4 require specific evidence.
+If the evidence is vague or missing, the score should usually be 0, 1, or 2.
+
+---
+
+3. Overall confidence
+
+Add an overall_confidence field to the backend result:
+- "high"
+- "medium"
+- "low"
+
+Overall confidence should be based on:
+- how many criteria have clear evidence
+- whether any required criteria are missing
+- whether the page content was successfully retrieved
+- whether the AI had to rely on weak or incomplete signals
+
+Also add an analysis_status field:
+- "scored"
+- "needs_review"
+- "cannot_score"
+
+Use:
+scored = enough evidence exists to provide a normal analysis
+needs_review = analysis completed, but some important evidence is weak, missing, or uncertain
+cannot_score = page content could not be retrieved, parsed, or evaluated well enough to give a meaningful score
+
+Do not overuse cannot_score. Use needs_review when partial analysis is still useful.
+
+---
+
+4. Backend validation
+
+After the AI returns JSON, add backend validation before displaying results.
+
+Validation should check:
+- all 8 required criteria are present
+- each criterion has score, evidence, explanation, and confidence
+- each score is a number from 0 to 4
+- each confidence is high, medium, or low
+- evidence is not empty
+- high scores of 3 or 4 do not have weak evidence like "No clear evidence found"
+- the AI did not skip criteria
+- the AI did not return invalid JSON
+
+If validation detects a small issue, repair it safely if possible:
+- missing evidence → "No clear evidence found."
+- missing confidence → "low"
+- invalid score → clamp or replace with 0
+- missing explanation → add a short explanation saying the signal was not clearly supported
+
+If validation detects a major issue, set:
+analysis_status = "needs_review" or "cannot_score"
+
+Do not silently pretend the analysis is perfect.
+
+---
+
+5. Safe fallback if validation fails
+
+If the page cannot be analyzed or the AI result fails validation badly, show a safe fallback message.
+
+For cannot_score:
+Title: "Could Not Score"
+Message:
+"We could not confidently complete the credibility analysis for this page. Some required content was missing, blocked, or could not be validated. Please review the page manually before drawing conclusions."
+
+For needs_review:
+Title: "Needs Review"
+Message:
+"The system completed a partial credibility analysis, but some evidence was missing, weak, or uncertain. Please review the flagged criteria manually."
+
+Important:
+A safe fallback should not look like a normal low credibility score.
+If possible, avoid treating cannot_score as a true 0/100 credibility rating. It should mean “not enough information,” not “bad website.”
+
+---
+
+6. Lightweight verification leads, not full external fact-checking
+
+Do NOT add full external fact-checking.
+Do NOT make the system browse many outside websites.
+Do NOT make the demo slow.
+
+For the Verification criterion only, add lightweight verification_leads in backend JSON.
+
+verification_leads should be a short list of suggestions based on the page content, such as:
+- names of organizations mentioned
+- claims that may need checking
+- cited sources or linked references found on the page
+- dates or statistics that may need confirmation
+
+Label them clearly as:
+"Suggested checks, not verified facts."
+
+Do not claim that the system externally verified these leads.
+
+If there are no leads, return:
+verification_leads: []
+
+These leads can stay backend-only unless the existing UI already has a safe place to show them. Do not create a large new UI section.
+
+---
+
+7. Performance guardrails
+
+Keep the demo fast and stable.
+
+Do not add:
+- multiple AI calls per criterion
+- full web crawling
+- long external search
+- heavy browser automation
+- slow multi-agent workflows
+- expensive repeated retries
+
+Prefer:
+- one main AI call
+- one validation step
+- short JSON output
+- short explanations
+- timeout protection
+- graceful fallback
+
+If AI output is invalid, retry at most once.
+If it still fails, use safe fallback.
+
+---
+
+8. Lightweight criterion-level confidence
+
+Each criterion should have confidence in backend JSON.
+
+Only show confidence visibly on the page when:
+- confidence is low
+- analysis_status is needs_review
+- analysis_status is cannot_score
+
+Do not clutter the normal scored result page with too many confidence labels.
+
+Example:
+If Accuracy has low confidence, the existing rubric card/table may show:
+"Low confidence: Evidence was limited or unclear."
+
+Do not rebuild the rubric cards/table.
+Only make small updates to the existing UI if needed.
+
+---
+
+9. Small updates to existing rubric cards/table only
+
+Use the existing score breakdown cards/table.
+
+Do not create:
+- a second rubric table
+- a new scoring dashboard
+- a large new layout
+- a redesigned results page
+
+Small acceptable changes:
+- show "No clear evidence found" in evidence column when needed
+- show low-confidence warning only for flagged criteria
+- show Needs Review banner when analysis_status is needs_review
+- show Cannot Score fallback when analysis_status is cannot_score
+- keep the current dark-mode design and layout
+
+---
+
+10. Recommended backend JSON shape
+
+Use or adapt this structure:
+
+{
+  "analysis_status": "scored | needs_review | cannot_score",
+  "overall_confidence": "high | medium | low",
+  "overall_score": number_or_null,
+  "summary": "short summary",
+  "limitations": "short explanation of what AI could and could not check",
+  "criteria": {
+    "verification": {
+      "score": 0-4,
+      "evidence": "visible evidence or No clear evidence found.",
+      "explanation": "why this score was assigned",
+      "confidence": "high | medium | low",
+      "verification_leads": []
+    },
+    "accuracy": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    },
+    "authority": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    },
+    "currency": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    },
+    "bias": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    },
+    "coverage": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    },
+    "purpose": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    },
+    "design": {
+      "score": 0-4,
+      "evidence": "...",
+      "explanation": "...",
+      "confidence": "high | medium | low"
+    }
+  }
+}
+
+---
+
+11. AI prompt behavior
+
+Update the AI system prompt so it clearly says:
+
+"You are not a final truth judge. You are a credibility assistant. You may only score based on visible retrieved page content. If evidence is missing, say so. Do not guess. Do not invent citations. Do not claim external fact-checking unless it actually happened. A high score requires clear supporting evidence. If the page cannot be analyzed, return cannot_score or needs_review instead of pretending the analysis is complete."
+
+---
+
+12. Final implementation request
+
+Please inspect the existing project and update the current files with the smallest safe changes needed.
+
+Before making changes, identify:
+- where the AI prompt is located
+- where the scoring JSON is parsed
+- where the score breakdown UI is rendered
+- where errors and fallback states are handled
+
+Then implement:
+- stricter AI JSON output
+- scoring anchors
+- evidence requirements
+- backend validation
+- overall confidence
+- analysis_status
+- safe fallback
+- lightweight verification leads
+- low-confidence display only when needed
+- performance protections
+
+Do not break the existing login, admin panel, dark/light mode, URL input, score breakdown, or critical thinking questions.
+
+After implementation, test with:
+1. https://nasa.gov
+2. a blocked or hard-to-read page
+3. a weak or low-information page
+4. a normal news article
+
+Expected behavior:
+- NASA should usually be scored or needs_review, not automatically cannot_score, unless the content truly cannot be retrieved.
+- Blocked pages should show cannot_score.
+- Weak pages should show lower scores with clear missing evidence.
+- Normal articles should show all 8 criteria with evidence, explanations, and appropriate confidence.
