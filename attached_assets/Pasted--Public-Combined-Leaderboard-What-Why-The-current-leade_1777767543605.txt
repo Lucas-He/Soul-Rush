@@ -1,0 +1,53 @@
+
+Public Combined Leaderboard
+What & Why
+The current leaderboard is localStorage-only (per-browser, per-wave). The user wants a public leaderboard that:
+
+Aggregates a player's entire run across all waves into a single score
+Is shared across all players and visible to everyone
+Can be managed (entries deleted) by an admin via the existing admin panel
+Only surfaces automatically on death — a win earns a congratulations screen, not a score table
+A combined score is calculated from: waves cleared × HP remaining at each wave end − hit penalty. This means a player who clears more bosses with less damage scores higher, making it a true measure of a full run.
+
+Done looks like
+After completing any wave, the player's cumulative run score is submitted to the API server and stored in a PostgreSQL database.
+A Global Leaderboard button appears on the title screen and inside the wave-end overlay. Clicking it opens a full-screen overlay listing the top 20 all-time scores: rank, player name, score, waves cleared, and date.
+The wave-end overlay shows the player's current run score alongside their per-wave HP/hits stats.
+Player name entered in the wave-end overlay is used for all subsequent score submissions in that run.
+Scores submitted without a name default to "PLAYER".
+The leaderboard refreshes each time the overlay is opened (live fetch from API).
+On game over (death): the leaderboard overlay opens automatically after the game-over screen, showing the player's final score highlighted in their rank position.
+On final victory (winning all 20 bosses): the leaderboard does NOT open. Instead a dedicated Congratulations screen is shown: a full-canvas celebration with the player's name, total run score, waves cleared, and a unique message ("You are a Soul Rush legend."). The score is still submitted to the backend silently.
+Admin win notification: every time any player completes a full run (reaches final victory), a record is stored. Inside the admin panel, a new "Recent Completions" feed shows the last 10 full-game completions with player name, score, and timestamp. This refreshes when the admin panel is opened.
+The API server exposes endpoints:
+POST /api/leaderboard — submit a score entry (open)
+GET /api/leaderboard — retrieve top 20 (open)
+GET /api/leaderboard/completions — retrieve last 10 full-game completions (admin-token required)
+DELETE /api/leaderboard/:id — delete a specific entry (admin-token required)
+DELETE /api/leaderboard — wipe all entries (admin-token required)
+Admin leaderboard management — Inside the admin panel, a "Leaderboard" section shows the top 20 with a "✕ Delete" button per row and a "Clear All" button. A separate "Recent Completions" section shows the last 10 winners. Both sections refresh after each action.
+TypeScript has zero errors in both the API server and the game client.
+Out of scope
+Authentication beyond a shared admin token
+Anti-cheat score validation
+Per-wave leaderboard (localStorage version stays as a secondary local table)
+Score history or player profiles
+Pagination beyond top 20
+Steps
+Database schema — Add a leaderboard table: id (serial PK), player_name (text), score (integer), waves_cleared (integer), boss_reached (integer), is_full_completion (boolean default false), created_at (timestamptz default now).
+Run migration — Apply the schema to the development database.
+API routes — read/write — POST /api/leaderboard: accepts { playerName, score, wavesCleared, bossReached, isFullCompletion }, validates with Zod, inserts and returns the new entry with its id. GET /api/leaderboard: returns top 20 rows by score descending, including id. GET /api/leaderboard/completions: admin-token required; returns the last 10 rows where is_full_completion = true, ordered by created_at descending.
+API routes — admin delete — DELETE /api/leaderboard/:id and DELETE /api/leaderboard: both require x-admin-token header matching ADMIN_TOKEN env var (default Orcas@0112 in dev).
+OpenAPI spec — Add all five endpoints to the API spec and regenerate client code.
+Run score tracking in game — Add runScore: number and wavesCleared: number to GameData. Each wave end: runScore += Math.round(waveHp * 10 - waveHits * 50 + 200). Increment wavesCleared. Reset both on restart or new game start.
+Submit score at wave end — In continueWave, fire-and-forget fetch to POST /api/leaderboard with current run totals and isFullCompletion: false. Failures are silently swallowed.
+Submit full completion on victory — When the game reaches finalVictory state, fire-and-forget POST /api/leaderboard with isFullCompletion: true and the final totals.
+Run score display in wave-end overlay — Add a "RUN SCORE" stat row showing the running runScore total.
+Game-over leaderboard — On game over, after the existing game-over canvas render, automatically open the global leaderboard overlay with the player's most recent entry highlighted. The overlay includes a "Play Again" button that restarts the game.
+Victory congratulations screen — When finalVictory is reached, render a dedicated React overlay (not the leaderboard). Show: a glowing title "CONGRATULATIONS", the player's name, total run score, waves cleared, and the tagline "You are a Soul Rush legend." Include a "Play Again" button. Do not show the leaderboard here.
+Global Leaderboard overlay component — Reusable React component that fetches GET /api/leaderboard on mount. Styled table: rank, name, score, waves cleared, date. Close button. Used by the game-over screen and the manual "LEADERBOARD" button on the title screen and wave-end overlay.
+Admin leaderboard management UI — In the admin panel, add a collapsible "Leaderboard" section: top-20 table with "✕ Delete" per row and a "Clear All" button. Add a separate "Recent Completions" section fetching GET /api/leaderboard/completions (with admin token header) showing the last 10 full-game winners with name, score, and time. Both sections refresh after any action.
+Relevant files
+artifacts/soul-rush/src/game/SoulRush.tsx
+artifacts/api-server/src/routes/index.ts
+artifacts/api-server/src/index.ts

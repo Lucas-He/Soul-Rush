@@ -1,0 +1,51 @@
+Enhanced Admin Tools & Wave Difficulty Tuning
+What & Why
+Two connected problems:
+
+Wave difficulty is uneven — some waves are trivially easy (e.g. Boss 5 Wave 2 "Crown Collapse") while others feel unreachable (e.g. Boss 3 Wave 3 "Wing Barrage"). Bullet counts, speeds, and patterns need per-wave tuning.
+Admin tools are too coarse — the admin panel only supports jumping to an entire boss. There is no way to skip to a specific wave within a boss, toggle invincibility, clear all bullets, or inspect what the current wave is doing. A broader set of in-game admin commands is needed for efficient testing and tuning.
+Done looks like
+The admin panel gains a Wave Jump section: after selecting a boss, a row of numbered wave buttons appears so the admin can jump to any specific wave within that boss (not just the first wave).
+A live Wave Info bar appears on screen during admin mode showing: current boss name, wave index/total, wave name (from boss.waves[atkIdx].name), attack type, and time remaining.
+New admin panel buttons and controls:
+Invincibility [ON/OFF] — player takes no damage while on.
+Clear Bullets — clears all active bullets, lasers, and danger zones instantly.
+Freeze Bullets — toggles timeFrozen to pause all bullet movement.
+Set HP — numeric input; typing a number and pressing Enter sets player HP to that value (clamped 1–100).
+Next Wave — advances to the next wave immediately (skipping the remaining timer), respecting the boss move completion mechanic so the current attack still finishes its phase first.
+Restart Wave — restarts the current wave from the beginning with full HP for that wave.
+Speed × 0.5 / × 1 / × 2 — three buttons that multiply bullet speeds globally by a factor for testing purposes.
+New admin keyboard shortcuts during gameplay (all admin-mode only):
+I — toggle invincibility
+C — clear all bullets/lasers
+H — reset HP to 100
+N — skip to next wave
+B — restart current wave
+Difficulty rebalancing for flagged waves:
+Boss 3 Wave 3 (Wing Barrage / wingBarrage): reduce bullet speed by ~25% and volley count by 2. Add a slightly longer inter-volley delay.
+Boss 5 Wave 2 (Crown Collapse / crownCollapse): add a second ring of bullets fired 1.5 s after the first, giving the wave two distinct phases.
+General pass: any wave where dmg * diffMult at Normal (1.25×) exceeds 33 HP per hit gets its dmg lowered so at minimum 3 hits are required.
+Admin mode persists until page reload; new buttons only visible after unlocking with Orcas@0112.
+TypeScript has zero errors.
+Out of scope
+Automated difficulty AI or adaptive scaling
+Rewriting any boss's core attack function from scratch
+Sound or visual effects tied to admin actions
+Per-player difficulty profiles
+Leaderboard management (covered in Task #19)
+Steps
+Wave-jump helper — Add jumpToBossWave(g, bossIdx, waveIdx) that calls resetForBoss then sets g.atkIdx = waveIdx and g.atkTimer = boss.atkDur before transitioning to playing. Expose it via a React wrapper like jumpBoss.
+Wave Jump UI in admin panel — Below the boss-select row, add a dynamic wave-select row. It shows numbered mini-buttons for every wave in BOSSES[selectedAdminBoss].waves. The selected boss for this row is tracked in a new adminSelectedBoss React state (starts at the game's current boss). Clicking a wave button calls jumpToBossWave.
+Wave Info HUD — In drawUI, when adminMode is true, add a second admin info line showing current wave name (from boss.waves?.[g.atkIdx]?.name) and attack type tag.
+adminInvincible flag — Add adminInvincible: boolean (default false) to GameData and createState. In the damage block inside update, skip damage and invincibility frame assignment when g.adminInvincible is true.
+Invincibility button + I key — Toggle button in panel sets gameRef.current.adminInvincible. I key (admin only) does the same during gameplay.
+Clear Bullets button + C key — Button calls clearEntities(gameRef.current). C key (admin only) does the same.
+HP Setter — Numeric <input> + "Set HP" button. On submit, gameRef.current.player.hp = Math.min(P_MAX_HP, Math.max(1, Number(val))).
+HP reset H key — Admin-only; sets player.hp = P_MAX_HP.
+Next Wave button + N key — Forces g.atkFinishTimer = 0 so the current grace window resolves immediately and the wave advances. If on the last wave, triggers boss win.
+Restart Wave button + B key — Calls clearEntities, resets g.atkIdx to current value (no change), resets g.atkTimer = boss.atkDur, g.hitsThisWave = 0, g.phase = 0, g.phaseTimer = 0.
+Bullet speed multiplier buttons — Add a g.debugSpeedMult: number field (default 1). In moveBullets, multiply all velocity components by g.debugSpeedMult. Panel shows three buttons: "½×", "1×", "2×" that set this value.
+Retune Wing Barrage (Boss 3 Wave 3) — Reduce bullet speed and volley count in wingBarrage.
+Retune Crown Collapse (Boss 5 Wave 2) — Add a second bullet burst at 1.5 s into the wave in crownCollapse.
+One-shot cap pass — Audit all dmg values; cap so a single hit at Normal 1.25× deals ≤ 33 HP.
+Relevant files

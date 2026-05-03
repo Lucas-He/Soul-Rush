@@ -1,0 +1,30 @@
+#20 - Boss Gameplay Overhaul: Unique Attacks, Wave Data & Difficulty
+What & Why
+Three gameplay issues reported after Task #17:
+
+Bosses 1-10 have no waves metadata arrays (used for wave-name display, tips, and the item-drop overlay) — they only have raw attacks string arrays.
+Bosses 11-20 attacks arrays heavily reuse shared attack names from bosses 1-10 (crystalRain, boneRain, ribCage, pistonCrush, bitStorm, errorSweep, falseStar, constellationLines, clockSlash, ruleRewrite) instead of playing their signature moves. This makes each boss feel identical to earlier ones rather than being distinctly harder.
+Some boss fights in the 11-20 range are effectively impossible — bosses deal 40-60 damage per hit with a 1.25 difficulty multiplier across 15-25 waves, and several attacks (bloodCurtain, stringPull, moonShatter) have phase durations or safe-window timings that make them near-unavoidable.
+Done looks like
+Every boss 1-10 has a properly structured waves array (matching its attacks array exactly, with id, name, description, duration, attackType, warningType, bulletSpeed, spawnRate, damage, arenaEffect, patternTags, execute).
+Bosses 11-20 attacks arrays are revised so at least 70% of each boss's attacks use that boss's own signature execute strings (the ones with dedicated do* implementations), not recycled boss 1-10 attack names.
+Where a boss 11-20 must reuse a shared attack (e.g., as filler between signature moves), it is replaced with a thematically appropriate variant that still uses the boss's unique do* function.
+Boss damage values for bosses 11-20 are tuned so that a player who dodges 80% of hits can survive the full fight: dmg values capped so that 4 hits × dmg × diffMult ≤ 100 HP (i.e., dmg ≤ ~20 for the hardest bosses before diffMult, or the difficulty multiplier logic is revised to flatten out at higher boss indices).
+The three most problematic attacks are individually fixed: bloodCurtain warn time increased so player can reach safe side; stringPull force magnitude reduced; moonShatter gap added to the initial closing ring.
+The wave-end overlay displays the wave name (from boss.waves[wIdx].name) for bosses 1-10 (it currently only has this data for 11-20).
+Out of scope
+Adding new do* attack function implementations (use and tune what's already implemented).
+Changing boss names, themes, colors, or dialog.
+Changing the number of waves per boss (only fixing which attacks are listed).
+Task #18 admin difficulty controls (a separate task).
+Steps
+Add waves arrays to bosses 1-10 — For each of the 10 existing bosses, add a waves array that mirrors its attacks array exactly (one wave object per attack string). Wave names and descriptions should match the existing attack function names meaningfully (e.g., crystalRain → "Crystal Rain", mirrorWalls → "Mirror Walls"). Copy the boss's dmg and atkDur into each wave's damage and duration fields.
+Revise bosses 11-20 attacks arrays — For each boss 11-20, replace all recycled boss 1-10 attack names in the attacks array with that boss's own signature attacks. Also update the parallel waves array execute fields to match. The goal: each boss's full run should use only the attacks that have dedicated implementations named after that boss (e.g., Vyrial should not use crystalRain or boneRain; use sporeBloom, plagueGarden, velvetSwarm, mothEclipse, feverRings, plagueCrown in rotation instead).
+Tune boss damage values — Reduce dmg for bosses 11-20 so the fights are hard but survivable. Target: at most (100 / (numWaves × 0.25)) damage per hit (assuming 25% hit rate). For example, boss 11 with 15 waves should deal around 26-30 dmg (not 40). Scale up gradually to 35 for boss 20.
+Fix the three broken attacks — In doBloodCurtain: increase the initial warn time from 0.7s to 1.5s so the player has time to reach the top half. In doStringPull: reduce the pull force from 28/22 to 18/14 so the player can still partially steer. In doMoonShatter: add a gap to the closing ring (gapSz: 0.5, one gap at the player's current angle) instead of a full-circle ring with no gaps.
+Wire wave name into overlay — In the wave-end overlay React component, read boss.waves?.[waveIdx]?.name and display it as the wave name sub-header when available.
+Relevant files
+artifacts/soul-rush/src/game/SoulRush.tsx:307-460 (boss 1-10 definitions without waves arrays)
+artifacts/soul-rush/src/game/SoulRush.tsx:458-800 (boss 11-20 definitions with waves arrays)
+artifacts/soul-rush/src/game/SoulRush.tsx:3431-3471 (doBloodCurtain, doMoonShatter)
+artifacts/soul-rush/src/game/SoulRush.tsx:3384-3405 (doStringPull)
