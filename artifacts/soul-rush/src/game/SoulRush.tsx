@@ -927,6 +927,46 @@ const BOSSES: BossConf[] = [
 ];
 
 // ================================================================
+// ================================================================
+// FAIRNESS DEBUFF ENFORCER — runs once at module init
+// Programmatically caps wave data so no wave can exceed global fairness limits,
+// regardless of hand-edited values. This enforces the same rules that
+// validateWaveFairness audits, making debuffs both data-level and runtime-level.
+// ================================================================
+(function applyFairnessDebuffs() {
+  // Per-tier bulletSpeed hard caps (bosses 1-4, 5-7, 8-10, 11-15, 16-20)
+  const tierMaxSpeed = [162, 172, 182, 188, 192];
+  // attackType-specific spawnRate hard caps
+  const spawnCaps: Record<string, number> = {
+    corner: 22, burst: 18, rain: 18, radial: 44, random: 20,
+  };
+  // Banned combo: flip arenaEffect may never combine with high speed/density
+  const FLIP_MAX_SPEED = 175;
+  const FLIP_MAX_RATE  = 8;
+  // Radial burst speed cap
+  const RADIAL_MAX_SPEED = 188;
+
+  BOSSES.forEach((boss, bi) => {
+    const tier = bi < 4 ? 0 : bi < 7 ? 1 : bi < 10 ? 2 : bi < 15 ? 3 : 4;
+    (boss.waves ?? []).forEach(wave => {
+      // Global tier-based bulletSpeed cap
+      if (wave.bulletSpeed > tierMaxSpeed[tier]) wave.bulletSpeed = tierMaxSpeed[tier];
+      // Per-type spawnRate cap
+      const cap = spawnCaps[wave.attackType];
+      if (cap !== undefined && wave.spawnRate > cap) wave.spawnRate = cap;
+      // Banned combo: flip + fast + dense
+      if (wave.arenaEffect === 'flip') {
+        if (wave.bulletSpeed > FLIP_MAX_SPEED) wave.bulletSpeed = FLIP_MAX_SPEED;
+        if (wave.spawnRate  > FLIP_MAX_RATE)  wave.spawnRate  = FLIP_MAX_RATE;
+      }
+      // Radial burst speed cap
+      if (wave.attackType === 'radial' && wave.bulletSpeed > RADIAL_MAX_SPEED) {
+        wave.bulletSpeed = RADIAL_MAX_SPEED;
+      }
+    });
+  });
+})();
+
 // ITEMS (20 collectibles — one reward pool per boss)
 // ================================================================
 
@@ -4722,7 +4762,7 @@ function drawStarPoints(ctx: CanvasRenderingContext2D, g: GameData, boss: BossCo
     ctx.save();
     ctx.shadowBlur = 14; ctx.shadowColor = boss.color2;
     ctx.fillStyle = boss.color2;
-    ctx.beginPath(); ctx.arc(sp.x, sp.y, 5 + Math.sin(g.time * 6 + sp.id) * 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(sp.x, sp.y, (5 + Math.sin(g.time * 6 + sp.id) * 2) * HAZARD_VISUAL_SCALE, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
 }
