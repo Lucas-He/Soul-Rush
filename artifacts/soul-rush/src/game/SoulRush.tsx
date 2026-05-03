@@ -1007,6 +1007,8 @@ interface GameData {
   nextId: number;
 
   diffMult: number;
+  adminInvincible: boolean;
+  debugSpeedMult: number;
 }
 
 function createState(): GameData {
@@ -1041,6 +1043,7 @@ function createState(): GameData {
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
     diffMult: 1.25,
+    adminInvincible: false, debugSpeedMult: 1,
   };
 }
 
@@ -3632,8 +3635,9 @@ function doFirstMistake(g: GameData, dt: number, boss: BossConf) {
 // ================================================================
 
 function moveBullets(g: GameData, dt: number) {
+  const sm = g.debugSpeedMult;
   for (const b of g.bullets) {
-    if (!b.frozen) { b.x += b.vx * dt; b.y += b.vy * dt; }
+    if (!b.frozen) { b.x += b.vx * sm * dt; b.y += b.vy * sm * dt; }
     b.rot += b.rotSpd * dt;
   }
 }
@@ -3814,7 +3818,7 @@ function update(
   }
 
   // Collision & damage
-  if (checkHit(g)) {
+  if (checkHit(g) && !g.adminInvincible) {
     g.hitsThisWave++;
     g.player.hp -= boss.dmg * g.diffMult;
     g.player.invTimer = P_INV;
@@ -4224,6 +4228,308 @@ function drawBoss10(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 }
 
 // ================================================================
+// BOSS DRAW FUNCTIONS — BOSSES 11-20
+// ================================================================
+
+// Boss 11 — Vyrial (plague/spore)
+function drawBoss11(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.7) * 4);
+  ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
+  const pulse = 1 + Math.sin(g.time * 3) * 0.08;
+  // Organic blob outline
+  ctx.strokeStyle = boss.color; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= 32; i++) {
+    const a = (i / 32) * Math.PI * 2;
+    const r = 24 * pulse + Math.sin(a * 7 + g.time * 2) * 7;
+    i === 0 ? ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r) : ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  ctx.closePath(); ctx.stroke();
+  ctx.fillStyle = boss.color + '22'; ctx.fill();
+  // Nucleus
+  ctx.fillStyle = boss.color; ctx.shadowBlur = 18;
+  ctx.beginPath(); ctx.arc(0, 0, 9 * pulse, 0, Math.PI * 2); ctx.fill();
+  // Orbiting spores
+  for (let i = 0; i < 6; i++) {
+    const sa = g.time * 1.2 + (i * Math.PI * 2) / 6;
+    const sr = 44 + Math.sin(g.time * 2 + i) * 8;
+    ctx.fillStyle = i % 2 === 0 ? boss.color : boss.color2; ctx.shadowColor = ctx.fillStyle;
+    ctx.beginPath(); ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr * 0.6, 4, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// Boss 12 — Echora (sound/music)
+function drawBoss12(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 1.1) * 3);
+  ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
+  // Concentric sound rings
+  for (let i = 0; i < 3; i++) {
+    const r = 16 + i * 14 + Math.sin(g.time * 4 + i) * 5;
+    ctx.strokeStyle = i % 2 === 0 ? boss.color : boss.color2;
+    ctx.lineWidth = 2.5 - i * 0.5; ctx.globalAlpha = 1 - i * 0.28;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // Diamond core
+  ctx.fillStyle = boss.color; ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
+  ctx.beginPath();
+  ctx.moveTo(0, -14); ctx.lineTo(10, 0); ctx.lineTo(0, 14); ctx.lineTo(-10, 0);
+  ctx.closePath(); ctx.fill();
+  // Waveform bars left + right
+  ctx.fillStyle = boss.color2; ctx.globalAlpha = 0.7;
+  for (let i = 0; i < 5; i++) {
+    const h = 6 + Math.sin(g.time * 6 + i * 1.2) * 10;
+    ctx.fillRect(26 + i * 8, -h / 2, 5, h);
+    ctx.fillRect(-26 - i * 8 - 5, -h / 2, 5, h);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// Boss 13 — Vantus (void/gravity)
+function drawBoss13(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.5) * 2);
+  ctx.shadowBlur = 40; ctx.shadowColor = boss.color;
+  // Rotating gravity rings
+  for (let i = 3; i >= 0; i--) {
+    const r = 14 + i * 13;
+    ctx.strokeStyle = i % 2 === 0 ? boss.color : boss.color2;
+    ctx.lineWidth = 1.5; ctx.globalAlpha = 0.3 + (3 - i) * 0.2;
+    ctx.save();
+    ctx.rotate(g.time * (0.3 + i * 0.15) * (i % 2 === 0 ? 1 : -1));
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+  // Black hole core
+  const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, 12);
+  grad.addColorStop(0, '#000000'); grad.addColorStop(1, boss.color + '55');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fill();
+  // Pulled star dots
+  for (let i = 0; i < 5; i++) {
+    const a = g.time * -0.8 + (i * Math.PI * 2) / 5;
+    const r = 38 + Math.sin(g.time * 2 + i) * 6;
+    ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2; ctx.globalAlpha = 0.8;
+    ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r * 0.7, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// Boss 14 — Caloric (wax/flame)
+function drawBoss14(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.9) * 2);
+  ctx.shadowBlur = 35; ctx.shadowColor = boss.color;
+  // Candle body
+  ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
+  ctx.strokeRect(-10, -18, 20, 36);
+  ctx.fillStyle = boss.color + '18'; ctx.fillRect(-10, -18, 20, 36);
+  // Dripping wax drops
+  for (let i = 0; i < 4; i++) {
+    const dx = -8 + i * 5 + Math.sin(g.time * 1.5 + i) * 2;
+    const dy = 18 + Math.sin(g.time * 2 + i * 0.8) * 5;
+    ctx.fillStyle = boss.color + 'aa';
+    ctx.beginPath(); ctx.arc(dx, dy, 4, 0, Math.PI * 2); ctx.fill();
+  }
+  // Flame layers top
+  ctx.shadowColor = boss.color2; ctx.shadowBlur = 28;
+  for (let fi = 0; fi < 3; fi++) {
+    const fh = 18 + fi * 4 + Math.sin(g.time * 8 + fi) * 5;
+    const fw = 8 - fi * 2;
+    ctx.fillStyle = fi === 0 ? boss.color2 : fi === 1 ? boss.color : '#ffffff66';
+    ctx.beginPath(); ctx.ellipse(0, -18 - fh / 2, fw * 0.6, fh / 2, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  // Core
+  ctx.fillStyle = boss.color; ctx.shadowColor = boss.color; ctx.shadowBlur = 18;
+  ctx.beginPath(); ctx.arc(0, -4, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+// Boss 15 — Zylvira (web/crystal)
+function drawBoss15(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.6) * 3);
+  ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
+  // Spider web arms + rings
+  ctx.save(); ctx.rotate(g.time * 0.15);
+  ctx.strokeStyle = boss.color; ctx.lineWidth = 1; ctx.globalAlpha = 0.55;
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 52, Math.sin(a) * 52); ctx.stroke();
+  }
+  for (let r = 14; r <= 52; r += 14) {
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.restore(); ctx.globalAlpha = 1;
+  // Rotating hex-gem core
+  ctx.shadowBlur = 22; ctx.fillStyle = boss.color;
+  ctx.save(); ctx.rotate(g.time * 0.8);
+  ctx.beginPath();
+  ctx.moveTo(0, -13); ctx.lineTo(11, -6); ctx.lineTo(11, 6);
+  ctx.lineTo(0, 13); ctx.lineTo(-11, 6); ctx.lineTo(-11, -6);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+  // Two orbiting crystals
+  const ca = g.time * 2.5;
+  ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
+  ctx.beginPath(); ctx.arc(Math.cos(ca) * 38, Math.sin(ca) * 38, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(Math.cos(ca + Math.PI) * 38, Math.sin(ca + Math.PI) * 38, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+// Boss 16 — Atlas Minor (cosmic/asteroid)
+function drawBoss16(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.4) * 3);
+  ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
+  // Rotating rocky body
+  ctx.save(); ctx.rotate(g.time * 0.25);
+  ctx.strokeStyle = boss.color; ctx.lineWidth = 2.5;
+  const verts: [number, number][] = [[-22, -8], [-12, -24], [4, -20], [20, -12], [22, 6], [10, 22], [-8, 20], [-22, 10]];
+  ctx.beginPath();
+  verts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+  ctx.closePath(); ctx.stroke();
+  ctx.fillStyle = boss.color + '22'; ctx.fill();
+  // Crater arcs
+  ctx.strokeStyle = boss.color2; ctx.lineWidth = 1.5;
+  [[0, -6, 5], [-8, 6, 3], [8, 4, 4]].forEach(([cx, cy, r]) => {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI); ctx.stroke();
+  });
+  ctx.restore();
+  // Orbiting debris
+  for (let i = 0; i < 4; i++) {
+    const a = g.time * 1.3 + (i * Math.PI * 2) / 4;
+    ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
+    ctx.save();
+    ctx.translate(Math.cos(a) * 44, Math.sin(a) * 28);
+    ctx.rotate(g.time * 2 + i);
+    ctx.fillRect(-3, -3, 6, 6);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// Boss 17 — Xiu (paper/origami)
+function drawBoss17(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.8) * 3);
+  ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
+  // Angular paper-crane pentagon
+  ctx.strokeStyle = boss.color; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, -22); ctx.lineTo(20, 4); ctx.lineTo(8, 22);
+  ctx.lineTo(-8, 22); ctx.lineTo(-20, 4);
+  ctx.closePath(); ctx.stroke();
+  ctx.fillStyle = boss.color + '18'; ctx.fill();
+  // Fold lines
+  ctx.lineWidth = 1; ctx.globalAlpha = 0.45;
+  ctx.strokeStyle = boss.color;
+  ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(0, 22); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-20, 4); ctx.lineTo(20, 4); ctx.stroke();
+  ctx.globalAlpha = 1;
+  // Red cut slash
+  ctx.strokeStyle = boss.color2; ctx.lineWidth = 2.5; ctx.shadowColor = boss.color2; ctx.shadowBlur = 16;
+  ctx.beginPath(); ctx.moveTo(-10, -4); ctx.lineTo(10, 4); ctx.stroke();
+  // Wing tips
+  ctx.save(); ctx.rotate(Math.sin(g.time * 2) * 0.18);
+  ctx.strokeStyle = boss.color; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.7;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(34, -22); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-34, -22); ctx.stroke();
+  ctx.restore(); ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// Boss 18 — Mnemovex (memory/glitch)
+function drawBoss18(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.9) * 3);
+  ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
+  // Stable glitch offset driven by time
+  const glitchOn = Math.sin(g.time * 22) > 0.85;
+  const glitchX = glitchOn ? Math.sin(g.time * 77) * 5 : 0;
+  // Layered ghost rings
+  for (let i = 0; i < 3; i++) {
+    ctx.strokeStyle = i % 2 === 0 ? boss.color : boss.color2;
+    ctx.lineWidth = 2; ctx.globalAlpha = 0.4 + i * 0.22;
+    ctx.save(); ctx.translate(glitchX * (i % 2 === 0 ? 1 : -1), 0);
+    ctx.beginPath(); ctx.arc(0, 0, 20 - i * 3, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+  // Core + void eye
+  ctx.fillStyle = boss.color; ctx.shadowBlur = 22;
+  ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+  // Orbiting memory shards
+  for (let i = 0; i < 5; i++) {
+    const a = g.time * 1.5 + (i * Math.PI * 2) / 5;
+    const rx = Math.cos(a) * 38, ry = Math.sin(a) * 32;
+    ctx.fillStyle = i % 2 === 0 ? boss.color : boss.color2;
+    ctx.globalAlpha = 0.6 + Math.sin(g.time * 5 + i) * 0.4;
+    ctx.fillRect(rx - 3, ry - 3, 6, 6);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// Boss 19 — Lunara (moon/puppet)
+function drawBoss19(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.7) * 4);
+  ctx.shadowBlur = 32; ctx.shadowColor = boss.color;
+  // Crescent moon (filled arc minus overlap)
+  ctx.fillStyle = boss.color;
+  ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(10, -4, 18, 0, Math.PI * 2); ctx.fill();
+  // Marionette cross bar
+  const sway = Math.sin(g.time * 1.5) * 8;
+  ctx.strokeStyle = boss.color2; ctx.lineWidth = 1.5; ctx.shadowColor = boss.color2;
+  ctx.beginPath(); ctx.moveTo(-20 + sway, -52); ctx.lineTo(20 + sway, -52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0 + sway, -52); ctx.lineTo(0 + sway, -36); ctx.stroke();
+  // Puppet strings
+  ctx.lineWidth = 0.8; ctx.globalAlpha = 0.55;
+  ctx.beginPath(); ctx.moveTo(-14 + sway, -52); ctx.lineTo(-14, -22); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(14 + sway, -52); ctx.lineTo(14, -22); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// Boss 20 — Soulvex (the final soul)
+function drawBoss20(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  ctx.save();
+  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.3) * 2);
+  ctx.shadowBlur = 50; ctx.shadowColor = boss.color;
+  // Orbiting soul fragments — one per previous boss
+  const orbitCols = ['#88ff44','#ff44aa','#8844ff','#ffaa22','#ff44ff','#cc8833','#ffffff','#44ccff','#cc2244'];
+  for (let i = 0; i < 9; i++) {
+    const a = g.time * 0.8 + (i * Math.PI * 2) / 9;
+    ctx.fillStyle = orbitCols[i]; ctx.shadowColor = orbitCols[i]; ctx.globalAlpha = 0.75;
+    ctx.beginPath(); ctx.arc(Math.cos(a) * 52, Math.sin(a) * 38, 4, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  // Cracked white sphere
+  ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 40;
+  ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fill();
+  // Radiating red cracks
+  ctx.strokeStyle = boss.color2; ctx.lineWidth = 1.5; ctx.shadowColor = boss.color2; ctx.shadowBlur = 12;
+  const cracks: [number, number, number, number][] = [[0, 0, 14, -12], [0, 0, -10, 14], [0, 0, 16, 8], [0, 0, -14, -8]];
+  cracks.forEach(([x1, y1, x2, y2]) => {
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  });
+  // Void eye at centre
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+// ================================================================
 // BACKGROUND + BOX
 // ================================================================
 
@@ -4521,6 +4827,16 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
     case 7: drawBoss8(ctx, g, boss); break;
     case 8: drawBoss9(ctx, g, boss); break;
     case 9: drawBoss10(ctx, g, boss); break;
+    case 10: drawBoss11(ctx, g, boss); break;
+    case 11: drawBoss12(ctx, g, boss); break;
+    case 12: drawBoss13(ctx, g, boss); break;
+    case 13: drawBoss14(ctx, g, boss); break;
+    case 14: drawBoss15(ctx, g, boss); break;
+    case 15: drawBoss16(ctx, g, boss); break;
+    case 16: drawBoss17(ctx, g, boss); break;
+    case 17: drawBoss18(ctx, g, boss); break;
+    case 18: drawBoss19(ctx, g, boss); break;
+    case 19: drawBoss20(ctx, g, boss); break;
   }
 
   drawBox(ctx, boss, g);
@@ -4828,6 +5144,10 @@ export default function SoulRush() {
   const [bossGuideOpen,  setBossGuideOpen]  = useState(false);
   const [diffIdx,        setDiffIdxState]   = useState(2);
   const [adminMsg,       setAdminMsg]       = useState('');
+  const [adminWaveBoss,  setAdminWaveBoss]  = useState(0);
+  const [adminHpInput,   setAdminHpInput]   = useState('');
+  const [adminInvPanel,  setAdminInvPanel]  = useState(false);
+  const [adminSpeedMult, setAdminSpeedMult] = useState(1);
 
   type LbEntry = { name: string; hp: number; hits: number; ts: number };
   const [playerName,    setPlayerName]    = useState<string>(() => { try { return localStorage.getItem('soulrush_name') ?? 'PLAYER'; } catch { return 'PLAYER'; } });
@@ -5034,6 +5354,17 @@ export default function SoulRush() {
       gameRef.current.state = 'playing';
     }
     inputFocusedRef.current = false;
+  };
+
+  const jumpToBossWave = (bossIdx: number, waveIdx: number) => {
+    const g = gameRef.current;
+    jumpToBoss(g, bossIdx);
+    g.atkIdx = Math.min(waveIdx, (BOSSES[bossIdx].waves?.length ?? 1) - 1);
+    g.atkTimer = BOSSES[bossIdx].atkDur;
+    g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
+    setInventory([]);
+    setPendingItem(null);
+    setWaveEndVisible(false);
   };
 
   const [, forceRender] = useState(0);
@@ -5296,18 +5627,111 @@ export default function SoulRush() {
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: '#555', marginBottom: 8 }}>BOSS SELECT — jumps with full HP &amp; clean state</div>
+                <div style={{ fontSize: 11, color: '#555', marginBottom: 8 }}>BOSS SELECT — click to jump (wave 1) · or pick a wave below</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {BOSSES.map((b, i) => (
-                    <button key={b.name} style={{ ...btnStyle(b.color), fontSize: 12, padding: '6px 12px', fontWeight: 'bold' }} onClick={() => { jumpBoss(i); setAdminPanelOpen(false); }}>
-                      {i === 9 ? '0' : i + 1}. {b.name}
+                    <button key={b.name} style={{ ...btnStyle(b.color), fontSize: 12, padding: '6px 12px', fontWeight: 'bold' }}
+                      onClick={() => { setAdminWaveBoss(i); jumpBoss(i); }}>
+                      {i === 9 ? '0' : i < 9 ? i + 1 : i + 1}. {b.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Wave Jump */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, color: '#555', marginBottom: 6 }}>
+                  WAVE JUMP — <span style={{ color: BOSSES[adminWaveBoss].color }}>{BOSSES[adminWaveBoss].name}</span>
+                  {' · pick boss above then a wave ↓'}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {(BOSSES[adminWaveBoss].waves ?? []).map((_w, wi) => (
+                    <button key={wi} style={{ ...btnStyle(BOSSES[adminWaveBoss].color), fontSize: 12, padding: '5px 10px', minWidth: 32, fontWeight: 'bold' }}
+                      onClick={() => { jumpToBossWave(adminWaveBoss, wi); }}>
+                      W{wi + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live controls */}
+              <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <div style={{ fontSize: 11, color: '#555', width: '100%', marginBottom: 2 }}>LIVE CONTROLS (works mid-fight)</div>
+
+                {/* Invincibility */}
+                <button style={{ ...btnStyle(adminInvPanel ? '#00ff88' : '#444'), background: adminInvPanel ? '#00ff8822' : 'transparent', fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                  onClick={() => {
+                    const next = !adminInvPanel;
+                    setAdminInvPanel(next);
+                    gameRef.current.adminInvincible = next;
+                  }}>
+                  {adminInvPanel ? '🛡 INV: ON' : '🛡 INV: off'}
+                </button>
+
+                {/* Clear bullets */}
+                <button style={{ ...btnStyle('#ff8844'), fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                  onClick={() => clearEntities(gameRef.current)}>
+                  💥 Clear Bullets
+                </button>
+
+                {/* Next wave */}
+                <button style={{ ...btnStyle('#44ccff'), fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                  onClick={() => { const g = gameRef.current; g.atkTimer = 0; g.atkFinishTimer = 0; }}>
+                  ⏭ Next Wave
+                </button>
+
+                {/* Restart wave */}
+                <button style={{ ...btnStyle('#cc88ff'), fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                  onClick={() => {
+                    const g = gameRef.current;
+                    clearEntities(g);
+                    g.atkTimer = BOSSES[g.bossIdx].atkDur;
+                    g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
+                    g.hitsThisWave = 0; g.waveStartHp = g.player.hp;
+                  }}>
+                  🔄 Restart Wave
+                </button>
+
+                {/* HP setter */}
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <input
+                    type="number" min={1} max={100} placeholder="HP"
+                    value={adminHpInput}
+                    onChange={e => setAdminHpInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        const v = Math.min(100, Math.max(1, Number(adminHpInput)));
+                        if (!isNaN(v)) gameRef.current.player.hp = v;
+                      }
+                    }}
+                    style={{ width: 60, background: '#0a0a14', border: '1px solid #333', borderRadius: 4, color: '#aac', fontFamily: 'monospace', fontSize: 12, padding: '5px 8px', outline: 'none' }}
+                  />
+                  <button style={{ ...btnStyle('#ff4466'), fontSize: 12, padding: '6px 10px' }}
+                    onClick={() => { const v = Math.min(100, Math.max(1, Number(adminHpInput))); if (!isNaN(v)) gameRef.current.player.hp = v; }}>
+                    Set HP
+                  </button>
+                  <button style={{ ...btnStyle('#ff4466'), fontSize: 12, padding: '6px 10px' }}
+                    onClick={() => { gameRef.current.player.hp = 100; }}>
+                    +100
+                  </button>
+                </div>
+              </div>
+
+              {/* Bullet speed */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, color: '#555', marginBottom: 6 }}>BULLET SPEED MULT</div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[0.5, 1, 2].map(m => (
+                    <button key={m} style={{ ...btnStyle(adminSpeedMult === m ? '#ffff44' : '#444'), background: adminSpeedMult === m ? '#ffff4422' : 'transparent', fontSize: 13, padding: '6px 18px', fontWeight: 'bold' }}
+                      onClick={() => { setAdminSpeedMult(m); gameRef.current.debugSpeedMult = m; }}>
+                      {m === 0.5 ? '½×' : m === 1 ? '1×' : '2×'}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div style={{ fontSize: 11, color: '#444', borderTop: '1px solid #222', paddingTop: 12 }}>
-                Keyboard: &nbsp;<span style={{ color: '#666' }}>1–9</span> boss 1–9 · <span style={{ color: '#666' }}>0</span> boss 10 · <span style={{ color: '#666' }}>shift+1–0</span> boss 11–20 · <span style={{ color: '#666' }}>E</span> easier · <span style={{ color: '#666' }}>F</span> harder
+                Keyboard: &nbsp;<span style={{ color: '#666' }}>1–9</span> boss · <span style={{ color: '#666' }}>shift+1–0</span> boss 11–20 · <span style={{ color: '#666' }}>E/F</span> diff · <span style={{ color: '#666' }}>I</span> inv · <span style={{ color: '#666' }}>C</span> clr · <span style={{ color: '#666' }}>H</span> hp · <span style={{ color: '#666' }}>N</span> next · <span style={{ color: '#666' }}>B</span> restart
               </div>
             </div>
           </div>
