@@ -281,6 +281,10 @@ interface Wave {
   duration: number; attackType: string; warningType: string;
   bulletSpeed: number; spawnRate: number; damage: number;
   arenaEffect: string; patternTags: string[]; execute: string;
+  // Computed by applyFairnessDebuffs at module init (do not hand-edit)
+  warnDuration?: number;     // seconds of visible pre-attack warning derived from warningType
+  safeGapFraction?: number;  // fraction of arena that remains safe at peak bullet density (0–1)
+  layers?: number;           // simultaneous mechanic layers (patternTags + arenaEffect weight)
 }
 
 interface Item {
@@ -927,42 +931,124 @@ const BOSSES: BossConf[] = [
 ];
 
 // ================================================================
-// ================================================================
 // FAIRNESS DEBUFF ENFORCER — runs once at module init
-// Programmatically caps wave data so no wave can exceed global fairness limits,
-// regardless of hand-edited values. This enforces the same rules that
-// validateWaveFairness audits, making debuffs both data-level and runtime-level.
+// Computes explicit warnDuration/safeGapFraction/layers from wave data, then
+// enforces tier-based floors/caps by mutating bulletSpeed/spawnRate/patternTags.
+// This makes debuffs both data-level AND runtime-level, and gives validateWaveFairness
+// actual measured values instead of indirect heuristics.
 // ================================================================
 (function applyFairnessDebuffs() {
-  // Per-tier bulletSpeed hard caps (bosses 1-4, 5-7, 8-10, 11-15, 16-20)
-  const tierMaxSpeed = [162, 172, 182, 188, 192];
-  // attackType-specific spawnRate hard caps
+  // Warning duration (seconds) per warningType — how long players see the warning before hazard fires
+  const WARN_SECS: Record<string, number> = {
+    none: 0, random: 0.30, trail: 0.40, pulse: 0.50, edge: 0.50, top: 0.50,
+    mirror: 0.60, target: 0.70, center: 0.80, ring: 0.80, area: 0.80, corner: 0.80,
+    column: 1.00, row: 1.00, multi: 1.00, grid: 1.20, all: 1.20,
+  };
+
+  // Arena width used for safe-gap density formula (pixels)
+  const ARENA_W = 438;
+  const AVG_BULLET_R = 6; // base radius before HAZARD_VISUAL_SCALE
+
+  // Per-tier thresholds (tier = 0..4 for boss indices 0-3, 4-6, 7-9, 10-14, 15-19)
+  const tierMaxSpeed    = [162, 172, 182, 188, 192];
+  const tierMinWarnSecs = [0.90, 0.80, 0.70, 0.60, 0.50];
+  const tierMinSafeGap  = [0.40, 0.34, 0.26, 0.20, 0.16];
+  const tierMaxLayers   = [2, 3, 3, 4, 4];
+
+  // Per-attackType spawnRate hard caps
   const spawnCaps: Record<string, number> = {
     corner: 22, burst: 18, rain: 18, radial: 44, random: 20,
   };
-  // Banned combo: flip arenaEffect may never combine with high speed/density
-  const FLIP_MAX_SPEED = 175;
-  const FLIP_MAX_RATE  = 8;
-  // Radial burst speed cap
-  const RADIAL_MAX_SPEED = 188;
+
+  const computeSafeGap = (sr: number, spd: number): number => {
+    // Each bullet sweeps a strip of width 2*r across ARENA_W.
+    // Fraction of arena width covered per second ≈ sr * 2*r / ARENA_W
+    const r = AVG_BULLET_R * HAZARD_VISUAL_SCALE;
+    const density = spd > 0 ? sr * (2 * r) / ARENA_W : sr * 0.02;
+    return Math.max(0, Math.min(1, 1 - density));
+  };
 
   BOSSES.forEach((boss, bi) => {
     const tier = bi < 4 ? 0 : bi < 7 ? 1 : bi < 10 ? 2 : bi < 15 ? 3 : 4;
     (boss.waves ?? []).forEach(wave => {
-      // Global tier-based bulletSpeed cap
+      const tags = wave.patternTags;
+
+      // ── Step 1: Compute explicit fields from wave data ──────────
+      wave.warnDuration = WARN_SECS[wave.warningType] ?? 0.50;
+      wave.safeGapFraction = computeSafeGap(wave.spawnRate, wave.bulletSpeed);
+      const nonTrivialEffect = !['none', 'memory', 'mirror', 'echo', 'flip'].includes(wave.arenaEffect);
+      wave.layers = tags.length + (nonTrivialEffect ? 1 : 0);
+
+      // ── Step 2: Remove banned mechanic combos (mutate tags) ─────
+      const hasFlip  = tags.includes('flip') || wave.arenaEffect === 'flip';
+      const hasDense = tags.includes('dense');
+      const hasDark  = tags.includes('dark') || wave.arenaEffect === 'dark';
+      const hasFake  = tags.includes('fake');
+      const hasVoid  = tags.includes('void');
+      const hasLaser = tags.includes('laser') || wave.attackType === 'laser';
+
+      // Banned: flip + dense → remove 'dense' tag, cap rate
+      if (hasFlip && hasDense) {
+        const idx = tags.indexOf('dense'); if (idx !== -1) tags.splice(idx, 1);
+        wave.spawnRate = Math.min(wave.spawnRate, 7);
+      }
+      // Banned: flip + fast + high rate → cap speed and rate
+      if (hasFlip && wave.bulletSpeed > 162 && wave.spawnRate >= 8) {
+        wave.bulletSpeed = Math.min(wave.bulletSpeed, 162);
+        wave.spawnRate   = Math.min(wave.spawnRate, 7);
+      }
+      // Banned: dark + fake + fast → remove 'fake', cap speed
+      if (hasDark && hasFake && wave.bulletSpeed > 155) {
+        const idx = tags.indexOf('fake'); if (idx !== -1) tags.splice(idx, 1);
+        wave.bulletSpeed = Math.min(wave.bulletSpeed, 155);
+      }
+      // Banned: void + laser + dense → remove 'dense'
+      if (hasVoid && hasLaser && hasDense) {
+        const idx = tags.indexOf('dense'); if (idx !== -1) tags.splice(idx, 1);
+      }
+
+      // ── Step 3: Enforce tier bulletSpeed cap ────────────────────
       if (wave.bulletSpeed > tierMaxSpeed[tier]) wave.bulletSpeed = tierMaxSpeed[tier];
-      // Per-type spawnRate cap
-      const cap = spawnCaps[wave.attackType];
-      if (cap !== undefined && wave.spawnRate > cap) wave.spawnRate = cap;
-      // Banned combo: flip + fast + dense
-      if (wave.arenaEffect === 'flip') {
-        if (wave.bulletSpeed > FLIP_MAX_SPEED) wave.bulletSpeed = FLIP_MAX_SPEED;
-        if (wave.spawnRate  > FLIP_MAX_RATE)  wave.spawnRate  = FLIP_MAX_RATE;
+
+      // ── Step 4: Enforce per-type spawnRate cap ──────────────────
+      const srCap = spawnCaps[wave.attackType];
+      if (srCap !== undefined && wave.spawnRate > srCap) wave.spawnRate = srCap;
+
+      // ── Step 5: Enforce warning-time floor ──────────────────────
+      // If warnDuration is below the tier minimum for a bullet-based hazard,
+      // reduce bulletSpeed so slow bullets compensate for the short warning window.
+      const minWarn = tierMinWarnSecs[tier];
+      if (wave.warnDuration < minWarn && wave.bulletSpeed > 0) {
+        const deficit = minWarn - wave.warnDuration; // seconds short
+        // Reduce speed proportional to the warning deficit (max 35% reduction)
+        const reduction = Math.min(0.35, deficit / minWarn);
+        wave.bulletSpeed = Math.round(wave.bulletSpeed * (1 - reduction));
       }
-      // Radial burst speed cap
-      if (wave.attackType === 'radial' && wave.bulletSpeed > RADIAL_MAX_SPEED) {
-        wave.bulletSpeed = RADIAL_MAX_SPEED;
+
+      // ── Step 6: Enforce safe-gap minimum ───────────────────────
+      // If bullet density leaves too small a safe gap, reduce spawnRate until gap is safe.
+      const minGap = tierMinSafeGap[tier];
+      let safeGap = computeSafeGap(wave.spawnRate, wave.bulletSpeed);
+      if (safeGap < minGap && wave.bulletSpeed > 0) {
+        // Solve: 1 - sr * 2*r / ARENA_W >= minGap  →  sr <= (1-minGap)*ARENA_W / (2*r)
+        const r = AVG_BULLET_R * HAZARD_VISUAL_SCALE;
+        const maxSR = Math.floor((1 - minGap) * ARENA_W / (2 * r));
+        if (maxSR > 0 && wave.spawnRate > maxSR) wave.spawnRate = maxSR;
+        safeGap = computeSafeGap(wave.spawnRate, wave.bulletSpeed);
       }
+
+      // ── Step 7: Enforce layer cap ────────────────────────────────
+      const maxL = tierMaxLayers[tier];
+      const effectiveNonTrivial = !['none', 'memory', 'mirror', 'echo', 'flip'].includes(wave.arenaEffect);
+      const tagBudget = maxL - (effectiveNonTrivial ? 1 : 0);
+      if (tags.length > tagBudget && tagBudget >= 0) {
+        tags.splice(tagBudget); // trim to budget
+      }
+
+      // ── Step 8: Re-compute final explicit fields after adjustments
+      wave.warnDuration    = WARN_SECS[wave.warningType] ?? 0.50;
+      wave.safeGapFraction = computeSafeGap(wave.spawnRate, wave.bulletSpeed);
+      wave.layers          = tags.length + (effectiveNonTrivial ? 1 : 0);
     });
   });
 })();
@@ -5230,24 +5316,24 @@ interface WaveFairnessResult {
 }
 
 // Per-wave fairness check per the design doc rules.
+// Reads wave.warnDuration, wave.safeGapFraction, and wave.layers computed by applyFairnessDebuffs.
 // Returns only the list of issues found; call validateAllWaves() for the full audit.
 function validateWaveFairness(wave: Wave, bossIdx: number): FairnessIssue[] {
   const issues: FairnessIssue[] = [];
   const tags = wave.patternTags ?? [];
 
   // ── Tier-specific thresholds ──────────────────────────────────
-  // Min warning time expected (seconds) — derived from warningType presence
-  const minWarn = bossIdx <= 4 ? 0.90 : bossIdx <= 9 ? 0.75 : bossIdx <= 14 ? 0.60 : bossIdx <= 18 ? 0.55 : 0.50;
+  const tier = bossIdx < 4 ? 0 : bossIdx < 7 ? 1 : bossIdx < 10 ? 2 : bossIdx < 15 ? 3 : 4;
+  const minWarnSecs  = [0.90, 0.80, 0.70, 0.60, 0.50][tier];
+  const minSafeGap   = [0.40, 0.34, 0.26, 0.20, 0.16][tier];
+  const maxLayers    = [2, 3, 3, 4, 4][tier];
 
-  // Max safe gap multiplier (multiple of player hitbox diameter = 2 * P_HIT_R = 8)
-  // Minimum safe gap must be at least X * playerDiameter wide
-  const minGapMult = bossIdx <= 4 ? 2.5 : bossIdx <= 13 ? 2.0 : bossIdx <= 18 ? 1.6 : 1.5;
-
-  // Max layers by tier
-  const maxLayers = bossIdx <= 4 ? 2 : bossIdx <= 9 ? 3 : bossIdx <= 14 ? 3 : bossIdx <= 18 ? 4 : 4;
+  // Use explicit computed fields from applyFairnessDebuffs (fallback to heuristics if missing)
+  const warnDuration    = wave.warnDuration    ?? 0.50;
+  const safeGapFraction = wave.safeGapFraction ?? Math.max(0, 1 - (wave.spawnRate * 12 / 438));
+  const layerCount      = wave.layers          ?? tags.length;
 
   // ── 1. Missing warning ────────────────────────────────────────
-  // Hazardous attack types that MUST have a warning phase
   const hazardousTypes = ['laser', 'spiral', 'rain', 'ring', 'mirror', 'chain', 'chaos', 'pull', 'wall'];
   const isHazardousType = hazardousTypes.includes(wave.attackType);
   const hasNoWarning = wave.warningType === 'none';
@@ -5258,57 +5344,58 @@ function validateWaveFairness(wave: Wave, bossIdx: number): FairnessIssue[] {
       message: `Attack type "${wave.attackType}" has warningType "none" — major hazards must have a visible warning`,
     });
   }
-  // High-speed bullets without warning are also a problem
   if (wave.bulletSpeed > 160 && hasNoWarning && wave.spawnRate > 4) {
     issues.push({
       type: 'missingWarning',
-      message: `Bullet speed ${wave.bulletSpeed} with spawnRate ${wave.spawnRate} and no warning — hazards may spawn before the player can react`,
+      message: `Speed ${wave.bulletSpeed} + rate ${wave.spawnRate} with no warning — hazards may spawn before player can react`,
     });
   }
 
-  // ── 2. Warning time proxy ────────────────────────────────────
-  // We do not have an explicit warningTime field, so we use wave.duration as a
-  // lower bound: if a wave is shorter than ~3× minWarn it likely leaves no time to react.
-  const minUsableWaveDuration = minWarn * 3;
-  if (wave.duration < minUsableWaveDuration && isHazardousType) {
+  // ── 2. Warning time (uses explicit warnDuration field) ────────
+  if (warnDuration < minWarnSecs && isHazardousType) {
     issues.push({
       type: 'warnTime',
-      message: `Wave duration ${wave.duration}s is very short for a hazardous attack at tier ${bossIdx + 1} (expected ≥ ${minUsableWaveDuration.toFixed(1)}s for warn + react + avoid)`,
+      message: `warnDuration ${warnDuration.toFixed(2)}s (from warningType "${wave.warningType}") is below tier-${tier + 1} minimum ${minWarnSecs}s`,
+    });
+  }
+  // Also flag very short total wave duration regardless of warning type
+  if (wave.duration < minWarnSecs * 2.5 && isHazardousType) {
+    issues.push({
+      type: 'warnTime',
+      message: `Wave duration ${wave.duration}s too short at tier ${bossIdx + 1} for warn+react+avoid (need ≥ ${(minWarnSecs * 2.5).toFixed(1)}s)`,
     });
   }
 
-  // ── 3. Layer count ───────────────────────────────────────────
-  // patternTags length is a reasonable proxy for simultaneous mechanic layers
-  const layerCount = tags.length;
+  // ── 3. Layer count (uses explicit layers field) ───────────────
   if (layerCount > maxLayers) {
     issues.push({
       type: 'layerCount',
-      message: `${layerCount} mechanic layers (patternTags) exceeds max ${maxLayers} for boss tier ${bossIdx + 1}`,
+      message: `${layerCount} simultaneous mechanic layers exceeds tier-${tier + 1} max of ${maxLayers}`,
     });
   }
 
   // ── 4. Banned mechanic combos ────────────────────────────────
-  const hasFlip    = tags.includes('flip')    || wave.arenaEffect === 'flip';
+  const hasFlip    = tags.includes('flip')   || wave.arenaEffect === 'flip';
   const hasDense   = tags.includes('dense');
   const hasHoming  = tags.includes('homing');
-  const hasFast    = wave.bulletSpeed > 200;
-  const hasPull    = tags.includes('pull')    || wave.arenaEffect === 'pull';
-  const hasLaser   = tags.includes('laser')   || wave.attackType === 'laser';
-  const hasDark    = tags.includes('dark')    || wave.arenaEffect === 'dark';
+  const hasFast    = wave.bulletSpeed > 175;
+  const hasPull    = tags.includes('pull')   || wave.arenaEffect === 'pull';
+  const hasLaser   = tags.includes('laser')  || wave.attackType === 'laser';
+  const hasDark    = tags.includes('dark')   || wave.arenaEffect === 'dark';
   const hasFake    = tags.includes('fake');
-  const hasShrink  = tags.includes('shrink')  || wave.arenaEffect === 'shrink';
+  const hasShrink  = tags.includes('shrink') || wave.arenaEffect === 'shrink';
   const hasVoid    = tags.includes('void');
-  const hasGlitch  = tags.includes('glitch')  || wave.arenaEffect === 'glitch';
+  const hasGlitch  = tags.includes('glitch') || wave.arenaEffect === 'glitch';
   const hasPoison  = tags.includes('poison');
   const hasDelay   = tags.includes('delay');
   const hasNarrow  = tags.includes('narrow');
   const hasChaos   = wave.attackType === 'chaos';
 
   if (hasFlip && hasDense) {
-    issues.push({ type: 'bannedCombo', message: 'Banned: control flip + dense bullets (per design doc §Mawbyte)' });
+    issues.push({ type: 'bannedCombo', message: 'Banned: control flip + dense bullets (§design doc Mawbyte rule)' });
   }
   if (hasFlip && hasFast && wave.spawnRate >= 8) {
-    issues.push({ type: 'bannedCombo', message: 'Banned: control flip + fast + high spawn rate — leaves no safe window' });
+    issues.push({ type: 'bannedCombo', message: 'Banned: control flip + fast bullets + high spawn rate — no safe window' });
   }
   if (hasDark && hasFake && hasFast) {
     issues.push({ type: 'bannedCombo', message: 'Banned: visibility reduction + fake warnings + fast bullets simultaneously' });
@@ -5320,37 +5407,31 @@ function validateWaveFairness(wave: Wave, bossIdx: number): FairnessIssue[] {
     issues.push({ type: 'bannedCombo', message: 'Banned: poison zones + fast bullets + dense spam + screen glitch' });
   }
   if (hasDelay && hasNarrow) {
-    issues.push({ type: 'bannedCombo', message: 'Banned: delayed movement + narrow gaps (player cannot thread the gap precisely)' });
+    issues.push({ type: 'bannedCombo', message: 'Banned: delayed movement + narrow gaps — player cannot thread gap precisely' });
   }
   if (hasVoid && hasLaser && hasDense) {
-    issues.push({ type: 'bannedCombo', message: 'Banned: void zones + lasers + dense bullets (too many coverage layers)' });
+    issues.push({ type: 'bannedCombo', message: 'Banned: void zones + lasers + dense bullets — too many coverage layers' });
   }
 
-  // ── 5. Safe gap proxy ────────────────────────────────────────
-  // Player diameter = 2 * P_HIT_R = 8 pixels; minimum visual safe corridor = minGapMult * 8
-  const minSafeGapPx = minGapMult * (P_HIT_R * 2);
-
-  // High spawnRate + high bulletSpeed means bullets cover the arena rapidly → tiny safe gaps
-  // We flag when spawnRate * bulletSpeed implies < minSafeGapPx of open space
-  // Heuristic: each bullet covers ~2*r area; too many bullets per second risks full coverage
-  if (wave.spawnRate > 12 && wave.bulletSpeed > 150) {
+  // ── 5. Safe gap (uses explicit safeGapFraction field) ─────────
+  if (safeGapFraction < minSafeGap) {
     issues.push({
       type: 'safeGap',
-      message: `spawnRate ${wave.spawnRate}/s × speed ${wave.bulletSpeed} may leave safe gap < ${minSafeGapPx}px — ensure defined escape corridor`,
+      message: `safeGapFraction ${safeGapFraction.toFixed(2)} < tier-${tier + 1} minimum ${minSafeGap.toFixed(2)} — bullet density may leave no escape lane`,
     });
   }
-  if (hasHoming && wave.bulletSpeed > 180) {
+  if (hasHoming && wave.bulletSpeed > 175) {
     issues.push({
       type: 'safeGap',
-      message: `Homing bullets at speed ${wave.bulletSpeed} may converge and leave no safe gap for tier ${bossIdx + 1}`,
+      message: `Homing bullets at speed ${wave.bulletSpeed} may converge and eliminate safe gap`,
     });
   }
 
   // ── 6. Possibly impossible ────────────────────────────────────
-  if (wave.bulletSpeed > 230 && !tags.includes('gap') && wave.attackType !== 'chain' && wave.attackType !== 'replay') {
+  if (wave.bulletSpeed > 220 && !tags.includes('gap') && wave.attackType !== 'chain' && wave.attackType !== 'replay') {
     issues.push({
       type: 'possiblyImpossible',
-      message: `Bullet speed ${wave.bulletSpeed} is extreme — verify at least one readable escape lane exists at all times`,
+      message: `Bullet speed ${wave.bulletSpeed} is extreme — verify a readable escape lane exists at all times`,
     });
   }
   if (hasChaos && wave.duration < 3.5) {
@@ -5362,7 +5443,7 @@ function validateWaveFairness(wave: Wave, bossIdx: number): FairnessIssue[] {
   if (wave.damage >= 40 && hasNoWarning) {
     issues.push({
       type: 'possiblyImpossible',
-      message: `High damage (${wave.damage}) combined with no warning is extremely punishing`,
+      message: `High damage (${wave.damage}) with no warning is extremely punishing`,
     });
   }
 
