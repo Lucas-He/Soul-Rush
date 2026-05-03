@@ -98,6 +98,46 @@ const BOSS_TIPS = [
     name: 'Axiom, the End of Rules',
     tip: 'Rule Rewrite reshapes the box — stay away from the new edges shown in cyan. Axis Collapse: the ONE safe cell is the gap where a warn is missing. Mirror Soul fires toward you — keep the mirror heart on the same side and dodge its shots. Pattern Overload: prioritize the diagonal lasers first. Final Rule replays every boss — the order is Crystal→Bit→Halo→Gear→Script→Surge→Bone→Star→Piston.',
   },
+  {
+    name: 'Vyrial, Moth of Velvet Plague',
+    tip: 'Spore Bloom fires radially from the center — sprint to the arena edge the moment you see the ring warn. In Velvet Swarm keep moving in wide circles so homing spores trail behind you. Plague Garden zones shrink over time but never overlap at the very center — identify your safe tile during the warn and plant yourself there.',
+  },
+  {
+    name: 'Echora, the Masked Choir',
+    tip: 'Silent Beat has a deceptive long silence before a massive radial burst — stay away from arena walls when the music stops. Chrome Hymn lasers track your position at the moment they charge, not when they fire — sidestep AFTER the glow locks. Broken Rhythm alternates fast and slow bursts unpredictably; hug the center and react rather than anticipate.',
+  },
+  {
+    name: 'Vantus, the Gravity Rex',
+    tip: 'In Gravity Pull sprint perpendicular to the pull direction to maintain position rather than fighting it head-on. Orbit Break bullets lock their path when spawned and do not adjust mid-flight — strafe through the gap in the formation. For Collapse Ring the safe zone is the very edge of the arena; move there immediately on warn.',
+  },
+  {
+    name: 'Caloric, the Last Candle',
+    tip: 'Wax Flood rises from the bottom — get to the top quarter early and stay there. Blue Flame Lane has exactly one safe strip that does not move during the wave; find it and hold it. Flicker Fakeout: the dim barely-visible candles are the real projectiles; ignore the big bright flame in the center.',
+  },
+  {
+    name: 'Zylvira, the Static Widow',
+    tip: 'Web Grid has one open cell per row — the safe cell shifts every 2 seconds, so read the NEXT gap while standing in the current one. VHS Storm fires at where you were exactly 1 second ago; sprint forward into its origin to lap it. Static Mirror reverses direction on its second appearance — prepare to counter-strafe.',
+  },
+  {
+    name: 'Atlas Minor',
+    tip: "Meteor Lesson aims at your position from 0.5 s ago — keep moving and let it chase your past self. Tiny Apocalypse overlaps three separate wave patterns; the center column is usually clear of all three simultaneously. Planet Spin safe zone is at the 9-o'clock position relative to the boss — rotate with it, do not stand still.",
+  },
+  {
+    name: 'Xiu, the Paper Emperor',
+    tip: "Paper Cuts arrive from all four sides in sequence — the order is always Left→Right→Top→Bottom, so dodge inward between each pair. Ink Decree marks areas in red that become instant-kill; the unmarked corridor is always diagonal. Emperor's Letter targets the arena center — vacate it the moment you see the gold seal warn.",
+  },
+  {
+    name: 'Mnemovex, the Archive',
+    tip: 'Memory Replay replicates the bullet pattern from exactly 4 seconds prior — what you dodged then you must dodge again mirrored. Crystal Repeat adds a half-rotation offset to the replay so your muscle memory will betray you; slow down and re-read it. Echo Cage walls close from opposite corners simultaneously — the safe zone is the remaining diagonal gap.',
+  },
+  {
+    name: 'Lunara, the Cruel Curtain',
+    tip: 'String Pull forces your movement along a fixed axis for 2 seconds — pre-position yourself at the center of that axis before it activates. Moon Drop targets your last standing position; take one step sideways just before impact. Theater Crush walls close from all sides leaving only a small central bubble — sprint to center immediately and do not move until it opens.',
+  },
+  {
+    name: 'Soulvex, the First and Last',
+    tip: 'Boss Memory Chain cycles all 20 bosses in sequence — each sub-pattern lasts 2.5 s and they escalate in speed; treat it as a reflex test not a memorization test. First Mistake is deliberately misleading — the decoy burst is harmless; dodge the thin ring that follows 0.3 s later. Axiom Rewrite remaps the entire arena boundary; ignore your old muscle memory and read the new cyan edges.',
+  },
 ];
 
 // ================================================================
@@ -278,6 +318,7 @@ const BOSSES: BossConf[] = [
     attacks: ['crystalRain', 'mirrorWalls', 'shatterPulse', 'crystalRain', 'mirrorWalls'],
     dmg: 16,
     atkDur: 5,
+    rewardItemPool: ['candle_ash', 'echo_fragment'],
   },
   {
     name: 'Mawbyte',
@@ -292,6 +333,7 @@ const BOSSES: BossConf[] = [
     attacks: ['bitStorm', 'errorSweep', 'devourLane', 'bitStorm', 'errorSweep', 'devourLane'],
     dmg: 18,
     atkDur: 6,
+    rewardItemPool: ['candle_ash', 'moth_wing'],
   },
   {
     name: 'Seraph Null',
@@ -306,6 +348,7 @@ const BOSSES: BossConf[] = [
     attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'haloSpiral', 'judgmentBeams'],
     dmg: 20,
     atkDur: 6,
+    rewardItemPool: ['wax_seal', 'candle_ash'],
   },
   {
     name: 'Orryx',
@@ -320,6 +363,7 @@ const BOSSES: BossConf[] = [
     attacks: ['gearMaze', 'clockSlash', 'timeFreeze', 'gearMaze', 'clockSlash', 'gearMaze'],
     dmg: 22,
     atkDur: 7,
+    rewardItemPool: ['echo_fragment', 'candle_ash'],
   },
   {
     name: 'The Unreadable King',
@@ -334,6 +378,7 @@ const BOSSES: BossConf[] = [
     attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'soulSplit', 'impossibleScript', 'finalPattern'],
     dmg: 26,
     atkDur: 8,
+    rewardItemPool: ['ink_blot', 'candle_ash'],
   },
   {
     name: 'Nyxcoil',
@@ -348,6 +393,7 @@ const BOSSES: BossConf[] = [
     attacks: ['currentSurge', 'coilTrap', 'undertowPull', 'currentSurge', 'coilTrap', 'undertowPull'],
     dmg: 28,
     atkDur: 7,
+    rewardItemPool: ['moonthread', 'candle_ash'],
   },
   {
     name: 'Marrow Saint',
@@ -362,6 +408,7 @@ const BOSSES: BossConf[] = [
     attacks: ['boneRain', 'ribCage', 'haloCurse', 'boneRain', 'ribCage'],
     dmg: 30,
     atkDur: 7,
+    rewardItemPool: ['blood_vial', 'candle_ash'],
   },
   {
     name: 'Luxora',
@@ -376,6 +423,7 @@ const BOSSES: BossConf[] = [
     attacks: ['starfall', 'constellationLines', 'falseStar', 'starfall', 'constellationLines'],
     dmg: 32,
     atkDur: 7,
+    rewardItemPool: ['wax_seal', 'candle_ash'],
   },
   {
     name: 'Ruin Engine Omega',
@@ -390,6 +438,7 @@ const BOSSES: BossConf[] = [
     attacks: ['pistonCrush', 'engineSpin', 'overheat', 'pistonCrush', 'engineSpin', 'overheat'],
     dmg: 34,
     atkDur: 8,
+    rewardItemPool: ['crater_core', 'candle_ash'],
   },
   {
     name: 'Axiom',
@@ -404,6 +453,7 @@ const BOSSES: BossConf[] = [
     attacks: ['ruleRewrite', 'axisCollapse', 'mirrorSoul', 'patternOverload', 'ruleRewrite', 'axisCollapse', 'mirrorSoul', 'finalRule'],
     dmg: 38,
     atkDur: 9,
+    rewardItemPool: ['memory_stone', 'blood_vial'],
   },
   // ── Bosses 11–20 ─────────────────────────────────────────────
   {
@@ -417,6 +467,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Your air tastes like rot already.', 'Bloom, little garden.'],
     attacks: ['sporeBloom', 'crystalRain', 'plagueGarden', 'velvetSwarm', 'boneRain', 'mothEclipse', 'feverRings', 'plagueGarden', 'velvetSwarm', 'falseStar', 'ribCage', 'boneRain', 'sporeBloom', 'plagueCrown', 'mothEclipse'],
     dmg: 40, atkDur: 8,
+    rewardItemPool: ['moth_wing', 'velvet_spore'],
     waves: [
       { id: 'v1', name: 'Spore Bloom', description: 'Radial spore burst from center.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 100, spawnRate: 8, damage: 40, arenaEffect: 'none', patternTags: ['radial', 'slow'], execute: 'sporeBloom' },
       { id: 'v2', name: 'Crystal Drift', description: 'Drifting crystal shards.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 12, damage: 40, arenaEffect: 'none', patternTags: ['rain', 'drift'], execute: 'crystalRain' },
@@ -446,6 +497,7 @@ const BOSSES: BossConf[] = [
     dialog: ['The choir will drown your heartbeat.', 'Sing. Or be silenced.'],
     attacks: ['soundBars', 'choirSplit', 'bitStorm', 'crescendoCrush', 'silentBeat', 'currentSurge', 'silentBeat', 'errorSweep', 'choirSplit', 'bitStorm', 'crescendoCrush', 'errorSweep', 'silentBeat', 'doubleTempo', 'choirSplit', 'soundBars'],
     dmg: 42, atkDur: 8,
+    rewardItemPool: ['echo_fragment', 'choir_mask'],
     waves: [
       { id: 'e1', name: 'Sound Bars', description: 'Piano-key laser bars sweep inward.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 42, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'soundBars' },
       { id: 'e2', name: 'Choir Split', description: 'Diagonal quad burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 160, spawnRate: 20, damage: 42, arenaEffect: 'none', patternTags: ['quad', 'burst'], execute: 'choirSplit' },
@@ -476,6 +528,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Gravity is the only honest force.', 'All things collapse. Eventually.'],
     attacks: ['gravityPull', 'orbitBreak', 'collapseRing', 'pistonCrush', 'centerCrush', 'boneRain', 'orbitBreak', 'shatterPulse', 'gravityPull', 'boneRain', 'centerCrush', 'collapseRing', 'ruleRewrite', 'orbitBreak', 'gravityPull', 'collapseRing', 'centerCrush'],
     dmg: 44, atkDur: 9,
+    rewardItemPool: ['gravity_lens', 'orbit_stone'],
     waves: [
       { id: 'va1', name: 'Gravity Pull', description: 'Bullets arc toward center.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 80, spawnRate: 7, damage: 44, arenaEffect: 'gravity', patternTags: ['gravity', 'arc'], execute: 'gravityPull' },
       { id: 'va2', name: 'Orbit Break', description: 'Ring holds then explodes.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 200, spawnRate: 16, damage: 44, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'orbitBreak' },
@@ -507,6 +560,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Every flame has an end.', 'Do not grieve. Burn with me.'],
     attacks: ['waxDrip', 'crystalRain', 'funeralMarch', 'lastEmber', 'waxFlood', 'candleTears', 'waxDrip', 'currentSurge', 'waxFlood', 'crystalRain', 'falseStar', 'boneRain', 'pistonCrush', 'candleTears', 'waxFlood', 'lastEmber', 'waxDrip', 'crystalRain'],
     dmg: 46, atkDur: 8,
+    rewardItemPool: ['wax_seal', 'candle_ash'],
     waves: [
       { id: 'c1', name: 'Wax Drip', description: 'Sinusoidal dripping bullets.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 160, spawnRate: 8, damage: 46, arenaEffect: 'wax', patternTags: ['rain', 'arc'], execute: 'waxDrip' },
       { id: 'c2', name: 'Crystal Drip', description: 'Crystal shard rain.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 12, damage: 46, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
@@ -539,6 +593,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Signal acquired. Eliminating.', 'You are noise in a perfect system.'],
     attacks: ['webGrid', 'signalBite', 'screenTear', 'staticNest', 'webGrid', 'errorSweep', 'vhsStorm', 'webGrid', 'bitStorm', 'signalBite', 'errorSweep', 'webGrid', 'bitStorm', 'staticNest', 'screenTear', 'signalBite', 'vhsStorm', 'errorSweep', 'webGrid'],
     dmg: 48, atkDur: 9,
+    rewardItemPool: ['signal_jam', 'vhs_loop'],
     waves: [
       { id: 'z1', name: 'Web Grid', description: 'H+V laser grid fires simultaneously.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 48, arenaEffect: 'web', patternTags: ['laser', 'grid'], execute: 'webGrid' },
       { id: 'z2', name: 'Signal Bite', description: 'Targeted shot volleys.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 150, spawnRate: 5, damage: 48, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
@@ -572,6 +627,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Oops. Another one.', 'I am not trying. This just happens.'],
     attacks: ['meteorLesson', 'planetTilt', 'craterBurst', 'pistonCrush', 'tinyApocalypse', 'crystalRain', 'planetTilt', 'engineSpin', 'craterBurst', 'meteorLesson', 'pistonCrush', 'tinyApocalypse', 'planetTilt', 'crystalRain', 'craterBurst', 'tinyApocalypse', 'meteorLesson', 'pistonCrush', 'craterBurst', 'tinyApocalypse'],
     dmg: 50, atkDur: 9,
+    rewardItemPool: ['crater_core', 'asteroid_belt'],
     waves: [
       { id: 'at1', name: 'Meteor Lesson', description: 'Giant slow bullets rain down.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 50, arenaEffect: 'quake', patternTags: ['rain', 'large'], execute: 'meteorLesson' },
       { id: 'at2', name: 'Planet Tilt', description: '6-arm rotating spiral.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 155, spawnRate: 6, damage: 50, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
@@ -606,6 +662,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Each fold is a sentence. Each cut, a law.', 'You will be filed away.'],
     attacks: ['paperCuts', 'foldedWalls', 'inkDecree', 'royalGuillotine', 'origamiSpears', 'errorSweep', 'foldedWalls', 'clockSlash', 'inkDecree', 'ribCage', 'paperCuts', 'royalGuillotine', 'inkDecree', 'foldedWalls', 'errorSweep', 'origamiSpears', 'foldedWalls', 'royalGuillotine', 'inkDecree', 'paperCuts', 'royalGuillotine'],
     dmg: 52, atkDur: 10,
+    rewardItemPool: ['paper_crane', 'ink_blot'],
     waves: [
       { id: 'x1', name: 'Paper Cuts', description: 'Diagonal laser volleys.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['diag', 'laser'], execute: 'paperCuts' },
       { id: 'x2', name: 'Folded Walls', description: 'V-walls closing inward.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 3, damage: 52, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'foldedWalls' },
@@ -641,6 +698,7 @@ const BOSSES: BossConf[] = [
     dialog: ['I have remembered every soul that failed here.', 'Including yours. Eventually.'],
     attacks: ['echoTrail', 'memoryReplay', 'vaultLock', 'timeFreeze', 'crystalRepeat', 'constellationLines', 'echoTrail', 'vaultLock', 'timeFreeze', 'crystalRepeat', 'echoTrail', 'constellationLines', 'vaultLock', 'memoryReplay', 'crystalRepeat', 'echoTrail', 'memoryReplay', 'vaultLock', 'timeFreeze', 'crystalRepeat', 'echoTrail', 'crystalRepeat'],
     dmg: 54, atkDur: 10,
+    rewardItemPool: ['memory_stone', 'echo_key'],
     waves: [
       { id: 'm1', name: 'Echo Trail', description: 'Bullets from past player positions.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 130, spawnRate: 5, damage: 54, arenaEffect: 'echo', patternTags: ['echo', 'memory'], execute: 'echoTrail' },
       { id: 'm2', name: 'Memory Replay', description: 'Replays a boss 1–5 attack.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 54, arenaEffect: 'none', patternTags: ['replay'], execute: 'memoryReplay' },
@@ -677,6 +735,7 @@ const BOSSES: BossConf[] = [
     dialog: ['Dance. The strings do not lie.', 'Shhhh. The moon is watching.'],
     attacks: ['stringPull', 'puppetDance', 'moonDrop', 'crystalRain', 'bloodCurtain', 'puppetDance', 'moonShatter', 'puppetDance', 'moonDrop', 'stringPull', 'puppetDance', 'moonShatter', 'stringPull', 'bloodCurtain', 'puppetDance', 'crystalRain', 'puppetDance', 'bloodCurtain', 'puppetDance', 'moonDrop', 'crystalRain', 'moonShatter', 'stringPull'],
     dmg: 56, atkDur: 10,
+    rewardItemPool: ['moonthread', 'blood_vial'],
     waves: [
       { id: 'lu1', name: 'String Pull', description: 'Diagonal forced movement + bullets.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 160, spawnRate: 6, damage: 56, arenaEffect: 'pull', patternTags: ['pull', 'homing'], execute: 'stringPull' },
       { id: 'lu2', name: 'Puppet Dance', description: 'Laser walls with narrow safe path.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 130, spawnRate: 7, damage: 56, arenaEffect: 'none', patternTags: ['wall', 'combo'], execute: 'puppetDance' },
@@ -714,6 +773,7 @@ const BOSSES: BossConf[] = [
     dialog: ['I am everything that came before.', 'There is no pattern I have not already used on you.'],
     attacks: ['regretSpiral', 'bossMemoryChain', 'brokenControls', 'soulDuel', 'regretSpiral', 'finalRule', 'crystalRain', 'regretSpiral', 'bitStorm', 'finalRule', 'clockSlash', 'impossibleScript', 'currentSurge', 'boneRain', 'falseStar', 'finalRule', 'ruleRewrite', 'velvetSwarm', 'soundBars', 'gravityPull', 'waxDrip', 'webGrid', 'tinyApocalypse', 'paperCuts', 'firstMistake'],
     dmg: 60, atkDur: 12,
+    rewardItemPool: ['soul_echo', 'first_light'],
     waves: [
       { id: 's1', name: 'Regret Spiral', description: 'Dense 8-arm bullet spiral.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 170, spawnRate: 8, damage: 60, arenaEffect: 'none', patternTags: ['spiral', 'dense'], execute: 'regretSpiral' },
       { id: 's2', name: 'Boss Memory Chain', description: 'Cycles through all 10 bosses rapidly.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 60, arenaEffect: 'memory', patternTags: ['chain', 'replay'], execute: 'bossMemoryChain' },
@@ -855,10 +915,13 @@ interface GameData {
   hitsThisWave: number;
   waveStartHp: number;
   atkFinishTimer: number;
+  phaseOnTimerZero: number;
   waveEndHp: number;
   waveEndHits: number;
   waveEndBossIdx: number;
   waveEndWaveIdx: number;
+
+  speedBoostTimer: number;
 
   shakeX: number; shakeY: number; shakeTimer: number;
   keys: Set<string>;
@@ -892,8 +955,9 @@ function createState(): GameData {
     rewrittenBounds: null,
     mirrorSoulActive: false, mirrorSoulX: 0, mirrorSoulY: 0, mirrorSoulPulsing: false,
     finalRuleStep: 0, finalRuleStepTimer: 0,
-    hitsThisWave: 0, waveStartHp: P_MAX_HP, atkFinishTimer: -1,
+    hitsThisWave: 0, waveStartHp: P_MAX_HP, atkFinishTimer: -1, phaseOnTimerZero: -1,
     waveEndHp: 0, waveEndHits: 0, waveEndBossIdx: 0, waveEndWaveIdx: 0,
+    speedBoostTimer: 0,
     laserSnapshot: [],
     shakeX: 0, shakeY: 0, shakeTimer: 0,
     keys: new Set(), nextId: 1,
@@ -932,6 +996,7 @@ function clearEntities(g: GameData) {
   g.finalRuleStep = 0; g.finalRuleStepTimer = 0;
   g.laserSnapshot = [];
   g.prevPlayerPositions = []; g.prevPosTimer = 0;
+  g.speedBoostTimer = 0;
 }
 
 function jumpToBoss(g: GameData, idx: number) {
@@ -3580,6 +3645,11 @@ function update(
       if (g.keys.has(String(i))) { jumpBoss(i - 1); g.keys.delete(String(i)); return; }
     }
     if (g.keys.has('0')) { jumpBoss(9); g.keys.delete('0'); return; }
+    // Shift+1-0 → bosses 11-20  (shifted chars: !@#$%^&*())
+    const shift10Map: Record<string, number> = { '!': 10, '@': 11, '#': 12, '$': 13, '%': 14, '^': 15, '&': 16, '*': 17, '(': 18, ')': 19 };
+    for (const [key, idx] of Object.entries(shift10Map)) {
+      if (g.keys.has(key)) { jumpBoss(idx); g.keys.delete(key); return; }
+    }
     if (g.keys.has('e') || g.keys.has('E')) {
       const next = Math.max(0, diffIdxRef.current - 1);
       if (next !== diffIdxRef.current) setDiffIdx(next);
@@ -3602,7 +3672,9 @@ function update(
   }
   if (g.ctrlFlipped) { dx = -dx; dy = -dy; }
 
-  const baseSpd = g.timeDistorted ? P_SPEED * (0.55 + Math.abs(Math.sin(g.time * 4)) * 0.85) : P_SPEED;
+  if (g.speedBoostTimer > 0) g.speedBoostTimer -= cap;
+  const spdMult = g.speedBoostTimer > 0 ? 2 : 1;
+  const baseSpd = (g.timeDistorted ? P_SPEED * (0.55 + Math.abs(Math.sin(g.time * 4)) * 0.85) : P_SPEED) * spdMult;
   const diag = dx !== 0 && dy !== 0 ? 0.7071 : 1;
 
   // Active bounds
@@ -3676,15 +3748,19 @@ function update(
     }
   }
 
-  // Count down main timer; when it runs out start a short grace window
-  // so the boss completes its current move before the wave clears.
+  // Count down main timer; when it runs out start a grace window (up to 2.5 s)
+  // so the boss completes its current attack phase before the wave clears.
+  // If the phase advances naturally before 2.5 s the wave ends immediately.
   g.atkTimer -= cap;
   if (g.atkTimer <= 0 && g.atkFinishTimer < 0) {
-    g.atkFinishTimer = 0.55;
+    g.atkFinishTimer = 2.5;
+    g.phaseOnTimerZero = g.phase;
   }
   if (g.atkFinishTimer >= 0) {
     g.atkFinishTimer -= cap;
-    if (g.atkFinishTimer < 0) {
+    const phaseAdvanced = g.phase > g.phaseOnTimerZero;
+    if (g.atkFinishTimer < 0 || phaseAdvanced) {
+      g.atkFinishTimer = -1;
       const waveHp    = Math.round(g.player.hp);
       const waveHits  = g.hitsThisWave;
       const prevBoss  = g.bossIdx;
@@ -4679,6 +4755,13 @@ export default function SoulRush() {
   const [waveEndVisible, setWaveEndVisible] = useState<boolean>(false);
   const [waveEndData,   setWaveEndData]   = useState<{ bossIdx: number; waveIdx: number; hp: number; hits: number } | null>(null);
 
+  type InvSlot = { id: string; stack: number };
+  const [inventory,    setInventory]    = useState<InvSlot[]>([]);
+  const [pendingItem,  setPendingItem]  = useState<Item | null>(null);
+  const [itemToast,    setItemToast]    = useState<string>('');
+  const inventoryRef = useRef<InvSlot[]>([]);
+  inventoryRef.current = inventory;
+
   const enableAdmin = () => {
     adminModeRef.current = true;
     setAdminModeState(true);
@@ -4694,6 +4777,55 @@ export default function SoulRush() {
     jumpToBoss(gameRef.current, idx);
   };
 
+  const showToast = (msg: string) => {
+    setItemToast(msg);
+    setTimeout(() => setItemToast(''), 1200);
+  };
+
+  const useItem = (slotIndex: number) => {
+    const inv = inventoryRef.current;
+    if (slotIndex >= inv.length) return;
+    const slot = inv[slotIndex];
+    const itemDef = ITEMS.find(it => it.id === slot.id);
+    if (!itemDef || !itemDef.usable) return;
+    const g = gameRef.current;
+    if (g.state !== 'playing') return;
+
+    const newInv = inv.map((s, i) => i === slotIndex ? { ...s, stack: s.stack - 1 } : s).filter(s => s.stack > 0);
+    setInventory(newInv);
+
+    switch (itemDef.effect) {
+      case 'heal8':
+        g.player.hp = Math.min(P_MAX_HP, g.player.hp + 8);
+        showToast('+8 HP');
+        break;
+      case 'heal12':
+        g.player.hp = Math.min(P_MAX_HP, g.player.hp + 12);
+        showToast('+12 HP');
+        break;
+      case 'invincible1s':
+        g.player.invTimer = Math.max(g.player.invTimer, 1.5);
+        showToast('Invincible!');
+        break;
+      case 'freezeBullets0.5s':
+        g.bullets.forEach(b => { b.frozen = true; });
+        setTimeout(() => { g.bullets.forEach(b => { b.frozen = false; }); }, 500);
+        showToast('Bullets frozen!');
+        break;
+      case 'clearDangerZones':
+        g.dangerZones = [];
+        showToast('Danger zones cleared!');
+        break;
+      case 'speedBoost3s':
+        g.speedBoostTimer = 3;
+        showToast('Speed boost!');
+        break;
+      default:
+        showToast('Used!');
+        break;
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -4705,6 +4837,8 @@ export default function SoulRush() {
       if (inputFocusedRef.current) return;
       g.keys.add(e.key);
       if ((e.key === 'p' || e.key === 'P') && g.state === 'playing') pausedRef.current = !pausedRef.current;
+      if (e.key === 'q' || e.key === 'Q') { useItem(0); }
+      if (e.key === 'z' || e.key === 'Z') { useItem(1); }
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
     };
     const onUp = (e: KeyboardEvent) => {
@@ -4779,7 +4913,7 @@ export default function SoulRush() {
   });
 
   const continueWave = () => {
-    const finalName = nameInput.trim() || playerName;
+    const finalName = nameInput;
     try {
       localStorage.setItem('soulrush_name', finalName);
       if (waveEndData) {
@@ -4792,6 +4926,21 @@ export default function SoulRush() {
       }
     } catch { /* ignore storage errors */ }
     setPlayerName(finalName);
+
+    // Apply pending item to inventory
+    if (pendingItem) {
+      setInventory(prev => {
+        const existing = prev.find(s => s.id === pendingItem.id);
+        if (existing && existing.stack < pendingItem.maxStack) {
+          return prev.map(s => s.id === pendingItem.id ? { ...s, stack: s.stack + 1 } : s);
+        } else if (!existing && prev.length < 6) {
+          return [...prev, { id: pendingItem.id, stack: 1 }];
+        }
+        return prev;
+      });
+      setPendingItem(null);
+    }
+
     setWaveEndVisible(false);
     setWaveEndData(null);
     gameRef.current.state = 'playing';
@@ -4799,14 +4948,39 @@ export default function SoulRush() {
   };
 
   const [, forceRender] = useState(0);
+  const waveEndShownRef = useRef(false);
   useEffect(() => {
     const id = setInterval(() => {
       forceRender(n => n + 1);
       const g = gameRef.current;
-      if (g.state === 'waveEnd') {
-        setWaveEndData({ bossIdx: g.waveEndBossIdx, waveIdx: g.waveEndWaveIdx, hp: g.waveEndHp, hits: g.waveEndHits });
+      if (g.state === 'waveEnd' && !waveEndShownRef.current) {
+        waveEndShownRef.current = true;
+        const bIdx = g.waveEndBossIdx;
+        const wIdx = g.waveEndWaveIdx;
+        setWaveEndData({ bossIdx: bIdx, waveIdx: wIdx, hp: g.waveEndHp, hits: g.waveEndHits });
         setNameInput(prev => prev || playerName);
         setWaveEndVisible(true);
+
+        // Award an item from this boss's rewardItemPool
+        const bossConf = BOSSES[bIdx];
+        const pool = bossConf.rewardItemPool ?? [];
+        if (pool.length > 0) {
+          const totalWaves = bossConf.attacks.length;
+          const isLastWave = (wIdx === totalWaves - 2); // wIdx is wave just completed (0-based), last wave index = totalWaves-1
+          const chance = isLastWave ? 1.0 : 0.4;
+          if (Math.random() < chance) {
+            const pickedId = pool[Math.floor(Math.random() * pool.length)];
+            const itemDef = ITEMS.find(it => it.id === pickedId);
+            if (itemDef) setPendingItem(itemDef);
+          }
+        }
+      }
+      if (g.state !== 'waveEnd') {
+        waveEndShownRef.current = false;
+      }
+      if (g.state === 'gameOver' || g.state === 'title') {
+        setInventory([]);
+        setPendingItem(null);
       }
     }, 200);
     return () => clearInterval(id);
@@ -4880,6 +5054,19 @@ export default function SoulRush() {
                   </div>
                 )}
 
+                {pendingItem && (
+                  <div style={{ marginBottom: 14, padding: '10px 14px', background: '#0a0a16', border: `1px solid ${pendingItem.themeColor}55`, borderRadius: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: pendingItem.themeColor, boxShadow: `0 0 8px ${pendingItem.themeColor}`, flexShrink: 0 }} />
+                    <div>
+                      <div style={{ fontSize: 10, color: '#555', letterSpacing: 1, marginBottom: 2 }}>✦ ITEM RECEIVED</div>
+                      <div style={{ fontSize: 13, color: pendingItem.themeColor, fontWeight: 'bold', textShadow: `0 0 8px ${pendingItem.themeColor}88` }}>
+                        {pendingItem.name} <span style={{ color: '#555', fontWeight: 'normal', fontSize: 11 }}>({pendingItem.rarity})</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>{pendingItem.description}</div>
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ fontSize: 10, color: '#444', letterSpacing: 1, marginBottom: 6 }}>YOUR NAME</div>
                   <input
@@ -4904,6 +5091,68 @@ export default function SoulRush() {
             </div>
           );
         })()}
+
+        {/* Item HUD — bottom-right of arena, visible during playing & waveEnd */}
+        {(gameRef.current.state === 'playing' || gameRef.current.state === 'waveEnd') && inventory.length > 0 && (
+          <div style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, pointerEvents: 'auto' }}>
+            <div style={{ fontSize: 9, color: '#444', fontFamily: '"Courier New", monospace', letterSpacing: 1, marginBottom: 2 }}>
+              ITEMS &nbsp;<span style={{ color: '#333' }}>[Q] slot 1 · [Z] slot 2</span>
+            </div>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {inventory.slice(0, 6).map((slot, i) => {
+                const itemDef = ITEMS.find(it => it.id === slot.id);
+                if (!itemDef) return null;
+                return (
+                  <div
+                    key={slot.id}
+                    title={`${itemDef.name}: ${itemDef.description}`}
+                    onClick={() => useItem(i)}
+                    style={{
+                      width: 52, height: 52,
+                      border: `2px solid ${itemDef.themeColor}`,
+                      borderRadius: 6,
+                      background: `${itemDef.themeColor}18`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      cursor: itemDef.usable ? 'pointer' : 'default',
+                      position: 'relative',
+                      boxShadow: `0 0 8px ${itemDef.themeColor}44`,
+                      opacity: itemDef.usable ? 1 : 0.6,
+                    }}
+                  >
+                    {/* Icon shape */}
+                    <svg width="20" height="20" viewBox="0 0 20 20" style={{ marginBottom: 2 }}>
+                      {itemDef.iconShape === 'circle' && <circle cx="10" cy="10" r="7" fill="none" stroke={itemDef.themeColor} strokeWidth="2.5" />}
+                      {itemDef.iconShape === 'ring' && <><circle cx="10" cy="10" r="8" fill="none" stroke={itemDef.themeColor} strokeWidth="1.5" /><circle cx="10" cy="10" r="4" fill="none" stroke={itemDef.themeColor} strokeWidth="1.5" /></>}
+                      {itemDef.iconShape === 'drop' && <path d="M10 2 C10 2 4 9 4 13 a6 6 0 0 0 12 0 C16 9 10 2 10 2Z" fill="none" stroke={itemDef.themeColor} strokeWidth="2" />}
+                      {itemDef.iconShape === 'star' && <polygon points="10,1 12.4,7.3 19,7.3 13.7,11.5 15.7,18 10,14 4.3,18 6.3,11.5 1,7.3 7.6,7.3" fill="none" stroke={itemDef.themeColor} strokeWidth="1.5" />}
+                      {itemDef.iconShape === 'gem' && <polygon points="10,2 17,8 10,18 3,8" fill="none" stroke={itemDef.themeColor} strokeWidth="2" />}
+                      {itemDef.iconShape === 'wave' && <path d="M2 10 Q5 4 8 10 Q11 16 14 10 Q17 4 18 8" fill="none" stroke={itemDef.themeColor} strokeWidth="2" strokeLinecap="round" />}
+                      {!['circle','ring','drop','star','gem','wave'].includes(itemDef.iconShape) && <rect x="4" y="4" width="12" height="12" fill="none" stroke={itemDef.themeColor} strokeWidth="2" rx="2" />}
+                    </svg>
+                    <div style={{ fontSize: 8, color: itemDef.themeColor, fontFamily: '"Courier New", monospace', letterSpacing: 0, textAlign: 'center', lineHeight: 1, maxWidth: 46, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {itemDef.name.length > 8 ? itemDef.name.slice(0, 8) : itemDef.name}
+                    </div>
+                    {/* Slot label for quick keys */}
+                    {i < 2 && <div style={{ position: 'absolute', top: 2, left: 4, fontSize: 8, color: '#555', fontFamily: 'monospace' }}>{i === 0 ? 'Q' : 'Z'}</div>}
+                    {/* Stack badge */}
+                    {slot.stack > 1 && (
+                      <div style={{ position: 'absolute', top: 2, right: 4, fontSize: 9, color: '#fff', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                        {slot.stack}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Item use toast */}
+        {itemToast && (
+          <div style={{ position: 'absolute', bottom: 70, right: 10, background: '#001a14', border: '1px solid #44ffaa', color: '#44ffaa', fontFamily: '"Courier New", monospace', fontSize: 13, fontWeight: 'bold', padding: '6px 14px', borderRadius: 4, letterSpacing: 1, boxShadow: '0 0 12px #44ffaa44' }}>
+            {itemToast}
+          </div>
+        )}
 
         {/* Admin panel overlay */}
         {adminPanelOpen && (
