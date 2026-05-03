@@ -1165,6 +1165,13 @@ interface GameData {
   time: number;
   glitchTimer: number;
 
+  bossX: number;
+  bossY: number;
+  bossTX: number;
+  bossTY: number;
+  bossMoveTimer: number;
+  bossFlashTimer: number;
+
   bullets: Bullet[];
   laserWarns: LaserWarn[];
   lasers: Laser[];
@@ -1254,6 +1261,7 @@ function createState(): GameData {
     phase: 0, phaseTimer: 0, spawnTimer: 0, spawnCount: 0,
     introTimer: 0, introLine: 0, postBossTimer: 0, gameOverTimer: 0,
     bossAngle: 0, time: 0, glitchTimer: 0,
+    bossX: BCX, bossY: BY - 80, bossTX: BCX, bossTY: BY - 80, bossMoveTimer: 0, bossFlashTimer: 0,
     bullets: [], laserWarns: [], lasers: [],
     diagWarns: [], diagLasers: [],
     rings: [], dangerZones: [], gears: [], clockHands: [],
@@ -1291,6 +1299,7 @@ function resetForBoss(g: GameData, idx: number) {
   g.atkFinishTimer = -1;
   g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
   g.bossAngle = 0;
+  g.bossX = BCX; g.bossY = BY - 80; g.bossTX = BCX; g.bossTY = BY - 80; g.bossMoveTimer = 0; g.bossFlashTimer = 0;
   g.hitsThisWave = 0; g.waveStartHp = P_MAX_HP;
   g.runScore = 0; g.wavesCleared = 0;
   clearEntities(g);
@@ -1483,6 +1492,120 @@ function checkHit(g: GameData): boolean {
 // ================================================================
 // ATTACK HANDLERS DISPATCH
 // ================================================================
+
+// ================================================================
+// BOSS MOVEMENT SYSTEM
+// ================================================================
+
+const BOSS_BASE_Y = BY - 80;
+const BOSS_MIN_X = BX + 52;
+const BOSS_MAX_X = BX + BW - 52;
+const BOSS_MIN_Y = BOSS_BASE_Y - 28;
+const BOSS_MAX_Y = BOSS_BASE_Y + 24;
+
+type BossMoveCfg = {
+  lerpRate: number;
+  style: 'drift' | 'strafe' | 'chase' | 'erratic' | 'circle';
+  range: number;
+  vertRange: number;
+  repositionInterval: [number, number];
+};
+
+const BOSS_MOVE: BossMoveCfg[] = [
+  { lerpRate: 1.2, style: 'drift',   range: 65,  vertRange: 14, repositionInterval: [3.0, 5.0] }, // 1  Mortivore
+  { lerpRate: 1.4, style: 'drift',   range: 60,  vertRange: 12, repositionInterval: [2.5, 4.5] }, // 2  Corrupted
+  { lerpRate: 1.3, style: 'drift',   range: 70,  vertRange: 14, repositionInterval: [3.0, 5.0] }, // 3  Vex
+  { lerpRate: 1.1, style: 'drift',   range: 55,  vertRange: 10, repositionInterval: [3.5, 5.5] }, // 4  Thalor
+  { lerpRate: 2.2, style: 'strafe',  range: 90,  vertRange: 18, repositionInterval: [1.8, 3.0] }, // 5  Malachar
+  { lerpRate: 2.5, style: 'chase',   range: 85,  vertRange: 20, repositionInterval: [1.5, 2.5] }, // 6  Nyxcoil
+  { lerpRate: 2.0, style: 'strafe',  range: 80,  vertRange: 16, repositionInterval: [2.0, 3.5] }, // 7  Marrow Saint
+  { lerpRate: 2.3, style: 'strafe',  range: 90,  vertRange: 18, repositionInterval: [1.8, 3.2] }, // 8  Luxora
+  { lerpRate: 1.8, style: 'strafe',  range: 75,  vertRange: 12, repositionInterval: [2.5, 4.0] }, // 9  Ruin Engine
+  { lerpRate: 3.5, style: 'erratic', range: 100, vertRange: 24, repositionInterval: [0.8, 1.8] }, // 10 Axiom
+  { lerpRate: 2.4, style: 'chase',   range: 85,  vertRange: 18, repositionInterval: [1.5, 2.8] }, // 11 Vyrial
+  { lerpRate: 2.6, style: 'strafe',  range: 88,  vertRange: 18, repositionInterval: [1.6, 2.8] }, // 12 Echora
+  { lerpRate: 2.8, style: 'chase',   range: 95,  vertRange: 20, repositionInterval: [1.4, 2.5] }, // 13 Vantus
+  { lerpRate: 2.0, style: 'drift',   range: 75,  vertRange: 14, repositionInterval: [2.5, 4.0] }, // 14 Caloric
+  { lerpRate: 2.6, style: 'strafe',  range: 88,  vertRange: 18, repositionInterval: [1.8, 3.0] }, // 15 Zylvira
+  { lerpRate: 3.0, style: 'chase',   range: 90,  vertRange: 20, repositionInterval: [1.4, 2.4] }, // 16 Atlas Minor
+  { lerpRate: 5.0, style: 'erratic', range: 100, vertRange: 22, repositionInterval: [0.6, 1.2] }, // 17 Xiu
+  { lerpRate: 5.5, style: 'erratic', range: 105, vertRange: 24, repositionInterval: [0.5, 1.0] }, // 18 Mnemovex
+  { lerpRate: 3.5, style: 'circle',  range: 90,  vertRange: 20, repositionInterval: [1.5, 2.5] }, // 19 Lunara
+  { lerpRate: 9.0, style: 'erratic', range: 110, vertRange: 26, repositionInterval: [0.4, 0.9] }, // 20 Soulvex
+];
+
+function updateBossMovement(g: GameData, dt: number) {
+  const mv = BOSS_MOVE[g.bossIdx];
+  g.bossMoveTimer -= dt;
+
+  if (g.bossMoveTimer <= 0) {
+    const [minI, maxI] = mv.repositionInterval;
+    const interval = (mv.style === 'erratic' && g.phase >= 1)
+      ? rand(minI * 0.45, maxI * 0.5)
+      : rand(minI, maxI);
+    g.bossMoveTimer = interval;
+
+    let tx: number;
+    let ty: number;
+
+    if (g.phase === 0) {
+      // Windup — pull back slightly away from the player's side
+      const awaySign = g.player.x < BCX ? 1 : -1;
+      tx = BCX + awaySign * mv.range * 0.35;
+      ty = BOSS_BASE_Y - mv.vertRange * 0.5;
+    } else if (mv.style === 'chase' && g.phase >= 1) {
+      // Track player X
+      tx = g.player.x;
+      ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 0.6;
+    } else if (mv.style === 'strafe' && g.phase >= 1) {
+      // Alternate sides: lean toward the opposite side from current position
+      const side = g.bossX < BCX ? 1 : -1;
+      const bias = Math.random() > 0.35 ? side : -side;
+      tx = BCX + bias * (mv.range * 0.3 + Math.random() * mv.range * 0.5);
+      ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 0.5;
+    } else if (mv.style === 'erratic') {
+      // Fully random within arena overhead zone
+      tx = BCX + (Math.random() - 0.5) * mv.range * 2;
+      ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 1.4;
+    } else {
+      // Drift: gentle wander around center
+      tx = BCX + (Math.random() - 0.5) * mv.range * 0.9;
+      ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 0.7;
+    }
+
+    // Brief retreat when attack is nearly over (adds recovery feel)
+    if (g.phase >= 1 && g.atkTimer < 0.6 && mv.style !== 'erratic') {
+      const retreatSign = g.bossX < BCX ? -1 : 1;
+      tx = BCX + retreatSign * mv.range * 0.25;
+      ty = BOSS_BASE_Y - mv.vertRange * 0.3;
+    }
+
+    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, tx));
+    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, ty));
+
+    // Boss 20 (Soulvex): snap-teleport instead of lerp; flash timer creates fade-in
+    if (g.bossIdx === 19 && g.phase >= 1) {
+      g.bossX = g.bossTX;
+      g.bossY = g.bossTY;
+      g.bossFlashTimer = 0.18;
+    }
+  }
+
+  // Circle style (Lunara): override target continuously for a smooth arc
+  if (mv.style === 'circle') {
+    const ca = g.time * 0.7;
+    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + Math.cos(ca) * mv.range * 0.55));
+    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, BOSS_BASE_Y + Math.sin(ca * 0.6) * mv.vertRange * 0.6));
+  }
+
+  // Flash countdown
+  if (g.bossFlashTimer > 0) g.bossFlashTimer -= dt;
+
+  // Exponential lerp toward target — smooth regardless of frame rate
+  const ef = 1 - Math.exp(-mv.lerpRate * dt);
+  g.bossX += (g.bossTX - g.bossX) * ef;
+  g.bossY += (g.bossTY - g.bossY) * ef;
+}
 
 function updateAttack(g: GameData, dt: number, boss: BossConf) {
   const atk = boss.attacks[g.atkIdx];
@@ -4081,6 +4204,7 @@ function update(
   g.bossAngle += cap * 0.85;
   g.glitchTimer += cap;
 
+  updateBossMovement(g, cap);
   applyBossSpecials(g, cap, boss);
   updateAttack(g, cap, boss);
   updateWarnMarkers(g, cap);
@@ -4224,7 +4348,7 @@ function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
 
 function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 72 + Math.sin(g.bossAngle) * 5);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle) * 2);
   ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
   ctx.fillStyle = boss.color + '88'; ctx.strokeStyle = boss.color; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(0, -52); ctx.lineTo(26, -18); ctx.lineTo(32, 32); ctx.lineTo(-32, 32); ctx.lineTo(-26, -18); ctx.closePath(); ctx.fill(); ctx.stroke();
@@ -4245,7 +4369,7 @@ function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss2(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 68);
+  ctx.translate(g.bossX, g.bossY);
   const glitch = Math.sin(g.glitchTimer * 22) > 0.72;
   const gox = glitch ? rand(-5, 5) : 0; const goy = glitch ? rand(-3, 3) : 0;
   ctx.shadowBlur = 15; ctx.shadowColor = boss.color;
@@ -4273,7 +4397,7 @@ function drawBoss2(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 78 + Math.sin(g.bossAngle * 0.7) * 6);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle * 0.7) * 2);
   ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
   ctx.save(); ctx.rotate(g.bossAngle);
   for (let i = 0; i < 7; i++) {
@@ -4295,7 +4419,7 @@ function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss4(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 78 + Math.sin(g.bossAngle * 0.5) * 4);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle * 0.5) * 2);
   ctx.shadowBlur = 18; ctx.shadowColor = boss.color;
   ctx.fillStyle = '#1a0e00'; ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -4313,7 +4437,7 @@ function drawBoss4(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss5(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 78);
+  ctx.translate(g.bossX, g.bossY);
   ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
   ctx.globalAlpha = 0.9 + Math.sin(g.time * 16) * 0.1;
   ctx.fillStyle = boss.color + 'cc'; ctx.strokeStyle = boss.color; ctx.lineWidth = 2;
@@ -4333,7 +4457,7 @@ function drawBoss5(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss6(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 68 + Math.sin(g.bossAngle * 1.2) * 8);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle * 1.2) * 2);
   ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
   // Eel-like coil body
   for (let i = 0; i < 6; i++) {
@@ -4362,7 +4486,7 @@ function drawBoss6(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss7(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.bossAngle * 0.6) * 5);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle * 0.6) * 2);
   ctx.shadowBlur = 20; ctx.shadowColor = boss.color;
   // Skeletal body
   ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
@@ -4399,7 +4523,7 @@ function drawBoss7(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss8(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 82 + Math.sin(g.bossAngle * 0.8) * 5);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle * 0.8) * 2);
   ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
   // Cosmic cloak
   ctx.globalAlpha = 0.6;
@@ -4436,7 +4560,7 @@ function drawBoss8(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss9(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80);
+  ctx.translate(g.bossX, g.bossY);
   ctx.shadowBlur = 18; ctx.shadowColor = boss.color;
   // Machine core
   ctx.fillStyle = '#111'; ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
@@ -4470,7 +4594,7 @@ function drawBoss9(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
 
 function drawBoss10(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.8) * 3);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.8) * 2);
   ctx.shadowBlur = 35; ctx.shadowColor = boss.color;
   ctx.globalAlpha = 0.9 + Math.sin(g.time * 20) * 0.1;
   // Abstract geometric form
@@ -4512,7 +4636,7 @@ function drawBoss10(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 11 — Vyrial (plague/spore)
 function drawBoss11(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.7) * 4);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.7) * 2);
   ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
   const pulse = 1 + Math.sin(g.time * 3) * 0.08;
   // Organic blob outline
@@ -4541,7 +4665,7 @@ function drawBoss11(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 12 — Echora (sound/music)
 function drawBoss12(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 1.1) * 3);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 1.1) * 2);
   ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
   // Concentric sound rings
   for (let i = 0; i < 3; i++) {
@@ -4570,7 +4694,7 @@ function drawBoss12(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 13 — Vantus (void/gravity)
 function drawBoss13(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.5) * 2);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.5) * 2);
   ctx.shadowBlur = 40; ctx.shadowColor = boss.color;
   // Rotating gravity rings
   for (let i = 3; i >= 0; i--) {
@@ -4602,7 +4726,7 @@ function drawBoss13(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 14 — Caloric (wax/flame)
 function drawBoss14(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.9) * 2);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.9) * 2);
   ctx.shadowBlur = 35; ctx.shadowColor = boss.color;
   // Candle body
   ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
@@ -4632,7 +4756,7 @@ function drawBoss14(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 15 — Zylvira (web/crystal)
 function drawBoss15(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.6) * 3);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.6) * 2);
   ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
   // Spider web arms + rings
   ctx.save(); ctx.rotate(g.time * 0.15);
@@ -4664,7 +4788,7 @@ function drawBoss15(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 16 — Atlas Minor (cosmic/asteroid)
 function drawBoss16(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.4) * 3);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.4) * 2);
   ctx.shadowBlur = 28; ctx.shadowColor = boss.color;
   // Rotating rocky body
   ctx.save(); ctx.rotate(g.time * 0.25);
@@ -4696,7 +4820,7 @@ function drawBoss16(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 17 — Xiu (paper/origami)
 function drawBoss17(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.8) * 3);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.8) * 2);
   ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
   // Angular paper-crane pentagon
   ctx.strokeStyle = boss.color; ctx.lineWidth = 2;
@@ -4726,7 +4850,7 @@ function drawBoss17(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 18 — Mnemovex (memory/glitch)
 function drawBoss18(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.9) * 3);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.9) * 2);
   ctx.shadowBlur = 30; ctx.shadowColor = boss.color;
   // Stable glitch offset driven by time
   const glitchOn = Math.sin(g.time * 22) > 0.85;
@@ -4759,7 +4883,7 @@ function drawBoss18(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 19 — Lunara (moon/puppet)
 function drawBoss19(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.7) * 4);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.7) * 2);
   ctx.shadowBlur = 32; ctx.shadowColor = boss.color;
   // Crescent moon (filled arc minus overlap)
   ctx.fillStyle = boss.color;
@@ -4782,7 +4906,8 @@ function drawBoss19(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // Boss 20 — Soulvex (the final soul)
 function drawBoss20(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.save();
-  ctx.translate(BCX, BY - 80 + Math.sin(g.time * 0.3) * 2);
+  ctx.translate(g.bossX, g.bossY + Math.sin(g.time * 0.3) * 2);
+  if (g.bossFlashTimer > 0) ctx.globalAlpha = 1 - g.bossFlashTimer / 0.18;
   ctx.shadowBlur = 50; ctx.shadowColor = boss.color;
   // Orbiting soul fragments — one per previous boss
   const orbitCols = ['#88ff44','#ff44aa','#8844ff','#ffaa22','#ff44ff','#cc8833','#ffffff','#44ccff','#cc2244'];
