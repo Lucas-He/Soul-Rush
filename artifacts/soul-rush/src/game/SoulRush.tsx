@@ -47,7 +47,8 @@ const SHAKE_DUR = 0.28;
 // Player size, player hitbox, and collision radii are NOT changed.
 // ================================================================
 const HAZARD_VISUAL_SCALE = 1.3;
-const PLAYER_VISUAL_SCALE = 1.0; // documented reference — player draw uses this implicitly
+const PLAYER_VISUAL_SCALE  = 1.0; // documented reference — player draw uses this implicitly
+const PLAYER_HITBOX_SCALE  = 1.0; // player collision radius stays small and fair
 
 // ================================================================
 // DIFFICULTY LEVELS
@@ -3958,15 +3959,16 @@ function drawGear(ctx: CanvasRenderingContext2D, gear: Gear) {
   ctx.save();
   ctx.translate(gear.cx, gear.cy); ctx.rotate(gear.rot);
   ctx.shadowBlur = 14; ctx.shadowColor = gear.color;
+  const vr = gear.r * HAZARD_VISUAL_SCALE; // visual radius — hitbox gear.r unchanged
   ctx.fillStyle = gear.color + '30'; ctx.strokeStyle = gear.color; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.arc(0, 0, gear.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, vr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   const teeth = 8;
   for (let i = 0; i < teeth; i++) {
     const a = (i * Math.PI * 2) / teeth;
-    ctx.save(); ctx.translate(Math.cos(a) * gear.r, Math.sin(a) * gear.r); ctx.rotate(a);
+    ctx.save(); ctx.translate(Math.cos(a) * vr, Math.sin(a) * vr); ctx.rotate(a);
     ctx.fillStyle = gear.color; ctx.fillRect(-4, -6, 8, 12); ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(0, 0, gear.r * 0.38, 0, Math.PI * 2); ctx.strokeStyle = gear.color; ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, vr * 0.38, 0, Math.PI * 2); ctx.strokeStyle = gear.color; ctx.stroke();
   ctx.restore();
 }
 
@@ -3974,6 +3976,7 @@ function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
   for (const wm of g.warnMarkers) {
     const fade = wm.timer / wm.maxTimer;
     const pulse = 0.4 + 0.45 * Math.sin(g.time * 14);
+    const vr = wm.r * HAZARD_VISUAL_SCALE; // visual radius — hitbox wm.r unchanged
     ctx.save();
     ctx.globalAlpha = pulse * fade;
     ctx.shadowBlur = 14; ctx.shadowColor = wm.color;
@@ -3981,9 +3984,9 @@ function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
     ctx.translate(wm.x, wm.y);
     ctx.rotate(wm.angle + Math.PI / 2);
     ctx.beginPath();
-    ctx.moveTo(0, -wm.r * 1.3);
-    ctx.lineTo(wm.r, wm.r * 0.8);
-    ctx.lineTo(-wm.r, wm.r * 0.8);
+    ctx.moveTo(0, -vr * 1.3);
+    ctx.lineTo(vr, vr * 0.8);
+    ctx.lineTo(-vr, vr * 0.8);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
@@ -4671,23 +4674,28 @@ function drawCurrentArrows(ctx: CanvasRenderingContext2D, g: GameData, boss: Bos
 
 function drawPistonBlocks(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   for (const pb of g.pistonBlocks) {
+    // Visual rect expanded from center; hitbox (pb.x/y/w/h) unchanged
+    const vpx = pb.x - (pb.w * (HAZARD_VISUAL_SCALE - 1)) / 2;
+    const vpy = pb.y - (pb.h * (HAZARD_VISUAL_SCALE - 1)) / 2;
+    const vpw = pb.w * HAZARD_VISUAL_SCALE;
+    const vph = pb.h * HAZARD_VISUAL_SCALE;
     ctx.save();
     if (pb.warnTimer > 0) {
       const flash = 0.3 + 0.3 * Math.sin(g.time * 14);
       ctx.globalAlpha = flash;
       ctx.fillStyle = boss.color;
       ctx.strokeStyle = boss.color; ctx.lineWidth = 3;
-      ctx.fillRect(pb.x, pb.y, pb.w, pb.h);
+      ctx.fillRect(vpx, vpy, vpw, vph);
     } else if (pb.active) {
       ctx.shadowBlur = 18; ctx.shadowColor = boss.color;
       ctx.fillStyle = boss.color + 'cc'; ctx.strokeStyle = boss.color2; ctx.lineWidth = 3;
-      ctx.fillRect(pb.x, pb.y, pb.w, pb.h);
-      ctx.strokeRect(pb.x, pb.y, pb.w, pb.h);
+      ctx.fillRect(vpx, vpy, vpw, vph);
+      ctx.strokeRect(vpx, vpy, vpw, vph);
       // Striped warning pattern
       ctx.globalAlpha = 0.25;
       ctx.fillStyle = '#ffff00';
       for (let i = 0; i < 8; i++) {
-        if (i % 2 === 0) ctx.fillRect(pb.x + i * (pb.w / 8), pb.y, pb.w / 8, pb.h);
+        if (i % 2 === 0) ctx.fillRect(vpx + i * (vpw / 8), vpy, vpw / 8, vph);
       }
     }
     ctx.restore();
@@ -4896,16 +4904,20 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
   // Piston blocks
   drawPistonBlocks(ctx, g, boss);
 
-  // Danger zones
+  // Danger zones — visual rect expanded from center; hitbox (dz.x/y/w/h) unchanged
   for (const dz of g.dangerZones) {
+    const vdx = dz.x - (dz.w * (HAZARD_VISUAL_SCALE - 1)) / 2;
+    const vdy = dz.y - (dz.h * (HAZARD_VISUAL_SCALE - 1)) / 2;
+    const vdw = dz.w * HAZARD_VISUAL_SCALE;
+    const vdh = dz.h * HAZARD_VISUAL_SCALE;
     ctx.save();
     if (dz.warnTimer > 0) {
       ctx.globalAlpha = 0.3 + 0.3 * Math.sin(g.time * 11);
-      ctx.fillStyle = dz.color; ctx.fillRect(dz.x, dz.y, dz.w, dz.h);
-      ctx.strokeStyle = dz.color; ctx.lineWidth = 2; ctx.strokeRect(dz.x, dz.y, dz.w, dz.h);
+      ctx.fillStyle = dz.color; ctx.fillRect(vdx, vdy, vdw, vdh);
+      ctx.strokeStyle = dz.color; ctx.lineWidth = 2; ctx.strokeRect(vdx, vdy, vdw, vdh);
     } else if (dz.activeTimer > 0) {
-      ctx.fillStyle = dz.color + '55'; ctx.fillRect(dz.x, dz.y, dz.w, dz.h);
-      ctx.shadowBlur = 20; ctx.shadowColor = dz.color; ctx.strokeStyle = dz.color; ctx.lineWidth = 3; ctx.strokeRect(dz.x, dz.y, dz.w, dz.h);
+      ctx.fillStyle = dz.color + '55'; ctx.fillRect(vdx, vdy, vdw, vdh);
+      ctx.shadowBlur = 20; ctx.shadowColor = dz.color; ctx.strokeStyle = dz.color; ctx.lineWidth = 3; ctx.strokeRect(vdx, vdy, vdw, vdh);
     }
     ctx.restore();
   }
@@ -4969,14 +4981,15 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
   // Gears
   for (const gear of g.gears) drawGear(ctx, gear);
 
-  // Clock hands
+  // Clock hands — visual width scaled; hitbox (hand.wid) unchanged for collision
   for (const hand of g.clockHands) {
     const ex2 = hand.cx + Math.cos(hand.angle) * hand.len;
     const ey2 = hand.cy + Math.sin(hand.angle) * hand.len;
-    ctx.save(); ctx.strokeStyle = hand.color; ctx.lineWidth = hand.wid; ctx.lineCap = 'round';
+    const vhw = hand.wid * HAZARD_VISUAL_SCALE;
+    ctx.save(); ctx.strokeStyle = hand.color; ctx.lineWidth = vhw; ctx.lineCap = 'round';
     ctx.shadowBlur = hand.warming ? 6 : 22; ctx.shadowColor = hand.color;
     ctx.beginPath(); ctx.moveTo(hand.cx, hand.cy); ctx.lineTo(ex2, ey2); ctx.stroke();
-    ctx.fillStyle = hand.color; ctx.beginPath(); ctx.arc(hand.cx, hand.cy, hand.wid * 0.7, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = hand.color; ctx.beginPath(); ctx.arc(hand.cx, hand.cy, vhw * 0.7, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
 
@@ -5176,105 +5189,158 @@ interface WaveFairnessResult {
   passed: boolean;
 }
 
-function validateWaveFairness(): WaveFairnessResult[] {
+// Per-wave fairness check per the design doc rules.
+// Returns only the list of issues found; call validateAllWaves() for the full audit.
+function validateWaveFairness(wave: Wave, bossIdx: number): FairnessIssue[] {
+  const issues: FairnessIssue[] = [];
+  const tags = wave.patternTags ?? [];
+
+  // ── Tier-specific thresholds ──────────────────────────────────
+  // Min warning time expected (seconds) — derived from warningType presence
+  const minWarn = bossIdx <= 4 ? 0.90 : bossIdx <= 9 ? 0.75 : bossIdx <= 14 ? 0.60 : bossIdx <= 18 ? 0.55 : 0.50;
+
+  // Max safe gap multiplier (multiple of player hitbox diameter = 2 * P_HIT_R = 8)
+  // Minimum safe gap must be at least X * playerDiameter wide
+  const minGapMult = bossIdx <= 4 ? 2.5 : bossIdx <= 13 ? 2.0 : bossIdx <= 18 ? 1.6 : 1.5;
+
+  // Max layers by tier
+  const maxLayers = bossIdx <= 4 ? 2 : bossIdx <= 9 ? 3 : bossIdx <= 14 ? 3 : bossIdx <= 18 ? 4 : 4;
+
+  // ── 1. Missing warning ────────────────────────────────────────
+  // Hazardous attack types that MUST have a warning phase
+  const hazardousTypes = ['laser', 'spiral', 'rain', 'ring', 'mirror', 'chain', 'chaos', 'pull', 'wall'];
+  const isHazardousType = hazardousTypes.includes(wave.attackType);
+  const hasNoWarning = wave.warningType === 'none';
+
+  if (isHazardousType && hasNoWarning) {
+    issues.push({
+      type: 'missingWarning',
+      message: `Attack type "${wave.attackType}" has warningType "none" — major hazards must have a visible warning`,
+    });
+  }
+  // High-speed bullets without warning are also a problem
+  if (wave.bulletSpeed > 160 && hasNoWarning && wave.spawnRate > 4) {
+    issues.push({
+      type: 'missingWarning',
+      message: `Bullet speed ${wave.bulletSpeed} with spawnRate ${wave.spawnRate} and no warning — hazards may spawn before the player can react`,
+    });
+  }
+
+  // ── 2. Warning time proxy ────────────────────────────────────
+  // We do not have an explicit warningTime field, so we use wave.duration as a
+  // lower bound: if a wave is shorter than ~3× minWarn it likely leaves no time to react.
+  const minUsableWaveDuration = minWarn * 3;
+  if (wave.duration < minUsableWaveDuration && isHazardousType) {
+    issues.push({
+      type: 'warnTime',
+      message: `Wave duration ${wave.duration}s is very short for a hazardous attack at tier ${bossIdx + 1} (expected ≥ ${minUsableWaveDuration.toFixed(1)}s for warn + react + avoid)`,
+    });
+  }
+
+  // ── 3. Layer count ───────────────────────────────────────────
+  // patternTags length is a reasonable proxy for simultaneous mechanic layers
+  const layerCount = tags.length;
+  if (layerCount > maxLayers) {
+    issues.push({
+      type: 'layerCount',
+      message: `${layerCount} mechanic layers (patternTags) exceeds max ${maxLayers} for boss tier ${bossIdx + 1}`,
+    });
+  }
+
+  // ── 4. Banned mechanic combos ────────────────────────────────
+  const hasFlip    = tags.includes('flip')    || wave.arenaEffect === 'flip';
+  const hasDense   = tags.includes('dense');
+  const hasHoming  = tags.includes('homing');
+  const hasFast    = wave.bulletSpeed > 200;
+  const hasPull    = tags.includes('pull')    || wave.arenaEffect === 'pull';
+  const hasLaser   = tags.includes('laser')   || wave.attackType === 'laser';
+  const hasDark    = tags.includes('dark')    || wave.arenaEffect === 'dark';
+  const hasFake    = tags.includes('fake');
+  const hasShrink  = tags.includes('shrink')  || wave.arenaEffect === 'shrink';
+  const hasVoid    = tags.includes('void');
+  const hasGlitch  = tags.includes('glitch')  || wave.arenaEffect === 'glitch';
+  const hasPoison  = tags.includes('poison');
+  const hasDelay   = tags.includes('delay');
+  const hasNarrow  = tags.includes('narrow');
+  const hasChaos   = wave.attackType === 'chaos';
+
+  if (hasFlip && hasDense) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: control flip + dense bullets (per design doc §Mawbyte)' });
+  }
+  if (hasFlip && hasFast && wave.spawnRate >= 8) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: control flip + fast + high spawn rate — leaves no safe window' });
+  }
+  if (hasDark && hasFake && hasFast) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: visibility reduction + fake warnings + fast bullets simultaneously' });
+  }
+  if (hasPull && hasShrink && hasLaser) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: gravity pull + shrinking arena + dense lasers' });
+  }
+  if (hasPoison && hasFast && hasDense && hasGlitch) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: poison zones + fast bullets + dense spam + screen glitch' });
+  }
+  if (hasDelay && hasNarrow) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: delayed movement + narrow gaps (player cannot thread the gap precisely)' });
+  }
+  if (hasVoid && hasLaser && hasDense) {
+    issues.push({ type: 'bannedCombo', message: 'Banned: void zones + lasers + dense bullets (too many coverage layers)' });
+  }
+
+  // ── 5. Safe gap proxy ────────────────────────────────────────
+  // Player diameter = 2 * P_HIT_R = 8 pixels; minimum visual safe corridor = minGapMult * 8
+  const minSafeGapPx = minGapMult * (P_HIT_R * 2);
+
+  // High spawnRate + high bulletSpeed means bullets cover the arena rapidly → tiny safe gaps
+  // We flag when spawnRate * bulletSpeed implies < minSafeGapPx of open space
+  // Heuristic: each bullet covers ~2*r area; too many bullets per second risks full coverage
+  if (wave.spawnRate > 12 && wave.bulletSpeed > 150) {
+    issues.push({
+      type: 'safeGap',
+      message: `spawnRate ${wave.spawnRate}/s × speed ${wave.bulletSpeed} may leave safe gap < ${minSafeGapPx}px — ensure defined escape corridor`,
+    });
+  }
+  if (hasHoming && wave.bulletSpeed > 180) {
+    issues.push({
+      type: 'safeGap',
+      message: `Homing bullets at speed ${wave.bulletSpeed} may converge and leave no safe gap for tier ${bossIdx + 1}`,
+    });
+  }
+
+  // ── 6. Possibly impossible ────────────────────────────────────
+  if (wave.bulletSpeed > 230 && !tags.includes('gap') && wave.attackType !== 'chain' && wave.attackType !== 'replay') {
+    issues.push({
+      type: 'possiblyImpossible',
+      message: `Bullet speed ${wave.bulletSpeed} is extreme — verify at least one readable escape lane exists at all times`,
+    });
+  }
+  if (hasChaos && wave.duration < 3.5) {
+    issues.push({
+      type: 'possiblyImpossible',
+      message: `Chaos attack with only ${wave.duration}s — too short for the pattern to become readable`,
+    });
+  }
+  if (wave.damage >= 40 && hasNoWarning) {
+    issues.push({
+      type: 'possiblyImpossible',
+      message: `High damage (${wave.damage}) combined with no warning is extremely punishing`,
+    });
+  }
+
+  return issues;
+}
+
+// Batch validation across all 20 bosses × all waves. Used by the admin audit button.
+function validateAllWaves(): WaveFairnessResult[] {
   const results: WaveFairnessResult[] = [];
-
-  // Min warning times by boss tier (in seconds, estimated from wave duration & attackType)
-  // We use attackType and patternTags to infer minimum safe warning time
-  const minWarnTime = (bossIdx: number): number => {
-    if (bossIdx <= 4)  return 0.90;
-    if (bossIdx <= 9)  return 0.75;
-    if (bossIdx <= 14) return 0.60;
-    if (bossIdx <= 18) return 0.55;
-    return 0.50; // Boss 20
-  };
-
-  // Max layer count by boss tier (layers estimated from patternTags length)
-  const maxLayers = (bossIdx: number): number => {
-    if (bossIdx <= 4)  return 2;
-    if (bossIdx <= 9)  return 3;
-    if (bossIdx <= 14) return 3;
-    if (bossIdx <= 18) return 4;
-    return 4; // Boss 20
-  };
-
-  // Min bullet speed for which missing warn is a problem
-  const FAST_BULLET_THRESHOLD = 160;
-
   for (let bi = 0; bi < BOSSES.length; bi++) {
     const boss = BOSSES[bi];
     const waves = boss.waves ?? [];
     for (let wi = 0; wi < waves.length; wi++) {
       const wave = waves[wi];
-      const issues: FairnessIssue[] = [];
-      const tags = wave.patternTags ?? [];
-
-      // 1. Missing warning for hazardous attacks
-      const dangerousTypes = ['laser', 'spiral', 'rain', 'ring', 'mirror', 'chain', 'chaos', 'pull', 'wall'];
-      const hasDangerousType = dangerousTypes.includes(wave.attackType);
-      if (hasDangerousType && wave.warningType === 'none' && wave.bulletSpeed > FAST_BULLET_THRESHOLD) {
-        issues.push({ type: 'missingWarning', message: `Attack type "${wave.attackType}" at speed ${wave.bulletSpeed} has no warning indicator` });
-      }
-
-      // 2. Too-short warning time (use wave.duration as proxy; <3s is very short for complex attacks)
-      const minWarn = minWarnTime(bi);
-      // We don't have explicit warn time per wave, but a duration under ~3s is a red flag for harder bosses
-      const durationThreshold = bi <= 4 ? 3.0 : bi <= 9 ? 2.5 : 2.0;
-      if (wave.duration < durationThreshold && hasDangerousType) {
-        issues.push({ type: 'warnTime', message: `Wave duration ${wave.duration}s may be too short for boss tier (min recommended ~${minWarn}s warn + react time)` });
-      }
-
-      // 3. Too many layers (patternTags as a rough proxy)
-      const layerCount = tags.length;
-      const max = maxLayers(bi);
-      if (layerCount > max) {
-        issues.push({ type: 'layerCount', message: `${layerCount} pattern tags exceeds max ${max} layers for boss tier ${bi + 1}` });
-      }
-
-      // 4. Banned mechanic combos
-      const hasFlip   = tags.includes('flip') || wave.arenaEffect === 'flip';
-      const hasDense  = tags.includes('dense');
-      const hasHoming = tags.includes('homing');
-      const hasFast   = wave.bulletSpeed > 200;
-      const hasPull   = tags.includes('pull') || wave.arenaEffect === 'pull';
-      const hasLaser  = tags.includes('laser');
-      const hasChaos  = wave.attackType === 'chaos';
-
-      if (hasFlip && hasDense) {
-        issues.push({ type: 'bannedCombo', message: 'Banned combo: control flip + dense bullets' });
-      }
-      if (hasFlip && hasFast && wave.spawnRate >= 10) {
-        issues.push({ type: 'bannedCombo', message: 'Banned combo: control flip + fast dense spawn rate' });
-      }
-      if (hasPull && hasLaser && hasDense) {
-        issues.push({ type: 'bannedCombo', message: 'Banned combo: gravity pull + lasers + dense bullets' });
-      }
-      if (hasChaos && wave.duration < 4) {
-        issues.push({ type: 'possiblyImpossible', message: 'Chaos attack with very short duration may be unreadable' });
-      }
-
-      // 5. Possibly impossible: extreme bullet speed with no gap mechanic
-      if (wave.bulletSpeed > 220 && !tags.includes('gap') && !tags.includes('ring') && wave.attackType !== 'chain' && wave.attackType !== 'replay') {
-        issues.push({ type: 'possiblyImpossible', message: `Bullet speed ${wave.bulletSpeed} is very high — verify at least one clear escape lane exists` });
-      }
-
-      // 6. Safe gap check: homing bullets with very high speed
-      if (hasHoming && wave.bulletSpeed > 180) {
-        issues.push({ type: 'safeGap', message: `Homing bullets at speed ${wave.bulletSpeed} may leave insufficient safe gap` });
-      }
-
-      results.push({
-        bossIdx: bi,
-        bossName: boss.name,
-        waveIdx: wi,
-        waveName: wave.name,
-        waveId: wave.id,
-        issues,
-        passed: issues.length === 0,
-      });
+      const issues = validateWaveFairness(wave, bi);
+      results.push({ bossIdx: bi, bossName: boss.name, waveIdx: wi, waveName: wave.name, waveId: wave.id, issues, passed: issues.length === 0 });
     }
   }
-
   return results;
 }
 
@@ -6213,7 +6279,7 @@ export default function SoulRush() {
                     <button
                       style={{ ...btnStyle('#cc88ff'), fontSize: 11, padding: '3px 10px' }}
                       onClick={() => {
-                        const r = validateWaveFairness();
+                        const r = validateAllWaves();
                         setFairnessResults(r);
                         setFairnessOpen(true);
                       }}
