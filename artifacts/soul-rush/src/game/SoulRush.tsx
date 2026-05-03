@@ -1242,6 +1242,9 @@ interface GameData {
   debugSpeedMult: number;
   runScore: number;
   wavesCleared: number;
+
+  // Set by updateAttack() before each dispatch so sm()/st() can read wave debuff data
+  currentWaveConf?: Wave;
 }
 
 function createState(): GameData {
@@ -1327,8 +1330,36 @@ function nid(g: GameData) { return g.nextId++; }
 // DIFFICULTY SCALE HELPERS
 // ================================================================
 
-function sm(g: GameData) { return 0.72 + 0.45 * g.diffMult; }
-function st(base: number, g: GameData) { return base * (1.1 - 0.18 * g.diffMult); }
+// Reference bullet speed calibration point (mid-range tier).
+// When a wave's bulletSpeed has been debuffed below this, sm() shrinks proportionally
+// so all velocity calculations in attack functions automatically respect the cap.
+const SM_REFERENCE_SPEED = 175;
+
+function sm(g: GameData): number {
+  const base = 0.72 + 0.45 * g.diffMult;
+  const wave = g.currentWaveConf;
+  if (!wave || wave.bulletSpeed <= 0) return base;
+  // If the wave's speed was debuffed below the reference, scale sm down proportionally
+  if (wave.bulletSpeed < SM_REFERENCE_SPEED) return base * (wave.bulletSpeed / SM_REFERENCE_SPEED);
+  return base;
+}
+
+function st(base: number, g: GameData): number {
+  const diffScale = 1.1 - 0.18 * g.diffMult;
+  const wave = g.currentWaveConf;
+  if (!wave || wave.spawnRate <= 0) return base * diffScale;
+  // wave.spawnRate (bullets/sec) → minimum inter-spawn interval = 1/spawnRate.
+  // Enforce the fairness floor: never allow spawning faster than the debuffed wave allows.
+  const waveMinInterval = 1 / wave.spawnRate;
+  return Math.max(base * diffScale, waveMinInterval);
+}
+
+// Returns the current wave's debuffed warning duration, or fallback if unavailable.
+// Use for phase-0 warning timers so upgraded warningType values are honoured in gameplay.
+function warnDur(g: GameData, fallback: number): number {
+  const wd = g.currentWaveConf?.warnDuration;
+  return (wd !== undefined && wd > 0) ? Math.max(wd, fallback) : fallback;
+}
 
 // ================================================================
 // MATH HELPERS
@@ -1456,6 +1487,10 @@ function checkHit(g: GameData): boolean {
 
 function updateAttack(g: GameData, dt: number, boss: BossConf) {
   const atk = boss.attacks[g.atkIdx];
+
+  // Store the current wave's debuffed config on g so sm()/st()/warnDur() can read it.
+  // This propagates all applyFairnessDebuffs changes into actual gameplay.
+  g.currentWaveConf = boss.waves?.find(w => w.execute === atk);
 
   if (atk === 'crystalRain')        { doCrystalRain(g, dt, boss);        return; }
   if (atk === 'mirrorWalls')        { doMirrorWalls(g, dt, boss);         return; }
@@ -1732,6 +1767,7 @@ function doShatterPulse(g: GameData, dt: number, boss: BossConf) {
 function doBitStorm(g: GameData, dt: number, boss: BossConf) {
   const variant = waveVariant(g);
   const dualEdge = variant > 0;
+  const wt = warnDur(g, 0.55); // honour debuffed warning duration
 
   if (g.phase === 0) {
     if (g.selectedEdge < 0) {
@@ -1746,12 +1782,12 @@ function doBitStorm(g: GameData, dt: number, boss: BossConf) {
           else if (edge === 1) { x = BX + BW;     y = BY + BH * t; angle = Math.PI; }
           else if (edge === 2) { x = BX + BW * t; y = BY + BH; angle = -Math.PI / 2; }
           else                 { x = BX;           y = BY + BH * t; angle = 0; }
-          g.warnMarkers.push({ id: nid(g), x, y, angle, r: 6, color: boss.color, timer: 0.55, maxTimer: 0.55 });
+          g.warnMarkers.push({ id: nid(g), x, y, angle, r: 6, color: boss.color, timer: wt, maxTimer: wt });
         }
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.55) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= wt) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -1788,17 +1824,18 @@ function doBitStorm(g: GameData, dt: number, boss: BossConf) {
 function doErrorSweep(g: GameData, dt: number, boss: BossConf) {
   const variant = waveVariant(g);
   const doubleSweep = variant > 0;
+  const wt = warnDur(g, 1.1); // honour debuffed warning duration
 
   if (g.phase === 0) {
     if (g.laserWarns.length === 0) {
       const isH = Math.random() > 0.35;
       g.spawnCount = isH ? 1 : 0; // encode sweep axis so reverse pass reuses the SAME axis
       const entryPos = isH ? BY : BX;
-      g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos: entryPos, width: 72, timer: 1.1, color: boss.color, fake: false });
+      g.laserWarns.push({ id: nid(g), type: isH ? 'h' : 'v', pos: entryPos, width: 72, timer: wt, color: boss.color, fake: false });
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.1) {
+    if (g.phaseTimer >= wt) {
       g.phase = 1; g.phaseTimer = 0;
       const lw = g.laserWarns[0];
       g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 72, timer: 6.0, color: boss.color });
@@ -3812,11 +3849,12 @@ function doBossMemoryChain(g: GameData, dt: number, boss: BossConf) {
   if (g.finalRuleStepTimer >= STEP_DUR) { g.finalRuleStep++; g.finalRuleStepTimer = 0; clearEntities(g); g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0; }
 }
 function doBrokenControls(g: GameData, dt: number, boss: BossConf) {
+  const wt = warnDur(g, 1.0); // honour debuffed warning duration
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
-      for (let i = 0; i < 8; i++) g.warnMarkers.push({ id: nid(g), x: BCX + rand(-80, 80), y: BCY + rand(-50, 50), angle: rand(0, Math.PI * 2), r: 6, color: boss.color, timer: 1.0, maxTimer: 1.0 });
+      for (let i = 0; i < 8; i++) g.warnMarkers.push({ id: nid(g), x: BCX + rand(-80, 80), y: BCY + rand(-50, 50), angle: rand(0, Math.PI * 2), r: 6, color: boss.color, timer: wt, maxTimer: wt });
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.ctrlFlipped = true; g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= wt) { g.ctrlFlipped = true; g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) { g.spawnTimer = st(0.1, g); const spd = sm(g); g.bullets.push({ id: nid(g), x: rand(BX + 5, BX + BW - 5), y: BY - 5, vx: rand(-20, 20) * spd, vy: rand(150, 260) * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); }
