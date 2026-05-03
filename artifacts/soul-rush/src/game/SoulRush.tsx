@@ -42,6 +42,14 @@ const SHAKE_AMT = 8;
 const SHAKE_DUR = 0.28;
 
 // ================================================================
+// HAZARD VISUAL SCALE
+// Bullets, lasers, warnings, and rings render 30% larger visually.
+// Player size, player hitbox, and collision radii are NOT changed.
+// ================================================================
+const HAZARD_VISUAL_SCALE = 1.3;
+const PLAYER_VISUAL_SCALE = 1.0; // documented reference — player draw uses this implicitly
+
+// ================================================================
 // DIFFICULTY LEVELS
 // ================================================================
 
@@ -3935,12 +3943,13 @@ function drawBullet(ctx: CanvasRenderingContext2D, b: Bullet) {
   ctx.fillStyle = b.color;
   ctx.translate(b.x, b.y);
   ctx.rotate(b.rot);
+  const vr = b.r * HAZARD_VISUAL_SCALE; // visual radius — hitbox b.r is unchanged
   if (b.shape === 'circle') {
-    ctx.beginPath(); ctx.arc(0, 0, b.r, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, vr, 0, Math.PI * 2); ctx.fill();
   } else if (b.shape === 'square') {
-    ctx.fillRect(-b.r, -b.r, b.r * 2, b.r * 2);
+    ctx.fillRect(-vr, -vr, vr * 2, vr * 2);
   } else {
-    ctx.beginPath(); ctx.moveTo(0, -b.r * 1.4); ctx.lineTo(b.r * 0.9, 0); ctx.lineTo(0, b.r * 1.4); ctx.lineTo(-b.r * 0.9, 0); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, -vr * 1.4); ctx.lineTo(vr * 0.9, 0); ctx.lineTo(0, vr * 1.4); ctx.lineTo(-vr * 0.9, 0); ctx.closePath(); ctx.fill();
   }
   ctx.restore();
 }
@@ -4815,11 +4824,12 @@ function drawUI(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
 
 function drawElectricLaser(ctx: CanvasRenderingContext2D, l: Laser, time: number) {
   ctx.save();
+  const vlw = l.width * HAZARD_VISUAL_SCALE; // visual width only; hitbox unchanged
   // Soft glow fill
   ctx.globalAlpha = 0.18;
   ctx.fillStyle = l.color; ctx.shadowBlur = 32; ctx.shadowColor = l.color;
-  if (l.type === 'h') ctx.fillRect(BX, l.pos - l.width / 2, BW, l.width);
-  else ctx.fillRect(l.pos - l.width / 2, BY, l.width, BH);
+  if (l.type === 'h') ctx.fillRect(BX, l.pos - vlw / 2, BW, vlw);
+  else ctx.fillRect(l.pos - vlw / 2, BY, vlw, BH);
   ctx.globalAlpha = 1;
   // Two jagged-line passes: wide colored core + thin white highlight
   for (let pass = 0; pass < 2; pass++) {
@@ -4900,49 +4910,51 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
     ctx.restore();
   }
 
-  // Laser warnings
+  // Laser warnings — visual width scaled up; hitbox width unchanged
   for (const lw of g.laserWarns) {
     const alpha = 0.28 + 0.28 * Math.sin(g.time * 9);
+    const vw = lw.width * HAZARD_VISUAL_SCALE;
     ctx.save(); ctx.globalAlpha = alpha;
     ctx.fillStyle = lw.fake ? '#664400' : '#ff3300';
-    if (lw.type === 'h') ctx.fillRect(BX, lw.pos - lw.width / 2, BW, lw.width);
-    else ctx.fillRect(lw.pos - lw.width / 2, BY, lw.width, BH);
+    if (lw.type === 'h') ctx.fillRect(BX, lw.pos - vw / 2, BW, vw);
+    else ctx.fillRect(lw.pos - vw / 2, BY, vw, BH);
     ctx.restore();
   }
 
-  // Diagonal warnings
+  // Diagonal warnings — visual width scaled up; hitbox unchanged
   for (const dw of g.diagWarns) {
     const alpha = 0.28 + 0.24 * Math.sin(g.time * 9);
     ctx.save(); ctx.globalAlpha = alpha;
     ctx.strokeStyle = dw.fake ? '#554400' : '#ffaa00';
-    ctx.lineWidth = dw.width; ctx.lineCap = 'round'; ctx.shadowBlur = 12; ctx.shadowColor = dw.fake ? '#443300' : '#ffaa00';
+    ctx.lineWidth = dw.width * HAZARD_VISUAL_SCALE; ctx.lineCap = 'round'; ctx.shadowBlur = 12; ctx.shadowColor = dw.fake ? '#443300' : '#ffaa00';
     ctx.beginPath(); ctx.moveTo(dw.x1, dw.y1); ctx.lineTo(dw.x2, dw.y2); ctx.stroke();
     ctx.restore();
   }
 
-  // Active lasers — Boss 6 (Nyxcoil) uses a jagged electric render
+  // Active lasers — Boss 6 (Nyxcoil) uses a jagged electric render; visual width scaled
   for (const l of g.lasers) {
     if (g.bossIdx === 5) {
       drawElectricLaser(ctx, l, g.time);
     } else {
+      const vlw = l.width * HAZARD_VISUAL_SCALE;
       ctx.save(); ctx.shadowBlur = 22; ctx.shadowColor = l.color; ctx.fillStyle = l.color;
-      if (l.type === 'h') ctx.fillRect(BX, l.pos - l.width / 2, BW, l.width);
-      else ctx.fillRect(l.pos - l.width / 2, BY, l.width, BH);
+      if (l.type === 'h') ctx.fillRect(BX, l.pos - vlw / 2, BW, vlw);
+      else ctx.fillRect(l.pos - vlw / 2, BY, vlw, BH);
       ctx.restore();
     }
   }
 
-  // Diagonal lasers
+  // Diagonal lasers — visual width scaled; hitbox unchanged
   for (const dl of g.diagLasers) {
-    ctx.save(); ctx.strokeStyle = dl.color; ctx.lineWidth = dl.width; ctx.lineCap = 'round';
+    ctx.save(); ctx.strokeStyle = dl.color; ctx.lineWidth = dl.width * HAZARD_VISUAL_SCALE; ctx.lineCap = 'round';
     ctx.shadowBlur = 28; ctx.shadowColor = dl.color;
     ctx.beginPath(); ctx.moveTo(dl.x1, dl.y1); ctx.lineTo(dl.x2, dl.y2); ctx.stroke();
     ctx.restore();
   }
 
-  // Rings
+  // Rings — visual thickness scaled; hitbox (ring.thick) unchanged
   for (const ring of g.rings) {
-    ctx.save(); ctx.strokeStyle = ring.color; ctx.lineWidth = ring.thick; ctx.shadowBlur = 16; ctx.shadowColor = ring.color;
+    ctx.save(); ctx.strokeStyle = ring.color; ctx.lineWidth = ring.thick * HAZARD_VISUAL_SCALE; ctx.shadowBlur = 16; ctx.shadowColor = ring.color;
     const segs = 240;
     const step = (Math.PI * 2) / segs;
     for (let s = 0; s < segs; s++) {
@@ -5146,6 +5158,127 @@ function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
 }
 
 // ================================================================
+// FAIRNESS VALIDATION
+// ================================================================
+
+interface FairnessIssue {
+  type: 'warnTime' | 'safeGap' | 'layerCount' | 'bannedCombo' | 'missingWarning' | 'possiblyImpossible';
+  message: string;
+}
+
+interface WaveFairnessResult {
+  bossIdx: number;
+  bossName: string;
+  waveIdx: number;
+  waveName: string;
+  waveId: string;
+  issues: FairnessIssue[];
+  passed: boolean;
+}
+
+function validateWaveFairness(): WaveFairnessResult[] {
+  const results: WaveFairnessResult[] = [];
+
+  // Min warning times by boss tier (in seconds, estimated from wave duration & attackType)
+  // We use attackType and patternTags to infer minimum safe warning time
+  const minWarnTime = (bossIdx: number): number => {
+    if (bossIdx <= 4)  return 0.90;
+    if (bossIdx <= 9)  return 0.75;
+    if (bossIdx <= 14) return 0.60;
+    if (bossIdx <= 18) return 0.55;
+    return 0.50; // Boss 20
+  };
+
+  // Max layer count by boss tier (layers estimated from patternTags length)
+  const maxLayers = (bossIdx: number): number => {
+    if (bossIdx <= 4)  return 2;
+    if (bossIdx <= 9)  return 3;
+    if (bossIdx <= 14) return 3;
+    if (bossIdx <= 18) return 4;
+    return 4; // Boss 20
+  };
+
+  // Min bullet speed for which missing warn is a problem
+  const FAST_BULLET_THRESHOLD = 160;
+
+  for (let bi = 0; bi < BOSSES.length; bi++) {
+    const boss = BOSSES[bi];
+    const waves = boss.waves ?? [];
+    for (let wi = 0; wi < waves.length; wi++) {
+      const wave = waves[wi];
+      const issues: FairnessIssue[] = [];
+      const tags = wave.patternTags ?? [];
+
+      // 1. Missing warning for hazardous attacks
+      const dangerousTypes = ['laser', 'spiral', 'rain', 'ring', 'mirror', 'chain', 'chaos', 'pull', 'wall'];
+      const hasDangerousType = dangerousTypes.includes(wave.attackType);
+      if (hasDangerousType && wave.warningType === 'none' && wave.bulletSpeed > FAST_BULLET_THRESHOLD) {
+        issues.push({ type: 'missingWarning', message: `Attack type "${wave.attackType}" at speed ${wave.bulletSpeed} has no warning indicator` });
+      }
+
+      // 2. Too-short warning time (use wave.duration as proxy; <3s is very short for complex attacks)
+      const minWarn = minWarnTime(bi);
+      // We don't have explicit warn time per wave, but a duration under ~3s is a red flag for harder bosses
+      const durationThreshold = bi <= 4 ? 3.0 : bi <= 9 ? 2.5 : 2.0;
+      if (wave.duration < durationThreshold && hasDangerousType) {
+        issues.push({ type: 'warnTime', message: `Wave duration ${wave.duration}s may be too short for boss tier (min recommended ~${minWarn}s warn + react time)` });
+      }
+
+      // 3. Too many layers (patternTags as a rough proxy)
+      const layerCount = tags.length;
+      const max = maxLayers(bi);
+      if (layerCount > max) {
+        issues.push({ type: 'layerCount', message: `${layerCount} pattern tags exceeds max ${max} layers for boss tier ${bi + 1}` });
+      }
+
+      // 4. Banned mechanic combos
+      const hasFlip   = tags.includes('flip') || wave.arenaEffect === 'flip';
+      const hasDense  = tags.includes('dense');
+      const hasHoming = tags.includes('homing');
+      const hasFast   = wave.bulletSpeed > 200;
+      const hasPull   = tags.includes('pull') || wave.arenaEffect === 'pull';
+      const hasLaser  = tags.includes('laser');
+      const hasChaos  = wave.attackType === 'chaos';
+
+      if (hasFlip && hasDense) {
+        issues.push({ type: 'bannedCombo', message: 'Banned combo: control flip + dense bullets' });
+      }
+      if (hasFlip && hasFast && wave.spawnRate >= 10) {
+        issues.push({ type: 'bannedCombo', message: 'Banned combo: control flip + fast dense spawn rate' });
+      }
+      if (hasPull && hasLaser && hasDense) {
+        issues.push({ type: 'bannedCombo', message: 'Banned combo: gravity pull + lasers + dense bullets' });
+      }
+      if (hasChaos && wave.duration < 4) {
+        issues.push({ type: 'possiblyImpossible', message: 'Chaos attack with very short duration may be unreadable' });
+      }
+
+      // 5. Possibly impossible: extreme bullet speed with no gap mechanic
+      if (wave.bulletSpeed > 220 && !tags.includes('gap') && !tags.includes('ring') && wave.attackType !== 'chain' && wave.attackType !== 'replay') {
+        issues.push({ type: 'possiblyImpossible', message: `Bullet speed ${wave.bulletSpeed} is very high — verify at least one clear escape lane exists` });
+      }
+
+      // 6. Safe gap check: homing bullets with very high speed
+      if (hasHoming && wave.bulletSpeed > 180) {
+        issues.push({ type: 'safeGap', message: `Homing bullets at speed ${wave.bulletSpeed} may leave insufficient safe gap` });
+      }
+
+      results.push({
+        bossIdx: bi,
+        bossName: boss.name,
+        waveIdx: wi,
+        waveName: wave.name,
+        waveId: wave.id,
+        issues,
+        passed: issues.length === 0,
+      });
+    }
+  }
+
+  return results;
+}
+
+// ================================================================
 // REACT COMPONENT
 // ================================================================
 
@@ -5211,6 +5344,11 @@ export default function SoulRush() {
   const [adminCompLoading, setAdminCompLoading] = useState(false);
   const [adminLbOpen,      setAdminLbOpen]      = useState(false);
   const [adminCompOpen,    setAdminCompOpen]    = useState(false);
+
+  type FIssue = { type: string; message: string };
+  type WFResult = { bossIdx: number; bossName: string; waveIdx: number; waveName: string; waveId: string; issues: FIssue[]; passed: boolean };
+  const [fairnessResults, setFairnessResults] = useState<WFResult[]>([]);
+  const [fairnessOpen,    setFairnessOpen]    = useState(false);
 
   type InvSlot = { id: string; stack: number };
   const [inventory,    setInventory]    = useState<InvSlot[]>([]);
@@ -6065,6 +6203,89 @@ export default function SoulRush() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Fairness Audit */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, color: '#555' }}>WAVE FAIRNESS AUDIT</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      style={{ ...btnStyle('#cc88ff'), fontSize: 11, padding: '3px 10px' }}
+                      onClick={() => {
+                        const r = validateWaveFairness();
+                        setFairnessResults(r);
+                        setFairnessOpen(true);
+                      }}
+                    >
+                      Run Audit
+                    </button>
+                    {fairnessOpen && (
+                      <button style={{ ...btnStyle('#444'), fontSize: 11, padding: '3px 10px' }} onClick={() => setFairnessOpen(v => !v)}>
+                        {fairnessOpen ? 'Hide' : 'Show'}
+                      </button>
+                    )}
+                    {fairnessResults.length > 0 && (
+                      <button
+                        style={{ ...btnStyle('#44aaff'), fontSize: 11, padding: '3px 10px' }}
+                        onClick={() => {
+                          const blob = new Blob([JSON.stringify(fairnessResults, null, 2)], { type: 'application/json' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url; a.download = 'soulrush-fairness-audit.json'; a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                      >
+                        Export JSON
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {fairnessOpen && fairnessResults.length > 0 && (() => {
+                  const failing = fairnessResults.filter(r => !r.passed);
+                  const passing = fairnessResults.filter(r => r.passed);
+                  const totalIssues = fairnessResults.reduce((n, r) => n + r.issues.length, 0);
+                  return (
+                    <div>
+                      <div style={{ display: 'flex', gap: 12, marginBottom: 8, fontSize: 11, fontFamily: 'monospace' }}>
+                        <span style={{ color: failing.length > 0 ? '#ff6644' : '#44ff88', fontWeight: 'bold' }}>
+                          {failing.length} waves flagged
+                        </span>
+                        <span style={{ color: '#555' }}>·</span>
+                        <span style={{ color: '#44ff88' }}>{passing.length} clean</span>
+                        <span style={{ color: '#555' }}>·</span>
+                        <span style={{ color: '#cc88ff' }}>{totalIssues} issues total</span>
+                      </div>
+                      {failing.length === 0 ? (
+                        <div style={{ color: '#44ff88', fontSize: 11, padding: '6px 0' }}>All waves passed fairness checks.</div>
+                      ) : (
+                        <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                          {failing.map((r, i) => (
+                            <div key={i} style={{ marginBottom: 8, padding: '6px 8px', background: '#140a0a', border: '1px solid #ff444422', borderRadius: 4 }}>
+                              <div style={{ display: 'flex', gap: 6, marginBottom: 3 }}>
+                                <span style={{ color: BOSSES[r.bossIdx].color, fontSize: 10, fontWeight: 'bold', fontFamily: 'monospace' }}>
+                                  B{r.bossIdx + 1} W{r.waveIdx + 1}
+                                </span>
+                                <span style={{ color: '#888', fontSize: 10, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                                  {r.waveName}
+                                </span>
+                              </div>
+                              {r.issues.map((issue, j) => {
+                                const issueColor = issue.type === 'bannedCombo' || issue.type === 'possiblyImpossible' ? '#ff4444' :
+                                  issue.type === 'missingWarning' ? '#ffaa44' : '#cc88ff';
+                                return (
+                                  <div key={j} style={{ fontSize: 10, color: issueColor, fontFamily: 'monospace', marginTop: 2, paddingLeft: 8 }}>
+                                    [{issue.type}] {issue.message}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div style={{ fontSize: 11, color: '#444', borderTop: '1px solid #222', paddingTop: 12 }}>
