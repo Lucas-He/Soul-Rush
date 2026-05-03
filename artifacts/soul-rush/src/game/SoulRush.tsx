@@ -47,8 +47,6 @@ const SHAKE_DUR = 0.28;
 // Player size, player hitbox, and collision radii are NOT changed.
 // ================================================================
 const HAZARD_VISUAL_SCALE = 1.3;
-const PLAYER_VISUAL_SCALE  = 1.0; // documented reference — player draw uses this implicitly
-const PLAYER_HITBOX_SCALE  = 1.0; // player collision radius stays small and fair
 
 // ================================================================
 // DIFFICULTY LEVELS
@@ -3810,7 +3808,7 @@ function doMoonShatter(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 18; i++) { const a = (i / 18) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 150, y: BCY + Math.sin(a) * 150, angle: a, r: 5, color: boss.color, timer: warnDur(g, 0.8), maxTimer: warnDur(g, 0.8) }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) { const pAngle = Math.atan2(g.player.y - BCY, g.player.x - BCX); g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 150, speed: -65 * sm(g), thick: 20, gaps: [pAngle], gapSz: 0.5, color: boss.color }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; }
+    if (g.phaseTimer >= warnDur(g, 0.8)) { const pAngle = Math.atan2(g.player.y - BCY, g.player.x - BCX); g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 150, speed: -65 * sm(g), thick: 20, gaps: [pAngle], gapSz: 0.5, color: boss.color }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; }
   } else if (g.phase === 1) {
     for (const ring of g.rings) ring.r += ring.speed * dt;
     g.phaseTimer += dt;
