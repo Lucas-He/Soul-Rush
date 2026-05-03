@@ -1,0 +1,271 @@
+CORRECTION UPDATE: ONLY HAZARDS +30%, REMOVE IMPOSSIBLE MOVES, AND DEBUFF UNFAIR CASES
+
+I do NOT want every visual/gameplay element increased by 30%.
+
+Change the size update to this:
+
+- Increase hazard visuals by 30% only.
+- Do NOT increase the player size.
+- Do NOT increase the player hitbox.
+- Do NOT increase the battle box size unless needed for fairness.
+- Do NOT increase UI size unless needed for readability.
+- Do NOT increase item icons unless needed for visibility.
+- Do NOT increase boss sprites unless needed visually.
+
+Hazards that should be 30% larger visually:
+- Bullets
+- Lasers
+- Warning zones
+- Falling objects
+- Arena danger zones
+- Poison zones
+- Flame zones
+- Web lines
+- Bone walls
+- Crystal shards
+- Machine pistons
+- Paper blades
+- Moon shards
+- Symbol hazards
+- Any other damaging hazard
+
+Implementation:
+Use:
+
+const HAZARD_VISUAL_SCALE = 1.3;
+const PLAYER_VISUAL_SCALE = 1.0;
+const PLAYER_HITBOX_SCALE = 1.0;
+
+Fairness rule:
+- Hazard visuals are 30% larger.
+- Hazard hitboxes should NOT be 30% larger.
+- Hazard hitboxes should stay slightly smaller than visuals.
+- Player hitbox should stay small and fair.
+- Bigger hazards should look more intense, but not make the game impossible.
+
+REMOVE IMPOSSIBLE OR WAY TOO HARD MOVES
+
+Some boss moves are impossible or way too hard. Remove or debuff all unfair cases.
+
+Global Debuff Rules:
+- No unavoidable attacks.
+- No full-arena attacks without a clear safe zone.
+- No overlapping hazards that cover every escape route.
+- No control reversal combined with dense bullet spam.
+- No shrinking arena combined with rotating lasers and heavy bullet rain unless there is a large readable safe pocket.
+- No visibility reduction combined with fake warnings and fast bullets at the same time.
+- No delayed movement combined with precise narrow gaps.
+- No random hazard spawning directly on the player.
+- No hazards spawning without warning.
+- No safe gap smaller than the player hitbox plus a reasonable margin.
+- No more than 3 heavy mechanics layered at once except Boss 20 final phase, and even there each phase must be short and readable.
+
+Safe Gap Rules:
+- Minimum safe gap should be at least 2.5x the player hitbox diameter for Bosses 1–5.
+- Minimum safe gap should be at least 2.0x the player hitbox diameter for Bosses 6–14.
+- Minimum safe gap should be at least 1.6x the player hitbox diameter for Bosses 15–19.
+- Minimum safe gap should be at least 1.5x the player hitbox diameter for Boss 20.
+- If hazards move quickly, increase the safe gap.
+- If player movement is altered, increase the safe gap.
+
+Warning Time Rules:
+- Bosses 1–5: warning time should usually be 0.9–1.2 seconds.
+- Bosses 6–10: warning time should usually be 0.75–1.0 seconds.
+- Bosses 11–15: warning time should usually be 0.6–0.9 seconds.
+- Bosses 16–19: warning time should usually be 0.55–0.8 seconds.
+- Boss 20: warning time should usually be 0.5–0.75 seconds.
+- Never go below 0.45 seconds for major hazards.
+
+Layering Rules:
+- Bosses 1–5: maximum 2 layers per wave.
+- Bosses 6–10: maximum 2–3 layers per wave.
+- Bosses 11–15: maximum 3 layers per wave.
+- Bosses 16–19: maximum 3 layers, rarely 4 for short bursts.
+- Boss 20: maximum 4 layers, and only for short readable phases.
+- Do not stack:
+  - control changes + visibility loss + fake warnings
+  - gravity pull + shrinking arena + dense lasers
+  - poison zones + moving safe pocket + fast bullets + screen glitch
+  - delayed movement + small gaps
+  - fake warnings + darkness + fast hazards
+
+DEBUFF SPECIFIC IMPOSSIBLE CASES
+
+Boss 1 Virel:
+- Keep challenging but fair.
+- Prism Prison escape gap must be clearly visible and wide enough.
+- Reflective lasers must show full preview lines before firing.
+- Shatter Pulse must always include at least one clear rotating gap.
+
+Boss 2 Mawbyte:
+- Do not combine control flip with dense bullets.
+- Input delay should be mild, not severe.
+- Screen split arena must have clear boundary and separate rules.
+- Fake UI hazards must be visually different from real ones.
+
+Boss 3 Seraph Null:
+- Shrinking judgment circles must not shrink below fair safe gap size.
+- Fake warnings must be dimmer than real warnings.
+- Triangle ricochet bullets should bounce only once.
+
+Boss 4 Orryx:
+- Reversing bullets must pause briefly before reversing.
+- Time Freeze should not resume at extreme speed.
+- Time Debt ghost bullets must be visible before becoming active.
+- Countdown zones must show clear numbers or color stages.
+
+Boss 5 The Unreadable King:
+- Do not block too much visibility with paragraphs.
+- Redaction bars must reveal safe paths before hazards activate.
+- Reality cracks must not split the arena into unavoidable sections.
+- Moving text maze must move slowly enough to route.
+
+Boss 6 Nyxcoil:
+- Undertow pull should be noticeable but not overpowering.
+- Whirlpool pull should not trap the player in the center.
+- Blackwater Flash should still leave hazard outlines visible.
+- Electric cages must always have an exit.
+
+Boss 7 Marrow Saint:
+- Rib Cage gaps must be wide enough.
+- Bone Lattice diagonal movement should be slower.
+- Ritual circles should not spawn directly under the player without warning.
+- Final Relic should not combine too many bone hazards at once.
+
+Boss 8 Luxora:
+- Fake stars must be clearly less bright than real ones.
+- Royal Eclipse should not make the arena fully dark.
+- Queen’s Nova safe ring must be wide enough.
+- Star Map Trap should warn before crossing lines becomes dangerous.
+
+Boss 9 Ruin Engine Omega:
+- Compression Cycle should not shrink arena too much.
+- Pistons must have clear red warning zones.
+- Core Vent smoke should not fully hide bullets.
+- Omega Cycle should be a sequence, not all machine hazards at once.
+
+Boss 10 Axiom:
+- Rule Rewrite should not change multiple controls and arena shape at the same time.
+- Input Paradox should be mild and short.
+- False Safe Zone must have a readable clue.
+- Rule Zero should cycle rules one at a time, not all at once.
+
+Boss 11 Velmora:
+- Poison zones should leave enough safe floor.
+- Velvet Veil should not hide all bullets.
+- Antidote Fakeout should be avoidable with clear visual difference.
+- Final Bloom safe pocket must move slowly enough to follow.
+
+Boss 12 Iron Choir:
+- Double Tempo should be fast but readable.
+- Broken Rhythm should be learnable, not random.
+- Final Chord should stack rhythm lanes in phases, not all at once.
+- Rest Note Fakeout must show a tiny pre-flash.
+
+Boss 13 Gravitas Rex:
+- Gravity wells should not overpower player control.
+- Center Crush must provide a clear outer safe area before exploding.
+- Rex Collapse should not stack more than 3 gravity effects.
+- Gravity Maze must show directional arrows.
+
+Boss 14 Candlegrave:
+- Smoke Veil should reduce visibility but not hide warnings.
+- Wax Flood should rise slowly enough to react.
+- Flame Flicker fakeouts must be visually different.
+- Grave Flame eruptions must have floor warning marks.
+
+Boss 15 Static Widow:
+- Screen Tear must be visual only unless clearly warned.
+- Broken Feed can scramble warning order, but final attack timing must still be readable.
+- Widow Crash should not combine web maze + static clone + scanlines + screen tear all at full strength.
+- Web Grid holes must be wide enough.
+
+Boss 16 Atlas Minor:
+- Planet Tilt should not overpower movement.
+- Bouncy gravity should be mild.
+- Small Extinction must leave exits.
+- World Lesson should cycle mechanics, not stack all at once.
+
+Boss 17 Paper Emperor:
+- White Edge blades must have shadow warnings.
+- Thousand Cuts should be intense but not a wall of unavoidable blades.
+- Fold Trap must leave an escape route.
+- Final Decree should change only one rule at a time.
+
+Boss 18 Echovault:
+- Delayed player-path hazards must give time to escape.
+- Perfect Echo should not punish the entire arena.
+- Final Echo memory maze must have a visible route.
+- Old Pattern New Rules should change one rule, not several.
+
+Boss 19 Blood Moon Marionette:
+- String Pull must be short and warned.
+- Stage Tilt should not combine with heavy pull.
+- Red Spotlight should track with delay, not instantly.
+- Moonlit Finale should phase mechanics instead of stacking everything.
+
+Boss 20 The First Mistake:
+- Still hardest boss, but remove impossible stacking.
+- Do not combine all mechanics at once.
+- Final wave should be structured into short phases.
+- Each phase should use 2–4 mechanics maximum.
+- Always show a final countdown before the hardest phase.
+- Give at least one clear safe route in every phase.
+- Fake hearts should confuse visually, but not completely hide the real heart.
+- Gravity pull should be mild if lasers or shrinking arena are active.
+- Poison zones should be short-lived if other hazards are active.
+- Do not use control changes during the densest bullet phases.
+
+ADD FAIRNESS VALIDATION
+
+Add a function:
+
+validateWaveFairness(wave)
+
+It should check:
+- warningTime is not too low.
+- safeGapSize is not too small.
+- layer count is not too high.
+- no banned unfair combos are present.
+- hazards do not spawn directly on player.
+- major hazards have warningType.
+- darkness/visibility effects are not combined with fake warnings and fast bullets.
+- control changes are not combined with dense bullet spam.
+- gravity/shrinking arena/laser density are not stacked unfairly.
+
+Add an admin Debug button:
+“Run Fairness Audit”
+
+It should show:
+- Total waves checked
+- Waves with too-small safe gaps
+- Waves with too-short warning time
+- Waves with banned unfair combos
+- Waves with too many layers
+- Waves missing warnings
+- Waves that may be impossible
+
+Add:
+“Export Fairness Audit JSON”
+
+DIFFICULTY TARGET AFTER DEBUFF
+
+The game should be:
+- Hard
+- Intense
+- Fair
+- Learnable
+- Replayable
+- Not impossible
+- Not cheap
+- Not random
+
+Boss 1: hard tutorial boss.
+Bosses 2–5: hard but beatable.
+Bosses 6–10: very hard.
+Bosses 11–15: brutal but fair.
+Bosses 16–19: extremely hard but learnable.
+Boss 20: final nightmare, but still beatable with skill.
+
+Final instruction:
+Make the game difficult because patterns are smart, not because the attacks are impossible.
