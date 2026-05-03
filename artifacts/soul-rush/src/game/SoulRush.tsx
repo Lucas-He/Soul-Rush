@@ -72,79 +72,79 @@ const BOSS_TIPS = [
   },
   {
     name: 'Mawbyte the Hungry Code',
-    tip: 'Bit Storm: second wave fires from BOTH opposite edges simultaneously — hug center. Error Sweep: second sweep reverses direction — predict it. Devour Lane: the SAFE stripe CHANGES halfway through on the second use — stay ready to move.',
+    tip: 'Bit Storm: second wave fires from BOTH opposite edges simultaneously — hug center. Error Sweep: second sweep reverses direction — predict it. Devour Lane: the SAFE stripe CHANGES halfway through on the second use — stay ready to move. Bone Sweep: one safe lane — find and hold it before the sweep begins. Blaster Volley: spread away from center then collapse inward between bursts.',
   },
   {
     name: 'Seraph Null',
-    tip: 'Halo Spiral: reverses rotation once mid-wave — counter-orbit when it flips. Judgment Beams: second appearance has 2 fakes; only the bright amber ones fire. Wing Barrage: second use fires volleys from all 4 corners in rotating order — stay center.',
+    tip: 'Halo Spiral: reverses rotation once mid-wave — counter-orbit when it flips. Judgment Beams: second appearance has 2 fakes; only the bright amber ones fire. Wing Barrage: second use fires volleys from all 4 corners in rotating order — stay center. Karma Field: zones bloom outward — move to the earliest-closing gap. Sans Barrage: unpredictable multi-angle fire — keep moving in wide arcs.',
   },
   {
     name: 'Orryx the Clock Eater',
-    tip: 'Gear Maze: gears bounce off walls on second use — track them. Clock Slash: second use adds a third hand. Time Freeze: on unfreeze, bullets SPLIT — give yourself double the room to maneuver.',
+    tip: 'Gear Maze: gears bounce off walls on second use — track them. Clock Slash: second use adds a third hand. Time Freeze: on unfreeze, bullets SPLIT — give yourself double the room to maneuver. Bone Columns: vertical bone columns — identify the column gap during the warning, then hold it. Blaster Volley: rapid spread shots — strafe laterally to weave through.',
   },
   {
     name: 'The Unreadable King',
-    tip: 'Impossible Script: second use alternates dense columns and wide shots — memorize the column positions. Crown Collapse: streams come from 4 corners on the second run. Soul Split: fake soul mirrors your movement — move opposite to mislead its aim.',
+    tip: 'Impossible Script: second use alternates dense columns and wide shots — memorize the column positions. Crown Collapse: streams come from 4 corners on the second run. Soul Split: fake soul mirrors your movement — move opposite to mislead its aim. Bone Sweep: a single sweeping bone wall — stay ahead of the sweep, do not trail it. Karma Field: expanding safe-zone shrink — commit to a gap early.',
   },
   {
     name: 'Nyxcoil, the Deep Current',
-    tip: 'Current Surge sweeps twice — once right then once left. Stay above center on first pass, below on second. Coil Trap: the gap in the arc is always on the side farthest from the boss. Undertow Pull: sprint AGAINST the pull arrows to stay centered; bullets rain from the pull direction.',
+    tip: 'Current Surge sweeps twice — once right then once left. Stay above center on first pass, below on second. Coil Trap: the gap in the arc is always on the side farthest from the boss. Undertow Pull: sprint AGAINST the pull arrows to stay centered; bullets rain from the pull direction. Sans Barrage: treat it as a reaction drill — do not try to predict, react to each burst.',
   },
   {
     name: 'Marrow Saint',
-    tip: 'Bone Rain aims at where you were 1.5 seconds ago — keep moving in circular patterns. Rib Cage: find the gap BEFORE the walls reach center — it is revealed during the warning. Halo Curse: stay still while bullets orbit you (safe zone), then sprint hard the moment they erupt outward.',
+    tip: 'Bone Rain aims at where you were 1.5 seconds ago — keep moving in circular patterns. Rib Cage: find the gap BEFORE the walls reach center — it is revealed during the warning. Halo Curse: stay still while bullets orbit you (safe zone), then sprint hard the moment they erupt outward. Bone Sweep: the gap lane is always the narrowest-looking one — trust it. Blaster Volley: the volleys fan from center — spiral outward to stay behind the spread.',
   },
   {
     name: 'Luxora, Queen of False Stars',
-    tip: 'Starfall: bright GOLD sparkles are FAKE — only the dim purple ones hurt. Constellation Lines: the safe zones are the triangular gaps between laser lines; identify them in the 1.4s dot-placement phase. False Star: ignore the giant gold star; dodge the small purple eruption that follows it.',
+    tip: 'Starfall: bright GOLD sparkles are FAKE — only the dim purple ones hurt. Constellation Lines: the safe zones are the triangular gaps between laser lines; identify them in the 1.4s dot-placement phase. False Star: ignore the giant gold star; dodge the small purple eruption that follows it. Bone Columns: columns fill from the sides — find the center gap and hold it. Sans Barrage: move constantly; no single position stays safe for more than 0.5 s.',
   },
   {
     name: 'Ruin Engine Omega',
-    tip: 'Piston Crush: the gap is always in the center — rush to center the instant you see the warning. Engine Spin: the 4 arms accelerate; weave inward behind one arm and rotate with it. Overheat zones explode after the flash stops — stay away from any zone that stops flickering.',
+    tip: 'Piston Crush: the gap is always in the center — rush to center the instant you see the warning. Engine Spin: the 4 arms accelerate; weave inward behind one arm and rotate with it. Overheat zones explode after the flash stops — stay away from any zone that stops flickering. Karma Field: the field pulses inward — move to the outer ring first, then step through when it contracts. Blaster Volley: volley spreads from the boss — stay at a 45-degree angle to the firing axis.',
   },
   {
     name: 'Axiom, the End of Rules',
-    tip: 'Rule Rewrite reshapes the box — stay away from the new edges shown in cyan. Axis Collapse: the ONE safe cell is the gap where a warn is missing. Mirror Soul fires toward you — keep the mirror heart on the same side and dodge its shots. Pattern Overload: prioritize the diagonal lasers first. Final Rule replays every boss — the order is Crystal→Bit→Halo→Gear→Script→Surge→Bone→Star→Piston.',
+    tip: 'Rule Rewrite reshapes the box — stay away from the new edges shown in cyan. Axis Collapse: the ONE safe cell is the gap where a warn is missing. Mirror Soul fires toward you — keep the mirror heart on the same side and dodge its shots. Pattern Overload: prioritize the diagonal lasers first. Final Rule replays every boss — the order is Crystal→Bit→Halo→Gear→Script→Surge→Bone→Star→Piston. Bone Sweep: a sweeping bone wall channels through — read the gap marker before it fires. Sans Barrage: during the barrage stay mobile; walls are more dangerous than bullets here.',
   },
   {
     name: 'Vyrial, Moth of Velvet Plague',
-    tip: 'Spore Bloom fires radially from the center — sprint to the arena edge the moment you see the ring warn. In Velvet Swarm keep moving in wide circles so homing spores trail behind you. Plague Garden zones shrink over time but never overlap at the very center — identify your safe tile during the warn and plant yourself there.',
+    tip: 'Spore Bloom fires radially from the center — sprint to the arena edge the moment you see the ring warn. In Velvet Swarm keep moving in wide circles so homing spores trail behind you. Plague Garden zones shrink over time but never overlap at the very center — identify your safe tile during the warn and plant yourself there. Bone Sweep: one unblocked lane exists — move there before the sweep locks in. Karma Field: bloom zones appear at arena corners first — stay away from corners on warn.',
   },
   {
     name: 'Echora, the Masked Choir',
-    tip: 'Silent Beat has a deceptive long silence before a massive radial burst — stay away from arena walls when the music stops. Chrome Hymn lasers track your position at the moment they charge, not when they fire — sidestep AFTER the glow locks. Broken Rhythm alternates fast and slow bursts unpredictably; hug the center and react rather than anticipate.',
+    tip: 'Silent Beat has a deceptive long silence before a massive radial burst — stay away from arena walls when the music stops. Chrome Hymn lasers track your position at the moment they charge, not when they fire — sidestep AFTER the glow locks. Broken Rhythm alternates fast and slow bursts unpredictably; hug the center and react rather than anticipate. Blaster Volley: volleys fire in rapid arcs — dodge inward between arc groups. Sans Barrage: treat each burst independently; the pattern is intentionally irregular.',
   },
   {
     name: 'Vantus, the Gravity Rex',
-    tip: 'In Gravity Pull sprint perpendicular to the pull direction to maintain position rather than fighting it head-on. Orbit Break bullets lock their path when spawned and do not adjust mid-flight — strafe through the gap in the formation. For Collapse Ring the safe zone is the very edge of the arena; move there immediately on warn.',
+    tip: 'In Gravity Pull sprint perpendicular to the pull direction to maintain position rather than fighting it head-on. Orbit Break bullets lock their path when spawned and do not adjust mid-flight — strafe through the gap in the formation. For Collapse Ring the safe zone is the very edge of the arena; move there immediately on warn. Bone Columns: columns align to a fixed grid — the gap is always at the same horizontal band. Karma Field: safe bubbles shrink fast; identify your escape tile during the warn phase.',
   },
   {
     name: 'Caloric, the Last Candle',
-    tip: 'Wax Flood rises from the bottom — get to the top quarter early and stay there. Blue Flame Lane has exactly one safe strip that does not move during the wave; find it and hold it. Flicker Fakeout: the dim barely-visible candles are the real projectiles; ignore the big bright flame in the center.',
+    tip: 'Wax Flood rises from the bottom — get to the top quarter early and stay there. Blue Flame Lane has exactly one safe strip that does not move during the wave; find it and hold it. Flicker Fakeout: the dim barely-visible candles are the real projectiles; ignore the big bright flame in the center. Bone Sweep: a wax-tinged sweep wall — the gap is always on the same side as the warning flash. Blaster Volley: fire fans from the boss downward; stay high and diagonal to avoid the spread. Bone Columns: column gaps align diagonally — thread through before wax seals them.',
   },
   {
     name: 'Zylvira, the Static Widow',
-    tip: 'Web Grid has one open cell per row — the safe cell shifts every 2 seconds, so read the NEXT gap while standing in the current one. VHS Storm fires at where you were exactly 1 second ago; sprint forward into its origin to lap it. Static Mirror reverses direction on its second appearance — prepare to counter-strafe.',
+    tip: 'Web Grid has one open cell per row — the safe cell shifts every 2 seconds, so read the NEXT gap while standing in the current one. VHS Storm fires at where you were exactly 1 second ago; sprint forward into its origin to lap it. Static Mirror reverses direction on its second appearance — prepare to counter-strafe. Bone Sweep: the sweep fires through the web — stay in a web-gap lane. Blaster Volley: static-charged volleys — the burst follows the last web grid pattern. Karma Field: field expands then snaps shut; exit the radius the moment the snap warn flashes. Sans Barrage: random interference burst — hug the arena center and keep weaving.',
   },
   {
     name: 'Atlas Minor',
-    tip: "Meteor Lesson aims at your position from 0.5 s ago — keep moving and let it chase your past self. Tiny Apocalypse overlaps three separate wave patterns; the center column is usually clear of all three simultaneously. Planet Spin safe zone is at the 9-o'clock position relative to the boss — rotate with it, do not stand still.",
+    tip: "Meteor Lesson aims at your position from 0.5 s ago — keep moving and let it chase your past self. Tiny Apocalypse overlaps three separate wave patterns; the center column is usually clear of all three simultaneously. Planet Spin safe zone is at the 9-o'clock position relative to the boss — rotate with it, do not stand still. Bone Sweep: a planetary sweep — the gap appears on the opposite side to the boss's lean. Blaster Volley: rock-burst volley fans outward; dodge inward between arms. Bone Columns: asteroid columns crash vertically — find the gap column during the shadow warn. Karma Field: crater ripple zones expand from impact points — identify the landing column and avoid it. Sans Barrage: debris barrage with no set pattern; prioritize staying central and reacting.",
   },
   {
     name: 'Xiu, the Paper Emperor',
-    tip: "Paper Cuts arrive from all four sides in sequence — the order is always Left→Right→Top→Bottom, so dodge inward between each pair. Ink Decree marks areas in red that become instant-kill; the unmarked corridor is always diagonal. Emperor's Letter targets the arena center — vacate it the moment you see the gold seal warn.",
+    tip: "Paper Cuts arrive from all four sides in sequence — the order is always Left→Right→Top→Bottom, so dodge inward between each pair. Ink Decree marks areas in red that become instant-kill; the unmarked corridor is always diagonal. Emperor's Letter targets the arena center — vacate it the moment you see the gold seal warn. Bone Sweep: a blade sweep across the arena — the safe side is shown by the shadow during warn. Blaster Volley: ink volleys radiate from the boss; angle yourself 45 degrees off-axis. Bone Columns: paper column walls drop vertically — the gap column is always at one edge. Sans Barrage: scattered blade storm — stay mobile and avoid clustering near the boss.",
   },
   {
     name: 'Mnemovex, the Archive',
-    tip: 'Memory Replay replicates the bullet pattern from exactly 4 seconds prior — what you dodged then you must dodge again mirrored. Crystal Repeat adds a half-rotation offset to the replay so your muscle memory will betray you; slow down and re-read it. Echo Cage walls close from opposite corners simultaneously — the safe zone is the remaining diagonal gap.',
+    tip: 'Memory Replay replicates the bullet pattern from exactly 4 seconds prior — what you dodged then you must dodge again mirrored. Crystal Repeat adds a half-rotation offset to the replay so your muscle memory will betray you; slow down and re-read it. Echo Cage walls close from opposite corners simultaneously — the safe zone is the remaining diagonal gap. Bone Sweep: memory-echo sweep — the gap persists for longer than other bosses; read it during warn. Blaster Volley: archive-burst volley; the pattern is always the inverse of the prior crystal repeat. Bone Columns: columns fire in ascending order from left to right — step right one column at a time. Karma Field: karma ripple expands from a memory echo point — avoid your own recent positions. Sans Barrage: archived chaos burst — treat it as a memory wipe and react fresh.',
   },
   {
     name: 'Lunara, the Cruel Curtain',
-    tip: 'String Pull forces your movement along a fixed axis for 2 seconds — pre-position yourself at the center of that axis before it activates. Moon Drop targets your last standing position; take one step sideways just before impact. Theater Crush walls close from all sides leaving only a small central bubble — sprint to center immediately and do not move until it opens.',
+    tip: 'String Pull forces your movement along a fixed axis for 2 seconds — pre-position yourself at the center of that axis before it activates. Moon Drop targets your last standing position; take one step sideways just before impact. Theater Crush walls close from all sides leaving only a small central bubble — sprint to center immediately and do not move until it opens. Bone Sweep: lunar sweep — the gap swings from the crescent tip; time your crossing for mid-sweep. Blaster Volley: moonbeam volley spreads in a fan; stay at the edge and weave through the outer gaps. Bone Columns: crescent column drops — the safe column is always the one not highlighted in red. Karma Field: blood-karma bloom; the field contracts toward the center — drift inward with it. Sans Barrage: full moon barrage — hug the arena edges and use circular movement to stay ahead of shots.',
   },
   {
     name: 'Soulvex, the First and Last',
-    tip: 'Boss Memory Chain cycles all 20 bosses in sequence — each sub-pattern lasts 2.5 s and they escalate in speed; treat it as a reflex test not a memorization test. First Mistake is deliberately misleading — the decoy burst is harmless; dodge the thin ring that follows 0.3 s later. Axiom Rewrite remaps the entire arena boundary; ignore your old muscle memory and read the new cyan edges.',
+    tip: 'Boss Memory Chain cycles all 20 bosses in sequence — each sub-pattern lasts 2.5 s and they escalate in speed; treat it as a reflex test not a memorization test. First Mistake is deliberately misleading — the decoy burst is harmless; dodge the thin ring that follows 0.3 s later. Axiom Rewrite remaps the entire arena boundary; ignore your old muscle memory and read the new cyan edges. Bone Sweep: the final sweep wall has a narrower gap than earlier bosses — commit early. Blaster Volley: soul-volley echoes your dodge path; stop moving for 0.3 s before a volley to reset the prediction. Bone Columns: the columns descend in a pattern mirrored from boss 7 — recall Marrow Saint. Karma Field: the karma field is the largest in the game; it still has a safe outer ring — keep to the arena wall. Sans Barrage: the definitive chaos attack — there is no trick, only movement; keep spiraling and survive.',
   },
 ];
 
@@ -349,7 +349,7 @@ const BOSSES: BossConf[] = [
       'ERR_SOUL_DETECTED // CONSUMING...',
       'HUNGRY // HUNGRY // HUNGRY //'
     ],
-    attacks: ['bitStorm', 'errorSweep', 'devourLane', 'bitStorm', 'wingBarrage', 'boneRain'],
+    attacks: ['bitStorm', 'errorSweep', 'devourLane', 'boneSweep', 'wingBarrage', 'sansBarrage'],
     dmg: 18,
     atkDur: 6,
     rewardItemPool: ['candle_ash', 'moth_wing'],
@@ -357,9 +357,9 @@ const BOSSES: BossConf[] = [
       { id: 'mb1', name: 'Bit Storm', description: 'Pixel bullets scatter in square-grid bursts from both sides.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 195, spawnRate: 11, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
       { id: 'mb2', name: 'Error Sweep', description: 'Giant glitch bars sweep across the arena from random sides.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 182, spawnRate: 7, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
       { id: 'mb3', name: 'Devour Lane', description: 'Only one safe lane remains while corruption fills the rest.', duration: 6, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 18, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
-      { id: 'mb4', name: 'Corrupted Download', description: 'Blocks fall in chunky file-download patterns with a moving gap.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 178, spawnRate: 9, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'mb4', name: 'Corrupted Download', description: 'Blocks fall in chunky file-download patterns with a moving gap.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 178, spawnRate: 9, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'boneSweep' },
       { id: 'mb5', name: 'Input Rot', description: 'Fake letters rain down — only bright-red ones deal damage.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 9, damage: 18, arenaEffect: 'none', patternTags: ['rain', 'fake'], execute: 'wingBarrage' },
-      { id: 'mb6', name: 'Cache Bite', description: 'Glitch teeth snap at the positions you occupied a moment ago.', duration: 6, attackType: 'aimed', warningType: 'target', bulletSpeed: 195, spawnRate: 6, damage: 18, arenaEffect: 'none', patternTags: ['aimed', 'memory'], execute: 'boneRain' },
+      { id: 'mb6', name: 'Cache Bite', description: 'Glitch teeth snap at the positions you occupied a moment ago.', duration: 6, attackType: 'aimed', warningType: 'target', bulletSpeed: 195, spawnRate: 6, damage: 18, arenaEffect: 'none', patternTags: ['aimed', 'memory'], execute: 'sansBarrage' },
     ],
   },
   {
@@ -372,7 +372,7 @@ const BOSSES: BossConf[] = [
       'Insufficient. Begin examination.',
       'Your score: failing. Proceed, if you can.'
     ],
-    attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'judgmentBeams', 'mothEclipse', 'ribCage', 'crownCollapse'],
+    attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'blasterVolley', 'mothEclipse', 'ribCage', 'boneSweep'],
     dmg: 20,
     atkDur: 6,
     rewardItemPool: ['wax_seal', 'candle_ash'],
@@ -380,10 +380,10 @@ const BOSSES: BossConf[] = [
       { id: 'sn1', name: 'Halo Spiral', description: 'Halo bullets spiral outward in rotating golden arms.', duration: 6, attackType: 'spiral', warningType: 'ring', bulletSpeed: 135, spawnRate: 7, damage: 20, arenaEffect: 'none', patternTags: ['spiral'], execute: 'haloSpiral' },
       { id: 'sn2', name: 'Judgment Beams', description: 'Diagonal divine beams fire after golden warning lines.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'column'], execute: 'judgmentBeams' },
       { id: 'sn3', name: 'Wing Barrage', description: 'Feather bullets enter from both sides in alternating waves.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 165, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['rain', 'dense'], execute: 'wingBarrage' },
-      { id: 'sn4', name: 'False Judgment', description: 'Fake beam warnings appear — only the brighter beams are real.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'fake'], execute: 'judgmentBeams' },
+      { id: 'sn4', name: 'False Judgment', description: 'Fake beam warnings appear — only the brighter beams are real.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'fake'], execute: 'blasterVolley' },
       { id: 'sn5', name: 'Null Verdict', description: 'Safe circles shrink while halo bullets orbit around them.', duration: 6, attackType: 'ring', warningType: 'ring', bulletSpeed: 82, spawnRate: 1, damage: 20, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
       { id: 'sn6', name: 'Seraphic Cage', description: 'Golden cage bars close inward forcing movement through holy gaps.', duration: 6, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
-      { id: 'sn7', name: 'Broken Halo', description: 'Halo fragments ricochet around the arena like sharp triangle bullets.', duration: 6, attackType: 'radial', warningType: 'ring', bulletSpeed: 165, spawnRate: 12, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
+      { id: 'sn7', name: 'Broken Halo', description: 'Halo fragments ricochet around the arena like sharp triangle bullets.', duration: 6, attackType: 'radial', warningType: 'ring', bulletSpeed: 165, spawnRate: 12, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'boneSweep' },
     ],
   },
   {
@@ -396,7 +396,7 @@ const BOSSES: BossConf[] = [
       'T  i  m  e...  s  l  o  w  s...',
       'You cannot outrun the gears of eternity.'
     ],
-    attacks: ['gearMaze', 'timeFreeze', 'clockSlash', 'timeFreeze', 'gearMaze', 'haloSpiral', 'ribCage', 'boneRain'],
+    attacks: ['gearMaze', 'timeFreeze', 'clockSlash', 'blasterVolley', 'boneColumns', 'haloSpiral', 'ribCage', 'karmaField'],
     dmg: 22,
     atkDur: 7,
     rewardItemPool: ['echo_fragment', 'candle_ash'],
@@ -404,11 +404,11 @@ const BOSSES: BossConf[] = [
       { id: 'or1', name: 'Gear Maze', description: 'Rotating gears move through the arena like crushing mechanical walls.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 95, spawnRate: 7, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
       { id: 'or2', name: 'Time Freeze', description: 'Bullets freeze briefly then suddenly resume at full speed.', duration: 7, attackType: 'freeze', warningType: 'glow', bulletSpeed: 135, spawnRate: 6, damage: 22, arenaEffect: 'freeze', patternTags: ['freeze', 'burst'], execute: 'timeFreeze' },
       { id: 'or3', name: 'Clock Hand Slash', description: 'Giant clock hands rotate across the arena in sweeping arcs.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 3, damage: 22, arenaEffect: 'none', patternTags: ['orbit', 'laser'], execute: 'clockSlash' },
-      { id: 'or4', name: 'Rewind Strike', description: 'Bullets reverse direction after a warning flash.', duration: 7, attackType: 'freeze', warningType: 'glow', bulletSpeed: 145, spawnRate: 6, damage: 22, arenaEffect: 'freeze', patternTags: ['freeze', 'reverse'], execute: 'timeFreeze' },
-      { id: 'or5', name: 'Midnight Loop', description: 'A pattern repeats three times but each loop shifts the safe gap.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 105, spawnRate: 8, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
+      { id: 'or4', name: 'Rewind Strike', description: 'Bullets reverse direction after a warning flash.', duration: 7, attackType: 'freeze', warningType: 'glow', bulletSpeed: 145, spawnRate: 6, damage: 22, arenaEffect: 'freeze', patternTags: ['freeze', 'reverse'], execute: 'blasterVolley' },
+      { id: 'or5', name: 'Midnight Loop', description: 'A pattern repeats three times but each loop shifts the safe gap.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 105, spawnRate: 8, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'boneColumns' },
       { id: 'or6', name: 'Second Hand Spiral', description: 'Thin clock-hand bullets spiral tightly from the center outward.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 140, spawnRate: 7, damage: 22, arenaEffect: 'none', patternTags: ['spiral', 'thin'], execute: 'haloSpiral' },
       { id: 'or7', name: 'Pendulum Crush', description: 'Huge pendulum blades swing from side to side with warning arcs.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 22, arenaEffect: 'none', patternTags: ['wall', 'swing'], execute: 'ribCage' },
-      { id: 'or8', name: 'Time Debt', description: 'Delayed ghost bullets appear where the player stood three seconds ago.', duration: 7, attackType: 'aimed', warningType: 'target', bulletSpeed: 175, spawnRate: 6, damage: 22, arenaEffect: 'none', patternTags: ['aimed', 'memory'], execute: 'boneRain' },
+      { id: 'or8', name: 'Time Debt', description: 'Delayed ghost bullets appear where the player stood three seconds ago.', duration: 7, attackType: 'aimed', warningType: 'target', bulletSpeed: 175, spawnRate: 6, damage: 22, arenaEffect: 'none', patternTags: ['aimed', 'memory'], execute: 'karmaField' },
     ],
   },
   {
@@ -421,7 +421,7 @@ const BOSSES: BossConf[] = [
       'T\u0336H\u0337E\u0338 \u0336E\u0337N\u0338D\u0336 \u0337I\u0338S\u0336 \u0337R\u0338E\u0336A\u0337D\u0338Y\u0336',
       'Y\u0336o\u0337u\u0338 \u0336c\u0337a\u0338n\u0336n\u0337o\u0338t\u0336 \u0337r\u0338e\u0336a\u0337d\u0338 \u0336t\u0337h\u0338i\u0336s\u0337'
     ],
-    attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'errorSweep', 'soulSplit', 'devourLane', 'haloSpiral', 'gearMaze', 'finalPattern'],
+    attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'boneSweep', 'soulSplit', 'boneColumns', 'haloSpiral', 'gearMaze', 'finalPattern'],
     dmg: 26,
     atkDur: 8,
     rewardItemPool: ['ink_blot', 'candle_ash'],
@@ -429,9 +429,9 @@ const BOSSES: BossConf[] = [
       { id: 'uk1', name: 'Impossible Script', description: 'Strange symbols rain from above in curved streams that defy logic.', duration: 8, attackType: 'column', warningType: 'column', bulletSpeed: 175, spawnRate: 11, damage: 26, arenaEffect: 'none', patternTags: ['column', 'dense'], execute: 'impossibleScript' },
       { id: 'uk2', name: 'Crown Collapse', description: 'Crown-shaped bullet rings close inward from every direction.', duration: 8, attackType: 'radial', warningType: 'ring', bulletSpeed: 155, spawnRate: 9, damage: 26, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
       { id: 'uk3', name: 'Reality Tear', description: 'Red cracks split the arena into temporary danger zones.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 26, arenaEffect: 'none', patternTags: ['laser', 'split'], execute: 'realityTear' },
-      { id: 'uk4', name: 'Broken Sentence', description: 'Word-like walls slide across the arena with missing-letter gaps.', duration: 8, attackType: 'sweep', warningType: 'side', bulletSpeed: 185, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['sweep', 'gap'], execute: 'errorSweep' },
+      { id: 'uk4', name: 'Broken Sentence', description: 'Word-like walls slide across the arena with missing-letter gaps.', duration: 8, attackType: 'sweep', warningType: 'side', bulletSpeed: 185, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['sweep', 'gap'], execute: 'boneSweep' },
       { id: 'uk5', name: 'Crown of Static', description: 'Rotating symbol rings overlap with falling crown shards simultaneously.', duration: 8, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 160, spawnRate: 6, damage: 26, arenaEffect: 'none', patternTags: ['mirror', 'combo'], execute: 'soulSplit' },
-      { id: 'uk6', name: 'Lost Paragraph', description: 'Text blocks cover parts of the arena — only the blank lane is safe.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 26, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
+      { id: 'uk6', name: 'Lost Paragraph', description: 'Text blocks cover parts of the arena — only the blank lane is safe.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 26, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'boneColumns' },
       { id: 'uk7', name: 'Glyph Spiral', description: 'Glyph bullets spiral outward from four corners simultaneously.', duration: 8, attackType: 'spiral', warningType: 'ring', bulletSpeed: 145, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['spiral', 'corner'], execute: 'haloSpiral' },
       { id: 'uk8', name: 'Unreadable Maze', description: 'Moving text walls create a shifting maze with no clear pattern.', duration: 8, attackType: 'maze', warningType: 'center', bulletSpeed: 105, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['maze'], execute: 'gearMaze' },
       { id: 'uk9', name: 'Royal Redaction', description: 'Black redaction bars cover safe paths before the final narrow escape.', duration: 8, attackType: 'chaos', warningType: 'all', bulletSpeed: 155, spawnRate: 10, damage: 26, arenaEffect: 'none', patternTags: ['chaos'], execute: 'finalPattern' },
@@ -447,7 +447,7 @@ const BOSSES: BossConf[] = [
       '...',
       'The current takes everything in the end.'
     ],
-    attacks: ['currentSurge', 'coilTrap', 'undertowPull', 'shatterPulse', 'coilTrap', 'starfall', 'ribCage', 'currentSurge', 'undertowPull', 'screenTear'],
+    attacks: ['currentSurge', 'coilTrap', 'undertowPull', 'shatterPulse', 'karmaField', 'starfall', 'ribCage', 'boneSweep', 'undertowPull', 'screenTear'],
     dmg: 28,
     atkDur: 7,
     rewardItemPool: ['moonthread', 'candle_ash'],
@@ -456,10 +456,10 @@ const BOSSES: BossConf[] = [
       { id: 'nx2', name: 'Coil Trap', description: 'Curved electric trails form temporary cages that tighten inward.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 105, spawnRate: 7, damage: 28, arenaEffect: 'none', patternTags: ['spiral', 'coil'], execute: 'coilTrap' },
       { id: 'nx3', name: 'Undertow Pull', description: 'Water current pulls the player sideways while bullets drift opposite.', duration: 7, attackType: 'pull', warningType: 'arrow', bulletSpeed: 155, spawnRate: 6, damage: 28, arenaEffect: 'current', patternTags: ['pull', 'flow'], execute: 'undertowPull' },
       { id: 'nx4', name: 'Deep Shock', description: 'Electric circles expand from ripple warning points across the arena.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 120, spawnRate: 2, damage: 28, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'shatterPulse' },
-      { id: 'nx5', name: 'Whirlpool Circuit', description: 'A coiling spiral pulls inward while sparks fire outward simultaneously.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 115, spawnRate: 8, damage: 28, arenaEffect: 'none', patternTags: ['spiral', 'pull'], execute: 'coilTrap' },
+      { id: 'nx5', name: 'Whirlpool Circuit', description: 'A coiling spiral pulls inward while sparks fire outward simultaneously.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 115, spawnRate: 8, damage: 28, arenaEffect: 'none', patternTags: ['spiral', 'pull'], execute: 'karmaField' },
       { id: 'nx6', name: 'Abyss Spark', description: 'Tiny sparks hide in the arena then flash into full lightning bolts.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 10, damage: 28, arenaEffect: 'none', patternTags: ['rain', 'fake'], execute: 'starfall' },
       { id: 'nx7', name: 'Tide Cage', description: 'Water walls rise and fall changing the usable arena space.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 28, arenaEffect: 'current', patternTags: ['wall', 'tide'], execute: 'ribCage' },
-      { id: 'nx8', name: 'Voltage Riptide', description: 'Fast electric streams rush diagonally across the arena with little warning.', duration: 7, attackType: 'sweep', warningType: 'side', bulletSpeed: 190, spawnRate: 9, damage: 28, arenaEffect: 'current', patternTags: ['sweep', 'fast'], execute: 'currentSurge' },
+      { id: 'nx8', name: 'Voltage Riptide', description: 'Fast electric streams rush diagonally across the arena with little warning.', duration: 7, attackType: 'sweep', warningType: 'side', bulletSpeed: 190, spawnRate: 9, damage: 28, arenaEffect: 'current', patternTags: ['sweep', 'fast'], execute: 'boneSweep' },
       { id: 'nx9', name: 'Serpent Loop', description: 'The eel body loops through the arena as a relentless moving hazard.', duration: 7, attackType: 'pull', warningType: 'arrow', bulletSpeed: 162, spawnRate: 6, damage: 28, arenaEffect: 'current', patternTags: ['pull', 'loop'], execute: 'undertowPull' },
       { id: 'nx10', name: 'Blackwater Flash', description: 'The arena darkens then lightning reveals all danger zones for a split second.', duration: 7, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 28, arenaEffect: 'none', patternTags: ['laser', 'flash'], execute: 'screenTear' },
     ],
@@ -474,7 +474,7 @@ const BOSSES: BossConf[] = [
       'Rest now. This will only take a moment.',
       'Your bones will remember this lesson.'
     ],
-    attacks: ['boneRain', 'ribCage', 'haloCurse', 'shatterPulse', 'ribCage', 'haloSpiral', 'falseStar', 'inkDecree', 'webGrid', 'overheat', 'engineSpin'],
+    attacks: ['boneRain', 'ribCage', 'haloCurse', 'shatterPulse', 'blasterVolley', 'haloSpiral', 'falseStar', 'inkDecree', 'webGrid', 'overheat', 'engineSpin'],
     dmg: 30,
     atkDur: 7,
     rewardItemPool: ['blood_vial', 'candle_ash'],
@@ -483,7 +483,7 @@ const BOSSES: BossConf[] = [
       { id: 'ms2', name: 'Rib Cage', description: 'Bone walls close inward from both sides with a single tight gap.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
       { id: 'ms3', name: 'Halo Curse', description: 'Cursed halo ring closes from all sides with one gap.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 88, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'haloCurse' },
       { id: 'ms4', name: 'Grave Hymn', description: 'Bone bullets pulse outward in rhythm waves from the center.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 120, spawnRate: 2, damage: 30, arenaEffect: 'none', patternTags: ['ring', 'rhythm'], execute: 'shatterPulse' },
-      { id: 'ms5', name: "Saint's Ossuary", description: 'Bone walls and orbiting bullets create a layered moving cage.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'combo'], execute: 'ribCage' },
+      { id: 'ms5', name: "Saint's Ossuary", description: 'Bone walls and orbiting bullets create a layered moving cage.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'combo'], execute: 'blasterVolley' },
       { id: 'ms6', name: 'Marrow Spiral', description: 'Long bone spears spiral outward from the boss in tight arms.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 148, spawnRate: 8, damage: 30, arenaEffect: 'none', patternTags: ['spiral', 'spear'], execute: 'haloSpiral' },
       { id: 'ms7', name: 'Skull Lanterns', description: 'Skull bullets float slowly then fire bursts of small teeth.', duration: 7, attackType: 'decoy', warningType: 'glow', bulletSpeed: 145, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['decoy', 'burst'], execute: 'falseStar' },
       { id: 'ms8', name: 'Tomb Step', description: 'The floor lights up in stepping-stone danger tiles in sequence.', duration: 7, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 30, arenaEffect: 'none', patternTags: ['zone', 'rhythm'], execute: 'inkDecree' },
@@ -502,7 +502,7 @@ const BOSSES: BossConf[] = [
       'Can you tell which stars are real, little soul?',
       'Beauty is the oldest deception.'
     ],
-    attacks: ['starfall', 'constellationLines', 'falseStar', 'crownCollapse', 'devourLane', 'meteorLesson', 'soulSplit', 'plagueGarden', 'echoTrail', 'axisCollapse', 'webGrid', 'mothEclipse'],
+    attacks: ['starfall', 'constellationLines', 'falseStar', 'sansBarrage', 'boneSweep', 'meteorLesson', 'soulSplit', 'plagueGarden', 'echoTrail', 'axisCollapse', 'webGrid', 'mothEclipse'],
     dmg: 32,
     atkDur: 7,
     rewardItemPool: ['wax_seal', 'candle_ash'],
@@ -510,8 +510,8 @@ const BOSSES: BossConf[] = [
       { id: 'lx1', name: 'Starfall', description: 'Stars fall with sparkle warning markers in staggered dense rain.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 9, damage: 32, arenaEffect: 'none', patternTags: ['rain', 'star'], execute: 'starfall' },
       { id: 'lx2', name: 'Constellation Lines', description: 'Stars connect into laser lines spanning the arena.', duration: 7, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 7, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
       { id: 'lx3', name: 'False Star', description: 'Dim fake stars appear beside bright real hazards — read carefully.', duration: 7, attackType: 'decoy', warningType: 'glow', bulletSpeed: 145, spawnRate: 1, damage: 32, arenaEffect: 'none', patternTags: ['decoy'], execute: 'falseStar' },
-      { id: 'lx4', name: 'Supernova Waltz', description: 'Large stars explode into smaller bullets in circular rotating patterns.', duration: 7, attackType: 'radial', warningType: 'ring', bulletSpeed: 158, spawnRate: 10, damage: 32, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
-      { id: 'lx5', name: 'Royal Eclipse', description: 'Arena darkens — only the real hazards glow clearly.', duration: 7, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'dark'], execute: 'devourLane' },
+      { id: 'lx4', name: 'Supernova Waltz', description: 'Large stars explode into smaller bullets in circular rotating patterns.', duration: 7, attackType: 'radial', warningType: 'ring', bulletSpeed: 158, spawnRate: 10, damage: 32, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'sansBarrage' },
+      { id: 'lx5', name: 'Royal Eclipse', description: 'Arena darkens — only the real hazards glow clearly.', duration: 7, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'dark'], execute: 'boneSweep' },
       { id: 'lx6', name: 'Meteor Crown', description: 'Crown-shaped meteors fall in rotating arcs after warning flashes.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 6, damage: 32, arenaEffect: 'none', patternTags: ['rain', 'large'], execute: 'meteorLesson' },
       { id: 'lx7', name: 'Astral Mirror', description: 'Star bullets mirror the player\'s vertical position precisely.', duration: 7, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 162, spawnRate: 6, damage: 32, arenaEffect: 'none', patternTags: ['mirror', 'aimed'], execute: 'soulSplit' },
       { id: 'lx8', name: 'Nebula Bloom', description: 'Slow nebula clouds expand and deny space in the arena.', duration: 7, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 32, arenaEffect: 'none', patternTags: ['zone', 'slow'], execute: 'plagueGarden' },
@@ -531,7 +531,7 @@ const BOSSES: BossConf[] = [
       'INITIATING SOUL PROCESSING PROTOCOL.',
       'RESISTANCE IS MECHANICAL NOISE.'
     ],
-    attacks: ['pistonCrush', 'engineSpin', 'overheat', 'centerCrush', 'tinyApocalypse', 'devourLane', 'gearMaze', 'crystalRain', 'ribCage', 'waxFlood', 'webGrid', 'falseStar', 'finalRule'],
+    attacks: ['pistonCrush', 'engineSpin', 'overheat', 'centerCrush', 'tinyApocalypse', 'devourLane', 'gearMaze', 'sansBarrage', 'boneColumns', 'waxFlood', 'webGrid', 'falseStar', 'finalRule'],
     dmg: 34,
     atkDur: 8,
     rewardItemPool: ['crater_core', 'candle_ash'],
@@ -543,8 +543,8 @@ const BOSSES: BossConf[] = [
       { id: 're5', name: 'Meltdown Protocol', description: 'Pistons, heat tiles, and spin arms activate in timed bursts simultaneously.', duration: 8, attackType: 'combo', warningType: 'ring', bulletSpeed: 138, spawnRate: 9, damage: 34, arenaEffect: 'none', patternTags: ['combo', 'multi'], execute: 'tinyApocalypse' },
       { id: 're6', name: 'Furnace Lane', description: 'Fire vents leave only one safe lane that shifts every few seconds.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 34, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
       { id: 're7', name: 'Cog Barrage', description: 'Gear bullets roll across the arena and bounce off the walls.', duration: 8, attackType: 'maze', warningType: 'center', bulletSpeed: 112, spawnRate: 9, damage: 34, arenaEffect: 'none', patternTags: ['maze', 'bounce'], execute: 'gearMaze' },
-      { id: 're8', name: 'Rust Storm', description: 'Rust flakes rain slowly then suddenly accelerate to full speed.', duration: 8, attackType: 'rain', warningType: 'top', bulletSpeed: 195, spawnRate: 13, damage: 34, arenaEffect: 'none', patternTags: ['rain', 'accel'], execute: 'crystalRain' },
-      { id: 're9', name: 'Hydraulic Snap', description: 'Mechanical jaws snap shut around marked zones after warnings.', duration: 8, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 34, arenaEffect: 'none', patternTags: ['wall', 'snap'], execute: 'ribCage' },
+      { id: 're8', name: 'Rust Storm', description: 'Rust flakes rain slowly then suddenly accelerate to full speed.', duration: 8, attackType: 'rain', warningType: 'top', bulletSpeed: 195, spawnRate: 13, damage: 34, arenaEffect: 'none', patternTags: ['rain', 'accel'], execute: 'sansBarrage' },
+      { id: 're9', name: 'Hydraulic Snap', description: 'Mechanical jaws snap shut around marked zones after warnings.', duration: 8, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 34, arenaEffect: 'none', patternTags: ['wall', 'snap'], execute: 'boneColumns' },
       { id: 're10', name: 'Core Vent', description: 'Steam clouds flood the arena blocking vision before bullets emerge.', duration: 8, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 34, arenaEffect: 'none', patternTags: ['zone', 'blind'], execute: 'waxFlood' },
       { id: 're11', name: 'Redline Grid', description: 'Red machine lasers form a shifting grid of death.', duration: 8, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 5, damage: 34, arenaEffect: 'none', patternTags: ['laser', 'grid'], execute: 'webGrid' },
       { id: 're12', name: 'Shutdown Fakeout', description: 'The screen goes quiet then emergency hazards restart suddenly.', duration: 8, attackType: 'decoy', warningType: 'glow', bulletSpeed: 185, spawnRate: 1, damage: 34, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'falseStar' },
@@ -561,7 +561,7 @@ const BOSSES: BossConf[] = [
       'Rules existed. They have been read.',
       'Now they end.'
     ],
-    attacks: ['ruleRewrite', 'axisCollapse', 'mirrorSoul', 'ruleRewrite', 'patternOverload', 'devourLane', 'haloSpiral', 'constellationLines', 'falseStar', 'tinyApocalypse', 'timeFreeze', 'collapseRing', 'falseStar', 'finalRule'],
+    attacks: ['ruleRewrite', 'axisCollapse', 'mirrorSoul', 'ruleRewrite', 'patternOverload', 'karmaField', 'haloSpiral', 'constellationLines', 'blasterVolley', 'tinyApocalypse', 'timeFreeze', 'collapseRing', 'sansBarrage', 'finalRule'],
     dmg: 38,
     atkDur: 9,
     rewardItemPool: ['memory_stone', 'blood_vial'],
@@ -571,14 +571,14 @@ const BOSSES: BossConf[] = [
       { id: 'ax3', name: 'Mirror Soul', description: 'A fake soul mirrors movement and damages on contact.', duration: 9, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 162, spawnRate: 5, damage: 38, arenaEffect: 'none', patternTags: ['mirror'], execute: 'mirrorSoul' },
       { id: 'ax4', name: 'Rule Stack', description: 'Arena shape changes while lasers fire through the new geometry.', duration: 9, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'rewrite', patternTags: ['rewrite', 'combo'], execute: 'ruleRewrite' },
       { id: 'ax5', name: 'Undefined Behavior', description: 'Several rules shift at once with warning icons — prepare for anything.', duration: 9, attackType: 'chaos', warningType: 'all', bulletSpeed: 155, spawnRate: 12, damage: 38, arenaEffect: 'none', patternTags: ['chaos'], execute: 'patternOverload' },
-      { id: 'ax6', name: 'Null Coordinate', description: 'Parts of the arena lose coordinates and become void zones.', duration: 9, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'void'], execute: 'devourLane' },
+      { id: 'ax6', name: 'Null Coordinate', description: 'Parts of the arena lose coordinates and become void zones.', duration: 9, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'void'], execute: 'karmaField' },
       { id: 'ax7', name: 'Logic Spiral', description: 'Mathematical symbols spiral outward in alternating clockwise patterns.', duration: 9, attackType: 'spiral', warningType: 'ring', bulletSpeed: 148, spawnRate: 8, damage: 38, arenaEffect: 'none', patternTags: ['spiral'], execute: 'haloSpiral' },
       { id: 'ax8', name: 'Broken Equation', description: 'Equation fragments fall then rearrange into laser walls.', duration: 9, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 7, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
-      { id: 'ax9', name: 'False Safe Zone', description: 'Several safe zones appear — only one matches the correct rule.', duration: 9, attackType: 'decoy', warningType: 'glow', bulletSpeed: 155, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'falseStar' },
+      { id: 'ax9', name: 'False Safe Zone', description: 'Several safe zones appear — only one matches the correct rule.', duration: 9, attackType: 'decoy', warningType: 'glow', bulletSpeed: 155, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'blasterVolley' },
       { id: 'ax10', name: 'Geometry Collapse', description: 'Triangle, square, and circle hazards collapse toward the center.', duration: 9, attackType: 'combo', warningType: 'ring', bulletSpeed: 142, spawnRate: 9, damage: 38, arenaEffect: 'none', patternTags: ['combo', 'multi'], execute: 'tinyApocalypse' },
       { id: 'ax11', name: 'Input Paradox', description: 'Movement becomes delayed after a countdown warning — plan ahead.', duration: 9, attackType: 'freeze', warningType: 'glow', bulletSpeed: 128, spawnRate: 5, damage: 38, arenaEffect: 'freeze', patternTags: ['freeze', 'delay'], execute: 'timeFreeze' },
       { id: 'ax12', name: 'Axiom Cage', description: 'A geometric cage ring rotates around the player with a single gap.', duration: 9, attackType: 'ring', warningType: 'ring', bulletSpeed: 78, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'collapseRing' },
-      { id: 'ax13', name: 'End of Pattern', description: 'A predictable pattern suddenly stops — react to the silence.', duration: 9, attackType: 'decoy', warningType: 'glow', bulletSpeed: 178, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'falseStar' },
+      { id: 'ax13', name: 'End of Pattern', description: 'A predictable pattern suddenly stops — react to the silence.', duration: 9, attackType: 'decoy', warningType: 'glow', bulletSpeed: 178, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'sansBarrage' },
       { id: 'ax14', name: 'Rule Zero', description: 'The arena rapidly cycles through all previous rule changes in a final test.', duration: 9, attackType: 'chaos', warningType: 'all', bulletSpeed: 172, spawnRate: 16, damage: 38, arenaEffect: 'rewrite', patternTags: ['chaos'], execute: 'finalRule' },
     ],
   },
@@ -592,7 +592,7 @@ const BOSSES: BossConf[] = [
     design: 'Moth form; wings drip iridescent spores; antennae pulse neon green.',
     arenaModifier: 'Spore clouds obscure edge visibility.',
     dialog: ['Your air tastes like rot already.', 'Bloom, little garden.'],
-    attacks: ['sporeBloom', 'velvetSwarm', 'plagueGarden', 'velvetSwarm', 'plagueGarden', 'sporeBloom', 'mothEclipse', 'feverRings', 'velvetSwarm', 'plagueCrown', 'sporeBloom', 'plagueGarden', 'feverRings', 'plagueCrown', 'sporeBloom'],
+    attacks: ['sporeBloom', 'velvetSwarm', 'plagueGarden', 'velvetSwarm', 'plagueGarden', 'sporeBloom', 'mothEclipse', 'feverRings', 'boneSweep', 'plagueCrown', 'sansBarrage', 'boneColumns', 'feverRings', 'plagueCrown', 'blasterVolley'],
     dmg: 20, atkDur: 8,
     rewardItemPool: ['moth_wing', 'velvet_spore'],
     waves: [
@@ -604,13 +604,13 @@ const BOSSES: BossConf[] = [
       { id: 'v6', name: 'Toxic Waltz', description: 'Spore clouds rotate in pairs through the arena.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 104, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
       { id: 'v7', name: 'Moth Eclipse', description: 'Full-arena spore ring contracts with one escape gap.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 82, spawnRate: 1, damage: 20, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
       { id: 'v8', name: 'Fever Rings', description: 'Three expanding concentric spore rings pulse outward.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 97, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
-      { id: 'v9', name: 'Velvet Veil', description: 'A homing veil of spores hides the bullet paths from view.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 132, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing'], execute: 'velvetSwarm' },
+      { id: 'v9', name: 'Velvet Veil', description: 'A homing veil of spores hides the bullet paths from view.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 132, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing'], execute: 'boneSweep' },
       { id: 'v10', name: 'Antidote Fakeout', description: 'Glowing safe icons appear but only one is real — avoid the fakes.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 148, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
-      { id: 'v11', name: 'Green Cathedral', description: 'Poison pillars form walls with shifting gaps.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 106, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
-      { id: 'v12', name: 'Rotting Petals', description: 'Petal-shaped zone clusters split and spread across the arena.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'plague', patternTags: ['zone'], execute: 'plagueGarden' },
+      { id: 'v11', name: 'Green Cathedral', description: 'Poison pillars form walls with shifting gaps.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 106, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sansBarrage' },
+      { id: 'v12', name: 'Rotting Petals', description: 'Petal-shaped zone clusters split and spread across the arena.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'plague', patternTags: ['zone'], execute: 'boneColumns' },
       { id: 'v13', name: 'Spore Spiral', description: 'Spores spiral outward in tight arms with narrowing gaps.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 108, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
       { id: 'v14', name: 'Plague Crown', description: 'Corner spore eruptions fire bursts that spread to center.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 152, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
-      { id: 'v15', name: 'Final Bloom', description: 'Maximum spore radial finale — center erupts.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 112, spawnRate: 10, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
+      { id: 'v15', name: 'Final Bloom', description: 'Maximum spore radial finale — center erupts.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 112, spawnRate: 10, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'blasterVolley' },
     ],
   },
   {
@@ -622,7 +622,7 @@ const BOSSES: BossConf[] = [
     design: 'Conductor figure; wears a cracked mask; baton drips sound waves.',
     arenaModifier: 'Reverb pulses distort bullet trails briefly.',
     dialog: ['The choir will drown your heartbeat.', 'Sing. Or be silenced.'],
-    attacks: ['soundBars', 'choirSplit', 'silentBeat', 'crescendoCrush', 'doubleTempo', 'soundBars', 'choirSplit', 'silentBeat', 'crescendoCrush', 'soundBars', 'silentBeat', 'choirSplit', 'silentBeat', 'doubleTempo', 'soundBars', 'silentBeat'],
+    attacks: ['soundBars', 'choirSplit', 'silentBeat', 'crescendoCrush', 'doubleTempo', 'soundBars', 'choirSplit', 'silentBeat', 'crescendoCrush', 'karmaField', 'boneSweep', 'blasterVolley', 'boneColumns', 'doubleTempo', 'sansBarrage', 'silentBeat'],
     dmg: 20, atkDur: 8,
     rewardItemPool: ['echo_fragment', 'choir_mask'],
     waves: [
@@ -635,12 +635,12 @@ const BOSSES: BossConf[] = [
       { id: 'e7', name: 'Mask Canon', description: 'Repeating musical canon — burst fires again after a short delay.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 166, spawnRate: 22, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
       { id: 'e8', name: 'Broken Rhythm', description: 'The beat intentionally skips — bullets fire on the off-beat.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 185, spawnRate: 40, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
       { id: 'e9', name: 'Echo Measure', description: 'Each attack repeats as a faded echo moments later.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'crescendoCrush' },
-      { id: 'e10', name: 'Red Note Rain', description: 'Red music notes fall in rhythmic columns from above.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
-      { id: 'e11', name: 'Syncopation Trap', description: 'Safe zones only appear on the off-beats of the rhythm pattern.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 185, spawnRate: 40, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
-      { id: 'e12', name: 'Chrome Hymn', description: 'Chrome laser beams sweep in rhythm from alternating corners.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 171, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
-      { id: 'e13', name: 'Rest Note Fakeout', description: 'A pause appears safe — but hidden bullets fire in the silence.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 185, spawnRate: 40, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
+      { id: 'e10', name: 'Red Note Rain', description: 'Red music notes fall in rhythmic columns from above.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'karmaField' },
+      { id: 'e11', name: 'Syncopation Trap', description: 'Safe zones only appear on the off-beats of the rhythm pattern.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 185, spawnRate: 40, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'boneSweep' },
+      { id: 'e12', name: 'Chrome Hymn', description: 'Chrome laser beams sweep in rhythm from alternating corners.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 171, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'blasterVolley' },
+      { id: 'e13', name: 'Rest Note Fakeout', description: 'A pause appears safe — but hidden bullets fire in the silence.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 185, spawnRate: 40, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'boneColumns' },
       { id: 'e14', name: 'Double Tempo', description: 'Two laser sweeps fire back to back with tiny recovery windows.', duration: 6, attackType: 'laser', warningType: 'multi', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'multi'], execute: 'doubleTempo' },
-      { id: 'e15', name: 'Choir Wall', description: 'Choir masks form walls while singing beams fire between the gaps.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 7, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+      { id: 'e15', name: 'Choir Wall', description: 'Choir masks form walls while singing beams fire between the gaps.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 7, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'sansBarrage' },
       { id: 'e16', name: 'Final Chord', description: 'A massive layered chord fires every active attack pattern at once.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 188, spawnRate: 44, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
     ],
   },
@@ -653,7 +653,7 @@ const BOSSES: BossConf[] = [
     design: 'Massive purple serpent; orbiting debris rings; empty eyes like event horizons.',
     arenaModifier: 'Bullet paths arc toward center gravitational well.',
     dialog: ['Gravity is the only honest force.', 'All things collapse. Eventually.'],
-    attacks: ['gravityPull', 'orbitBreak', 'collapseRing', 'gravityPull', 'gravityPull', 'orbitBreak', 'collapseRing', 'gravityPull', 'centerCrush', 'collapseRing', 'orbitBreak', 'gravityPull', 'centerCrush', 'orbitBreak', 'gravityPull', 'collapseRing', 'centerCrush'],
+    attacks: ['gravityPull', 'orbitBreak', 'collapseRing', 'gravityPull', 'boneSweep', 'orbitBreak', 'collapseRing', 'gravityPull', 'centerCrush', 'blasterVolley', 'boneColumns', 'gravityPull', 'centerCrush', 'karmaField', 'gravityPull', 'collapseRing', 'sansBarrage'],
     dmg: 20, atkDur: 9,
     rewardItemPool: ['gravity_lens', 'orbit_stone'],
     waves: [
@@ -661,19 +661,19 @@ const BOSSES: BossConf[] = [
       { id: 'va2', name: 'Orbiting Teeth', description: 'Bullet teeth orbit the center before launching outward in all directions.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 202, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'orbitBreak' },
       { id: 'va3', name: 'Collapse Ring', description: 'Ring shrinks inward from the edges with one gap to survive.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 77, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'collapseRing' },
       { id: 'va4', name: 'Gravity Flip', description: 'Gravity reverses — bullets that curved inward now curve outward.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 86, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'reverse'], execute: 'gravityPull' },
-      { id: 'va5', name: 'Royal Singularity', description: 'Multiple gravity wells appear and arc bullets into overlapping paths.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 88, spawnRate: 8, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'multi'], execute: 'gravityPull' },
+      { id: 'va5', name: 'Royal Singularity', description: 'Multiple gravity wells appear and arc bullets into overlapping paths.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 88, spawnRate: 8, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'multi'], execute: 'boneSweep' },
       { id: 'va6', name: 'Crown Well', description: 'Crown-shaped black holes pull bullets inward in a spiral.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 206, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
       { id: 'va7', name: 'Heavy Step', description: 'Gravity increases suddenly — movement slows and danger zones appear on the floor.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 80, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
       { id: 'va8', name: 'Orbit Break', description: 'Debris ring holds then erupts into a scattered bullet storm.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 90, spawnRate: 8, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
       { id: 'va9', name: 'Dark Matter Rain', description: 'Heavy bullets fall in curved paths — gravity bends their trajectories.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
-      { id: 'va10', name: 'Tidal Bite', description: 'Gravity waves push the player toward hazard zones repeatedly.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
-      { id: 'va11', name: 'Center Crush', description: 'All four pistons close to center simultaneously.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va10', name: 'Tidal Bite', description: 'Gravity waves push the player toward hazard zones repeatedly.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'blasterVolley' },
+      { id: 'va11', name: 'Center Crush', description: 'All four pistons close to center simultaneously.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'boneColumns' },
       { id: 'va12', name: 'Gravity Maze', description: 'Invisible gravity lanes form a maze that curves bullets unpredictably.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 90, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
       { id: 'va13', name: 'Void Roar', description: 'Boss roars pushing bullets outward then they snap back inward.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
-      { id: 'va14', name: 'Silver Orbit', description: 'Silver bullets orbit the player then collapse inward suddenly.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va14', name: 'Silver Orbit', description: 'Silver bullets orbit the player then collapse inward suddenly.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'karmaField' },
       { id: 'va15', name: 'Falling Crown', description: 'Gravity crowns drop from above with wide warning arcs.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 91, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
       { id: 'va16', name: 'Singularity Cage', description: 'Gravity walls form a cage that rotates around the arena.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 91, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
-      { id: 'va17', name: 'Rex Collapse', description: 'Multiple gravity effects stack in a devastating final sequence.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
+      { id: 'va17', name: 'Rex Collapse', description: 'Multiple gravity effects stack in a devastating final sequence.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'sansBarrage' },
     ],
   },
   {
@@ -685,7 +685,7 @@ const BOSSES: BossConf[] = [
     design: 'Skeletal wax figure; dripping candle crown; flame eyes; trails of amber smoke.',
     arenaModifier: 'Wax drips leave brief ground-burn patches.',
     dialog: ['Every flame has an end.', 'Do not grieve. Burn with me.'],
-    attacks: ['waxDrip', 'funeralMarch', 'funeralMarch', 'lastEmber', 'waxFlood', 'candleTears', 'waxDrip', 'funeralMarch', 'waxFlood', 'lastEmber', 'candleTears', 'waxFlood', 'lastEmber', 'candleTears', 'waxDrip', 'funeralMarch', 'waxDrip', 'funeralMarch'],
+    attacks: ['waxDrip', 'funeralMarch', 'funeralMarch', 'lastEmber', 'waxFlood', 'candleTears', 'waxDrip', 'boneSweep', 'waxFlood', 'lastEmber', 'candleTears', 'blasterVolley', 'boneColumns', 'karmaField', 'sansBarrage', 'funeralMarch', 'waxDrip', 'funeralMarch'],
     dmg: 20, atkDur: 8,
     rewardItemPool: ['wax_seal', 'candle_ash'],
     waves: [
@@ -696,14 +696,14 @@ const BOSSES: BossConf[] = [
       { id: 'c5', name: 'Melting Cathedral', description: 'Wax puddles and flame columns narrow the arena path.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'wax', patternTags: ['zone'], execute: 'waxFlood' },
       { id: 'c6', name: 'Candle Tears', description: 'Tear-shaped arcing bullet streams pour from above.', duration: 5, attackType: 'arc', warningType: 'top', bulletSpeed: 142, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['arc', 'spread'], execute: 'candleTears' },
       { id: 'c7', name: 'Wick Spiral', description: 'Wax bullets follow the burning wick in sinusoidal spirals.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 164, spawnRate: 8, damage: 20, arenaEffect: 'wax', patternTags: ['rain'], execute: 'waxDrip' },
-      { id: 'c8', name: 'Blue Flame Lane', description: 'Blue flames cover all but one safe lane that shifts mid-wave.', duration: 5, attackType: 'wall', warningType: 'top', bulletSpeed: 86, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['wall'], execute: 'funeralMarch' },
+      { id: 'c8', name: 'Blue Flame Lane', description: 'Blue flames cover all but one safe lane that shifts mid-wave.', duration: 5, attackType: 'wall', warningType: 'top', bulletSpeed: 86, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['wall'], execute: 'boneSweep' },
       { id: 'c9', name: 'Wax Flood', description: 'Wax zones flood from the top leaving a small unburned area.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'wax', patternTags: ['zone'], execute: 'waxFlood' },
       { id: 'c10', name: 'Ember Cross', description: 'Cross-shaped ember bursts erupt from marked floor tiles.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 179, spawnRate: 40, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'lastEmber' },
       { id: 'c11', name: 'Flicker Fakeout', description: 'Fake flickers disappear — the real ones burst when you relax.', duration: 5, attackType: 'arc', warningType: 'top', bulletSpeed: 146, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['arc'], execute: 'candleTears' },
-      { id: 'c12', name: 'Smoke Veil', description: 'Smoke clouds fill the arena blocking vision before bullets emerge.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'wax', patternTags: ['zone'], execute: 'waxFlood' },
-      { id: 'c13', name: 'Mourning Bells', description: 'Bell-shaped shockwave rings pulse outward from the boss center.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 181, spawnRate: 44, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'lastEmber' },
-      { id: 'c14', name: 'Lantern Drop', description: 'Lantern bullets fall in arcing streams then burst into sparks on impact.', duration: 5, attackType: 'arc', warningType: 'top', bulletSpeed: 148, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['arc'], execute: 'candleTears' },
-      { id: 'c15', name: 'Cathedral Collapse', description: 'Candle pillar bullets cascade in overlapping diagonal waves.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 166, spawnRate: 9, damage: 20, arenaEffect: 'wax', patternTags: ['rain'], execute: 'waxDrip' },
+      { id: 'c12', name: 'Smoke Veil', description: 'Smoke clouds fill the arena blocking vision before bullets emerge.', duration: 5, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'wax', patternTags: ['zone'], execute: 'blasterVolley' },
+      { id: 'c13', name: 'Mourning Bells', description: 'Bell-shaped shockwave rings pulse outward from the boss center.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 181, spawnRate: 44, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'boneColumns' },
+      { id: 'c14', name: 'Lantern Drop', description: 'Lantern bullets fall in arcing streams then burst into sparks on impact.', duration: 5, attackType: 'arc', warningType: 'top', bulletSpeed: 148, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['arc'], execute: 'karmaField' },
+      { id: 'c15', name: 'Cathedral Collapse', description: 'Candle pillar bullets cascade in overlapping diagonal waves.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 166, spawnRate: 9, damage: 20, arenaEffect: 'wax', patternTags: ['rain'], execute: 'sansBarrage' },
       { id: 'c16', name: 'Final Candle', description: 'The last candle fires a giant sweeping wall across the full arena.', duration: 5, attackType: 'wall', warningType: 'top', bulletSpeed: 88, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['wall'], execute: 'funeralMarch' },
       { id: 'c17', name: 'Ash Ring', description: 'Ash rings drip in sinusoidal arcs that stack and overlap.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 9, damage: 20, arenaEffect: 'wax', patternTags: ['rain'], execute: 'waxDrip' },
       { id: 'c18', name: 'Grave Flame', description: 'Grave-shaped flame shapes advance in final dense procession.', duration: 5, attackType: 'wall', warningType: 'top', bulletSpeed: 90, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['wall'], execute: 'funeralMarch' },
@@ -718,7 +718,7 @@ const BOSSES: BossConf[] = [
     design: 'Spider-form made of circuit board legs; static sparks as eyes; web of laser filaments.',
     arenaModifier: 'Static flickers briefly swap bullet colors.',
     dialog: ['Signal acquired. Eliminating.', 'You are noise in a perfect system.'],
-    attacks: ['webGrid', 'signalBite', 'screenTear', 'staticNest', 'webGrid', 'signalBite', 'vhsStorm', 'webGrid', 'screenTear', 'signalBite', 'signalBite', 'staticNest', 'vhsStorm', 'staticNest', 'screenTear', 'signalBite', 'vhsStorm', 'staticNest', 'webGrid'],
+    attacks: ['webGrid', 'signalBite', 'screenTear', 'staticNest', 'webGrid', 'signalBite', 'vhsStorm', 'boneSweep', 'screenTear', 'blasterVolley', 'signalBite', 'staticNest', 'vhsStorm', 'boneColumns', 'karmaField', 'signalBite', 'sansBarrage', 'staticNest', 'webGrid'],
     dmg: 20, atkDur: 9,
     rewardItemPool: ['signal_jam', 'vhs_loop'],
     waves: [
@@ -729,16 +729,16 @@ const BOSSES: BossConf[] = [
       { id: 'z5', name: "Widow's Broadcast", description: 'Web grid fires on a wider channel — multiple rows activate at once.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
       { id: 'z6', name: 'Antenna Strike', description: 'Antenna beams stab downward from marked points in targeted volleys.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 156, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
       { id: 'z7', name: 'Pink Noise', description: 'Pink static bullets jitter unpredictably from all arena edges.', duration: 4, attackType: 'random', warningType: 'edge', bulletSpeed: 162, spawnRate: 15, damage: 20, arenaEffect: 'static', patternTags: ['random'], execute: 'vhsStorm' },
-      { id: 'z8', name: 'Pixel Web', description: 'Pixel blocks connect into web lines — the grid expands.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 20, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
+      { id: 'z8', name: 'Pixel Web', description: 'Pixel blocks connect into web lines — the grid expands.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 20, arenaEffect: 'web', patternTags: ['laser'], execute: 'boneSweep' },
       { id: 'z9', name: 'Dead Channel', description: 'Arena desaturates then hazards flash across the silent screen.', duration: 3, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'screenTear' },
-      { id: 'z10', name: 'Signal Lag', description: 'Signal volleys delay then arrive in rapid double bursts.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 161, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
+      { id: 'z10', name: 'Signal Lag', description: 'Signal volleys delay then arrive in rapid double bursts.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 161, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['aimed'], execute: 'blasterVolley' },
       { id: 'z11', name: 'Glitch Fang', description: 'Sharp glitch fangs snap from the edges with minimal warning.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 165, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
       { id: 'z12', name: 'Web Collapse', description: 'Web lines collapse inward from all sides in an accelerating ring.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 158, spawnRate: 20, damage: 20, arenaEffect: 'static', patternTags: ['corner'], execute: 'staticNest' },
       { id: 'z13', name: 'VHS Storm', description: 'Random VHS static bursts scatter from the arena edges simultaneously.', duration: 4, attackType: 'random', warningType: 'edge', bulletSpeed: 166, spawnRate: 15, damage: 20, arenaEffect: 'static', patternTags: ['random'], execute: 'vhsStorm' },
-      { id: 'z14', name: 'Static Mirror', description: 'A static clone appears in the corner and mirrors corner eruptions.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 162, spawnRate: 20, damage: 20, arenaEffect: 'static', patternTags: ['corner'], execute: 'staticNest' },
-      { id: 'z15', name: 'Corrupt Frame', description: 'The arena frame becomes dangerous — edge contact deals damage.', duration: 3, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'screenTear' },
+      { id: 'z14', name: 'Static Mirror', description: 'A static clone appears in the corner and mirrors corner eruptions.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 162, spawnRate: 20, damage: 20, arenaEffect: 'static', patternTags: ['corner'], execute: 'boneColumns' },
+      { id: 'z15', name: 'Corrupt Frame', description: 'The arena frame becomes dangerous — edge contact deals damage.', duration: 3, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'karmaField' },
       { id: 'z16', name: 'Spider Pulse', description: 'The boss sends a pulse through every web line at once.', duration: 4, attackType: 'aimed', warningType: 'target', bulletSpeed: 171, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['aimed'], execute: 'signalBite' },
-      { id: 'z17', name: 'Broken Feed', description: 'Warning icons appear out of order — the feed itself is corrupted.', duration: 4, attackType: 'random', warningType: 'edge', bulletSpeed: 171, spawnRate: 15, damage: 20, arenaEffect: 'static', patternTags: ['random'], execute: 'vhsStorm' },
+      { id: 'z17', name: 'Broken Feed', description: 'Warning icons appear out of order — the feed itself is corrupted.', duration: 4, attackType: 'random', warningType: 'edge', bulletSpeed: 171, spawnRate: 15, damage: 20, arenaEffect: 'static', patternTags: ['random'], execute: 'sansBarrage' },
       { id: 'z18', name: 'Final Broadcast', description: 'Every static system activates at once in a final corrupted transmission.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 166, spawnRate: 20, damage: 20, arenaEffect: 'static', patternTags: ['corner'], execute: 'staticNest' },
       { id: 'z19', name: 'Widow Crash', description: 'The web grid collapses and a final full-screen web assault fires.', duration: 4, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 8, damage: 20, arenaEffect: 'web', patternTags: ['laser'], execute: 'webGrid' },
     ],
@@ -752,7 +752,7 @@ const BOSSES: BossConf[] = [
     design: 'A tiny laughing planet covered in craters; orbiting boulders; asteroid belt halo.',
     arenaModifier: 'Screen shakes randomly from impact tremors.',
     dialog: ['Oops. Another one.', 'I am not trying. This just happens.'],
-    attacks: ['meteorLesson', 'planetTilt', 'craterBurst', 'tinyApocalypse', 'meteorLesson', 'craterBurst', 'planetTilt', 'craterBurst', 'planetTilt', 'meteorLesson', 'tinyApocalypse', 'tinyApocalypse', 'planetTilt', 'meteorLesson', 'craterBurst', 'tinyApocalypse', 'craterBurst', 'tinyApocalypse', 'craterBurst', 'tinyApocalypse'],
+    attacks: ['meteorLesson', 'planetTilt', 'craterBurst', 'tinyApocalypse', 'meteorLesson', 'craterBurst', 'planetTilt', 'boneSweep', 'blasterVolley', 'boneColumns', 'tinyApocalypse', 'karmaField', 'sansBarrage', 'meteorLesson', 'craterBurst', 'tinyApocalypse', 'craterBurst', 'tinyApocalypse', 'craterBurst', 'tinyApocalypse'],
     dmg: 19, atkDur: 9,
     rewardItemPool: ['crater_core', 'asteroid_belt'],
     waves: [
@@ -763,12 +763,12 @@ const BOSSES: BossConf[] = [
       { id: 'at5', name: 'World Drop', description: 'A giant planetary shadow drops as a massive wide meteor impact.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 164, spawnRate: 6, damage: 19, arenaEffect: 'quake', patternTags: ['rain', 'large'], execute: 'meteorLesson' },
       { id: 'at6', name: 'Magma Steps', description: 'Magma pools appear in stepping-stone sequences forcing narrow paths.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 170, spawnRate: 16, damage: 19, arenaEffect: 'none', patternTags: ['burst'], execute: 'craterBurst' },
       { id: 'at7', name: 'Orbit Pebbles', description: 'Small orbiting rocks spiral outward in a multi-arm rotating pattern.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 162, spawnRate: 6, damage: 19, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
-      { id: 'at8', name: 'Titan Toss', description: 'Giant rocks are thrown as large burst explosions from marked points.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 172, spawnRate: 16, damage: 19, arenaEffect: 'none', patternTags: ['burst', 'large'], execute: 'craterBurst' },
-      { id: 'at9', name: 'Continent Crack', description: 'Cracks split across the arena floor in diagonal expanding lines.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 164, spawnRate: 6, damage: 19, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
-      { id: 'at10', name: 'Falling Lesson', description: 'Meteors fall slowly then suddenly accelerate mid-drop.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 6, damage: 19, arenaEffect: 'quake', patternTags: ['rain', 'accel'], execute: 'meteorLesson' },
+      { id: 'at8', name: 'Titan Toss', description: 'Giant rocks are thrown as large burst explosions from marked points.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 172, spawnRate: 16, damage: 19, arenaEffect: 'none', patternTags: ['burst', 'large'], execute: 'boneSweep' },
+      { id: 'at9', name: 'Continent Crack', description: 'Cracks split across the arena floor in diagonal expanding lines.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 164, spawnRate: 6, damage: 19, arenaEffect: 'none', patternTags: ['spiral'], execute: 'blasterVolley' },
+      { id: 'at10', name: 'Falling Lesson', description: 'Meteors fall slowly then suddenly accelerate mid-drop.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 6, damage: 19, arenaEffect: 'quake', patternTags: ['rain', 'accel'], execute: 'boneColumns' },
       { id: 'at11', name: 'Planet Spin', description: 'The arena rotates — spiral arms sweep in tight counterclockwise waves.', duration: 5, attackType: 'spiral', warningType: 'center', bulletSpeed: 167, spawnRate: 6, damage: 19, arenaEffect: 'none', patternTags: ['spiral'], execute: 'planetTilt' },
-      { id: 'at12', name: 'Stone Rain', description: 'Heavy stones fall and bounce off the floor before disappearing.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 7, damage: 19, arenaEffect: 'quake', patternTags: ['rain'], execute: 'meteorLesson' },
-      { id: 'at13', name: 'Cracked Horizon', description: 'The horizon line becomes a sweeping hazard that crosses the screen.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 174, spawnRate: 16, damage: 19, arenaEffect: 'none', patternTags: ['burst'], execute: 'craterBurst' },
+      { id: 'at12', name: 'Stone Rain', description: 'Heavy stones fall and bounce off the floor before disappearing.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 7, damage: 19, arenaEffect: 'quake', patternTags: ['rain'], execute: 'karmaField' },
+      { id: 'at13', name: 'Cracked Horizon', description: 'The horizon line becomes a sweeping hazard that crosses the screen.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 174, spawnRate: 16, damage: 19, arenaEffect: 'none', patternTags: ['burst'], execute: 'sansBarrage' },
       { id: 'at14', name: 'Atlas Shrug', description: 'Arena shakes and drops debris chunks from above in large burst clusters.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 146, spawnRate: 8, damage: 19, arenaEffect: 'none', patternTags: ['combo'], execute: 'tinyApocalypse' },
       { id: 'at15', name: 'Moon Bounce', description: 'Moon bullets bounce off the arena walls before homing in.', duration: 4, attackType: 'burst', warningType: 'area', bulletSpeed: 176, spawnRate: 16, damage: 19, arenaEffect: 'none', patternTags: ['burst'], execute: 'craterBurst' },
       { id: 'at16', name: 'Small Extinction', description: 'Meteor clusters close from all sides in a miniature extinction event.', duration: 4, attackType: 'combo', warningType: 'ring', bulletSpeed: 148, spawnRate: 8, damage: 19, arenaEffect: 'none', patternTags: ['combo'], execute: 'tinyApocalypse' },
@@ -785,7 +785,7 @@ const BOSSES: BossConf[] = [
     design: 'Origami crane emperor; white paper armour edged in crimson; ink-drip crown.',
     arenaModifier: 'Occasional ink pools reduce movement speed.',
     dialog: ['Each fold is a sentence. Each cut, a law.', 'You will be filed away.'],
-    attacks: ['paperCuts', 'foldedWalls', 'inkDecree', 'royalGuillotine', 'foldedWalls', 'origamiSpears', 'inkDecree', 'foldedWalls', 'royalGuillotine', 'foldedWalls', 'inkDecree', 'paperCuts', 'royalGuillotine', 'origamiSpears', 'paperCuts', 'paperCuts', 'royalGuillotine', 'royalGuillotine', 'inkDecree', 'royalGuillotine', 'royalGuillotine'],
+    attacks: ['paperCuts', 'foldedWalls', 'inkDecree', 'royalGuillotine', 'foldedWalls', 'origamiSpears', 'inkDecree', 'boneSweep', 'royalGuillotine', 'blasterVolley', 'boneColumns', 'paperCuts', 'karmaField', 'origamiSpears', 'sansBarrage', 'paperCuts', 'royalGuillotine', 'royalGuillotine', 'inkDecree', 'royalGuillotine', 'royalGuillotine'],
     dmg: 18, atkDur: 10,
     rewardItemPool: ['paper_crane', 'ink_blot'],
     waves: [
@@ -796,14 +796,14 @@ const BOSSES: BossConf[] = [
       { id: 'x5', name: 'Thousand Folds', description: 'Layered paper walls fold from multiple directions with shifting gaps.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 4, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'foldedWalls' },
       { id: 'x6', name: 'Origami Spears', description: 'Eight paper spears fold and launch in star formation.', duration: 3, attackType: 'diag', warningType: 'star', bulletSpeed: 0, spawnRate: 8, damage: 18, arenaEffect: 'none', patternTags: ['diag', 'laser'], execute: 'origamiSpears' },
       { id: 'x7', name: 'Ink Rain', description: 'Ink falls in diagonal drips creating overlapping decree zones.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 18, arenaEffect: 'ink', patternTags: ['zone'], execute: 'inkDecree' },
-      { id: 'x8', name: 'Scroll Maze', description: 'Scrolling paper walls slide across creating a shifting moving maze.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 5, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'foldedWalls' },
+      { id: 'x8', name: 'Scroll Maze', description: 'Scrolling paper walls slide across creating a shifting moving maze.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 5, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'boneSweep' },
       { id: 'x9', name: 'Paper Fan', description: 'Fan-shaped burst of paper guillotine blades radiate outward.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 176, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
-      { id: 'x10', name: 'Fold Trap', description: 'Safe areas fold shut — the paper walls close from multiple directions.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 5, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'foldedWalls' },
-      { id: 'x11', name: 'Red Stamp', description: 'Red stamp marks appear then slam as explosive ink zones.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 18, arenaEffect: 'ink', patternTags: ['zone'], execute: 'inkDecree' },
+      { id: 'x10', name: 'Fold Trap', description: 'Safe areas fold shut — the paper walls close from multiple directions.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 5, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'blasterVolley' },
+      { id: 'x11', name: 'Red Stamp', description: 'Red stamp marks appear then slam as explosive ink zones.', duration: 5, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 18, arenaEffect: 'ink', patternTags: ['zone'], execute: 'boneColumns' },
       { id: 'x12', name: 'Blade Script', description: 'Written ink lines become diagonal cutting beams.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 18, arenaEffect: 'none', patternTags: ['diag'], execute: 'paperCuts' },
-      { id: 'x13', name: "Emperor's Letter", description: 'A sealed envelope opens — paper shards burst in a royal slash pattern.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 181, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
+      { id: 'x13', name: "Emperor's Letter", description: 'A sealed envelope opens — paper shards burst in a royal slash pattern.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 181, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['slash'], execute: 'karmaField' },
       { id: 'x14', name: 'Paper Storm', description: 'Tiny paper scraps swirl from all directions in unpredictable volleys.', duration: 3, attackType: 'diag', warningType: 'star', bulletSpeed: 0, spawnRate: 8, damage: 18, arenaEffect: 'none', patternTags: ['diag'], execute: 'origamiSpears' },
-      { id: 'x15', name: 'Ink Mirror', description: 'Ink reflections copy diagonal cuts — double the blades.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 18, arenaEffect: 'none', patternTags: ['diag'], execute: 'paperCuts' },
+      { id: 'x15', name: 'Ink Mirror', description: 'Ink reflections copy diagonal cuts — double the blades.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 18, arenaEffect: 'none', patternTags: ['diag'], execute: 'sansBarrage' },
       { id: 'x16', name: 'Crown Fold', description: 'Paper crown folds into rotating blade arcs around the arena.', duration: 4, attackType: 'diag', warningType: 'line', bulletSpeed: 0, spawnRate: 3, damage: 18, arenaEffect: 'none', patternTags: ['diag'], execute: 'paperCuts' },
       { id: 'x17', name: 'White Edge', description: 'Nearly invisible white paper blades appear — fake ones hide the real.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 184, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
       { id: 'x18', name: 'Guillotine Hall', description: 'Several guillotine blades fire in rapid sequence — no gaps between.', duration: 4, attackType: 'slash', warningType: 'column', bulletSpeed: 184, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['slash'], execute: 'royalGuillotine' },
@@ -821,7 +821,7 @@ const BOSSES: BossConf[] = [
     design: 'Floating archive cube; thousands of tiny screens; hands made of floating pages.',
     arenaModifier: 'Ghostly player echo appears 2 seconds behind.',
     dialog: ['I have remembered every soul that failed here.', 'Including yours. Eventually.'],
-    attacks: ['echoTrail', 'memoryReplay', 'vaultLock', 'crystalRepeat', 'echoTrail', 'vaultLock', 'crystalRepeat', 'echoTrail', 'vaultLock', 'crystalRepeat', 'echoTrail', 'memoryReplay', 'vaultLock', 'crystalRepeat', 'echoTrail', 'memoryReplay', 'vaultLock', 'crystalRepeat', 'echoTrail', 'vaultLock', 'echoTrail', 'crystalRepeat'],
+    attacks: ['echoTrail', 'memoryReplay', 'vaultLock', 'crystalRepeat', 'echoTrail', 'vaultLock', 'crystalRepeat', 'boneSweep', 'blasterVolley', 'boneColumns', 'echoTrail', 'memoryReplay', 'vaultLock', 'crystalRepeat', 'karmaField', 'sansBarrage', 'vaultLock', 'crystalRepeat', 'echoTrail', 'vaultLock', 'echoTrail', 'crystalRepeat'],
     dmg: 18, atkDur: 10,
     rewardItemPool: ['memory_stone', 'echo_key'],
     waves: [
@@ -832,15 +832,15 @@ const BOSSES: BossConf[] = [
       { id: 'm5', name: 'Ghostprint', description: 'Your echo becomes visible — it fires a burst from where you just were.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 136, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
       { id: 'm6', name: 'File Cabinet', description: 'Archive files open and fire laser rows in rotating columns.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
       { id: 'm7', name: 'Time Loop', description: 'The exact same crystal pattern fires twice with a 1-second offset.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 196, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
-      { id: 'm8', name: 'Shadow Clone', description: 'Your shadow separates and fires volleys from where you stood moments ago.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 141, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
-      { id: 'm9', name: 'Double Lock', description: 'Two vault grid patterns overlap — only one safe corridor remains.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
-      { id: 'm10', name: 'Memory Flood', description: 'The crystal rain overwrites itself mid-pattern with a denser repeat.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 174, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
+      { id: 'm8', name: 'Shadow Clone', description: 'Your shadow separates and fires volleys from where you stood moments ago.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 141, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'boneSweep' },
+      { id: 'm9', name: 'Double Lock', description: 'Two vault grid patterns overlap — only one safe corridor remains.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'blasterVolley' },
+      { id: 'm10', name: 'Memory Flood', description: 'The crystal rain overwrites itself mid-pattern with a denser repeat.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 174, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'boneColumns' },
       { id: 'm11', name: 'Phantom Step', description: 'Every step you took in the last 3 seconds leaves a bullet behind.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 146, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
       { id: 'm12', name: 'Archive Dive', description: 'The archive pulls a replay from deeper — a harder older boss pattern.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 18, arenaEffect: 'none', patternTags: ['replay'], execute: 'memoryReplay' },
       { id: 'm13', name: 'Overdrive Lock', description: 'The vault grid blinks three times in rapid succession — read each flash.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
       { id: 'm14', name: 'Shattered Memory', description: 'The crystal rain pattern shatters into sub-bullets mid-fall.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 178, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
-      { id: 'm15', name: 'Echostorm', description: 'Multiple echoes fire simultaneously — the whole arena tracks your history.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 151, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
-      { id: 'm16', name: 'Final Archive', description: 'The deepest recorded memory replays — a combined boss 6–10 pattern.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 18, arenaEffect: 'none', patternTags: ['replay'], execute: 'memoryReplay' },
+      { id: 'm15', name: 'Echostorm', description: 'Multiple echoes fire simultaneously — the whole arena tracks your history.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 151, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'karmaField' },
+      { id: 'm16', name: 'Final Archive', description: 'The deepest recorded memory replays — a combined boss 6–10 pattern.', duration: 5, attackType: 'replay', warningType: 'random', bulletSpeed: 0, spawnRate: 0, damage: 18, arenaEffect: 'none', patternTags: ['replay'], execute: 'sansBarrage' },
       { id: 'm17', name: 'Grand Vault', description: 'The largest vault grid activates — nearly every column and row fires.', duration: 5, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 18, arenaEffect: 'none', patternTags: ['laser'], execute: 'vaultLock' },
       { id: 'm18', name: 'Crystal Cascade', description: 'Crystal rain cascades in three sequential waves with no pause between.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 182, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRepeat' },
       { id: 'm19', name: 'Soul Echo', description: 'The echo of your soul fires from six positions at once.', duration: 5, attackType: 'echo', warningType: 'trail', bulletSpeed: 156, spawnRate: 5, damage: 18, arenaEffect: 'echo', patternTags: ['echo'], execute: 'echoTrail' },
@@ -858,7 +858,7 @@ const BOSSES: BossConf[] = [
     design: 'Marionette with crescent moon halo; crimson strings; porcelain face with crack.',
     arenaModifier: 'Puppet strings visible across arena; touching them briefly slows player.',
     dialog: ['Dance. The strings do not lie.', 'Shhhh. The moon is watching.'],
-    attacks: ['stringPull', 'puppetDance', 'moonDrop', 'bloodCurtain', 'puppetDance', 'moonShatter', 'puppetDance', 'moonDrop', 'stringPull', 'puppetDance', 'moonShatter', 'stringPull', 'bloodCurtain', 'puppetDance', 'moonDrop', 'puppetDance', 'bloodCurtain', 'puppetDance', 'moonDrop', 'stringPull', 'moonShatter', 'stringPull', 'bloodCurtain'],
+    attacks: ['stringPull', 'puppetDance', 'moonDrop', 'bloodCurtain', 'puppetDance', 'moonShatter', 'boneSweep', 'moonDrop', 'stringPull', 'puppetDance', 'moonShatter', 'blasterVolley', 'bloodCurtain', 'puppetDance', 'boneColumns', 'puppetDance', 'karmaField', 'puppetDance', 'moonDrop', 'stringPull', 'sansBarrage', 'stringPull', 'bloodCurtain'],
     dmg: 17, atkDur: 10,
     rewardItemPool: ['moonthread', 'blood_vial'],
     waves: [
@@ -868,21 +868,21 @@ const BOSSES: BossConf[] = [
       { id: 'lu4', name: 'Blood Curtain', description: 'A red laser curtain sweeps fast across the full arena width.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 17, arenaEffect: 'none', patternTags: ['laser', 'fast'], execute: 'bloodCurtain' },
       { id: 'lu5', name: 'Puppet Lurch', description: 'The puppet lurches — walls shift mid-approach and the safe path moves.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 136, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
       { id: 'lu6', name: 'Moon Shatter', description: 'A full crescent ring contracts then shatters outward in a radial burst.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 162, spawnRate: 24, damage: 17, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'moonShatter' },
-      { id: 'lu7', name: 'Marionette Cross', description: 'Puppet strings form a cross pattern while walls fire from both axes.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 141, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
+      { id: 'lu7', name: 'Marionette Cross', description: 'Puppet strings form a cross pattern while walls fire from both axes.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 141, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'boneSweep' },
       { id: 'lu8', name: 'Lunar Tears', description: 'Moon drops cluster in groups of three — gaps between are tighter.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 114, spawnRate: 3, damage: 17, arenaEffect: 'none', patternTags: ['rain'], execute: 'moonDrop' },
       { id: 'lu9', name: 'Tangled Web', description: 'Multiple strings drag from opposite corners simultaneously.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 166, spawnRate: 6, damage: 17, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
       { id: 'lu10', name: 'Broken Puppet', description: 'The puppet moves erratically — walls stutter and shift without warning.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 146, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
       { id: 'lu11', name: 'Blood Moon', description: 'The moon shatters red — burst radius doubles and hits the arena walls.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 167, spawnRate: 24, damage: 17, arenaEffect: 'none', patternTags: ['ring'], execute: 'moonShatter' },
-      { id: 'lu12', name: 'String Maze', description: 'A web of strings fills the arena — touching them pulls you off course.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 170, spawnRate: 6, damage: 17, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
+      { id: 'lu12', name: 'String Maze', description: 'A web of strings fills the arena — touching them pulls you off course.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 170, spawnRate: 6, damage: 17, arenaEffect: 'pull', patternTags: ['pull'], execute: 'blasterVolley' },
       { id: 'lu13', name: 'Red Veil', description: 'Two curtain sweeps fire from opposite sides of the arena.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 17, arenaEffect: 'none', patternTags: ['laser'], execute: 'bloodCurtain' },
       { id: 'lu14', name: 'Lost Control', description: 'The marionette loses control — walls cross each other in chaotic formation.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 151, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
-      { id: 'lu15', name: 'Full Moon', description: 'Maximum-size crescent bullets drop in clusters — no clear safe zone.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 116, spawnRate: 4, damage: 17, arenaEffect: 'none', patternTags: ['rain'], execute: 'moonDrop' },
+      { id: 'lu15', name: 'Full Moon', description: 'Maximum-size crescent bullets drop in clusters — no clear safe zone.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 116, spawnRate: 4, damage: 17, arenaEffect: 'none', patternTags: ['rain'], execute: 'boneColumns' },
       { id: 'lu16', name: 'Puppet Frenzy', description: 'Rapid puppet wall bursts — barely any pause between each wall pass.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 153, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
-      { id: 'lu17', name: 'Triple Curtain', description: 'Three blood curtain sweeps fire back to back — no margin between.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 17, arenaEffect: 'none', patternTags: ['laser'], execute: 'bloodCurtain' },
+      { id: 'lu17', name: 'Triple Curtain', description: 'Three blood curtain sweeps fire back to back — no margin between.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 17, arenaEffect: 'none', patternTags: ['laser'], execute: 'karmaField' },
       { id: 'lu18', name: 'Final Dance', description: 'The ultimate puppet sequence — walls, strings and moon drops layer together.', duration: 5, attackType: 'wall', warningType: 'row', bulletSpeed: 156, spawnRate: 7, damage: 17, arenaEffect: 'none', patternTags: ['wall'], execute: 'puppetDance' },
       { id: 'lu19', name: 'Moonfall', description: 'The densest moon drop barrage — every lane is marked at once.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 119, spawnRate: 4, damage: 17, arenaEffect: 'none', patternTags: ['rain'], execute: 'moonDrop' },
       { id: 'lu20', name: 'Soul Strings', description: 'Strings target the player directly — pulling toward the center from all sides.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 174, spawnRate: 6, damage: 17, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
-      { id: 'lu21', name: 'Last Quarter', description: 'The moon shatters completely — ring collapses then explodes at max speed.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 177, spawnRate: 24, damage: 17, arenaEffect: 'none', patternTags: ['ring'], execute: 'moonShatter' },
+      { id: 'lu21', name: 'Last Quarter', description: 'The moon shatters completely — ring collapses then explodes at max speed.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 177, spawnRate: 24, damage: 17, arenaEffect: 'none', patternTags: ['ring'], execute: 'sansBarrage' },
       { id: 'lu22', name: 'Puppet Master', description: 'Every string activates — the full arena is pulled simultaneously.', duration: 5, attackType: 'pull', warningType: 'arrow', bulletSpeed: 180, spawnRate: 6, damage: 17, arenaEffect: 'pull', patternTags: ['pull'], execute: 'stringPull' },
       { id: 'lu23', name: 'Curtain Call', description: 'The final blood curtain drops — an unstoppable red sweep closes the show.', duration: 4, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 17, arenaEffect: 'none', patternTags: ['laser'], execute: 'bloodCurtain' },
     ],
@@ -896,7 +896,7 @@ const BOSSES: BossConf[] = [
     design: 'Pure white sphere cracked with red veins; all 19 boss silhouettes orbit it.',
     arenaModifier: 'Arena randomly shifts between all previous boss bgTints.',
     dialog: ['I am everything that came before.', 'There is no pattern I have not already used on you.'],
-    attacks: ['regretSpiral', 'bossMemoryChain', 'brokenControls', 'soulDuel', 'regretSpiral', 'soulDuel', 'regretSpiral', 'brokenControls', 'bossMemoryChain', 'brokenControls', 'soulDuel', 'regretSpiral', 'bossMemoryChain', 'regretSpiral', 'regretSpiral', 'brokenControls', 'soulDuel', 'bossMemoryChain', 'soulDuel', 'regretSpiral', 'brokenControls', 'soulDuel', 'bossMemoryChain', 'firstMistake', 'firstMistake'],
+    attacks: ['regretSpiral', 'bossMemoryChain', 'brokenControls', 'soulDuel', 'regretSpiral', 'soulDuel', 'boneSweep', 'brokenControls', 'bossMemoryChain', 'blasterVolley', 'boneColumns', 'regretSpiral', 'karmaField', 'regretSpiral', 'regretSpiral', 'brokenControls', 'soulDuel', 'bossMemoryChain', 'soulDuel', 'sansBarrage', 'brokenControls', 'soulDuel', 'bossMemoryChain', 'firstMistake', 'firstMistake'],
     dmg: 15, atkDur: 12,
     rewardItemPool: ['soul_echo', 'first_light'],
     waves: [
@@ -906,20 +906,20 @@ const BOSSES: BossConf[] = [
       { id: 's4', name: 'Soul Duel', description: 'A mirror version of you fires everything you would have dodged.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 162, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror'], execute: 'soulDuel' },
       { id: 's5', name: 'Ancient Wound', description: 'A spiral from the deepest regret — arms are tighter and faster.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 177, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
       { id: 's6', name: 'Mirror Test', description: 'The mirror soul tests you — it anticipates your dodge direction.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 166, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror', 'aimed'], execute: 'soulDuel' },
-      { id: 's7', name: 'All Roads', description: 'Spiral arms reach in all 8 directions — no obvious escape lane.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 179, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
+      { id: 's7', name: 'All Roads', description: 'Spiral arms reach in all 8 directions — no obvious escape lane.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 179, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'boneSweep' },
       { id: 's8', name: 'Static Mind', description: 'Controls shift randomly mid-wave — you can\'t tell which direction does what.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 7, damage: 15, arenaEffect: 'flip', patternTags: ['rain', 'flip'], execute: 'brokenControls' },
       { id: 's9', name: 'Deep Recall', description: 'Soulvex recalls a longer combined memory — multiple bosses fire at once.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 15, arenaEffect: 'memory', patternTags: ['chain'], execute: 'bossMemoryChain' },
-      { id: 's10', name: 'Error Loop', description: 'Your controls loop — each button press delays by half a second.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 172, spawnRate: 7, damage: 15, arenaEffect: 'flip', patternTags: ['rain', 'flip'], execute: 'brokenControls' },
-      { id: 's11', name: 'Reflection', description: 'The mirror soul copies your last 3 movements and fires from all of them.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 167, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror'], execute: 'soulDuel' },
+      { id: 's10', name: 'Error Loop', description: 'Your controls loop — each button press delays by half a second.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 172, spawnRate: 7, damage: 15, arenaEffect: 'flip', patternTags: ['rain', 'flip'], execute: 'blasterVolley' },
+      { id: 's11', name: 'Reflection', description: 'The mirror soul copies your last 3 movements and fires from all of them.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 167, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror'], execute: 'boneColumns' },
       { id: 's12', name: 'Pattern Fall', description: 'The regret spiral falls from above — arms descend rather than expanding.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 181, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
-      { id: 's13', name: 'Archive of Shame', description: 'The longest memory chain — all 19 bosses fire in a chained sequence.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 15, arenaEffect: 'memory', patternTags: ['chain'], execute: 'bossMemoryChain' },
+      { id: 's13', name: 'Archive of Shame', description: 'The longest memory chain — all 19 bosses fire in a chained sequence.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 15, arenaEffect: 'memory', patternTags: ['chain'], execute: 'karmaField' },
       { id: 's14', name: 'Spiral of Ruin', description: 'Maximum arm count — every degree is covered by the spiral pattern.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 189, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral', 'dense'], execute: 'regretSpiral' },
       { id: 's15', name: 'The Weight', description: 'Regret accumulates — a heavy dense spiral that fires slower but fills everything.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 184, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
       { id: 's16', name: 'Lost Input', description: 'Controls barely respond — a 1-second delay on every movement input.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 7, damage: 15, arenaEffect: 'flip', patternTags: ['rain', 'flip'], execute: 'brokenControls' },
       { id: 's17', name: 'Twin Soul', description: 'Two mirror souls appear and fire simultaneously from opposite sides.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 171, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror'], execute: 'soulDuel' },
       { id: 's18', name: 'Everything Before', description: 'The complete chain — every boss pattern chains together in final form.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 15, arenaEffect: 'memory', patternTags: ['chain'], execute: 'bossMemoryChain' },
       { id: 's19', name: 'Perfect Mirror', description: 'The mirror soul matches your speed and position exactly — it knows you.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 173, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror', 'aimed'], execute: 'soulDuel' },
-      { id: 's20', name: 'Endless Loop', description: 'The spiral never resolves — arms keep adding as the pattern escalates.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 187, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'regretSpiral' },
+      { id: 's20', name: 'Endless Loop', description: 'The spiral never resolves — arms keep adding as the pattern escalates.', duration: 5, attackType: 'spiral', warningType: 'ring', bulletSpeed: 187, spawnRate: 8, damage: 15, arenaEffect: 'none', patternTags: ['spiral'], execute: 'sansBarrage' },
       { id: 's21', name: 'System Break', description: 'Every control input breaks — movement is now random for the duration.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 7, damage: 15, arenaEffect: 'flip', patternTags: ['rain', 'flip'], execute: 'brokenControls' },
       { id: 's22', name: 'Your Reflection', description: 'The mirror knows your patterns — it predicts your movement before you move.', duration: 6, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 176, spawnRate: 5, damage: 15, arenaEffect: 'mirror', patternTags: ['mirror'], execute: 'soulDuel' },
       { id: 's23', name: 'The Whole Story', description: 'The final chain — all 20 boss signatures fire simultaneously.', duration: 25, attackType: 'chain', warningType: 'all', bulletSpeed: 0, spawnRate: 0, damage: 15, arenaEffect: 'memory', patternTags: ['chain'], execute: 'bossMemoryChain' },
@@ -1249,6 +1249,9 @@ interface GameData {
   runScore: number;
   wavesCleared: number;
 
+  // Charge animation timer — counts up during phase 0, reset to 0 in other phases
+  bossChargeTimer: number;
+
   // Set by updateAttack() before each dispatch so sm()/st() can read wave debuff data
   currentWaveConf?: Wave;
 }
@@ -1288,6 +1291,7 @@ function createState(): GameData {
     diffMult: 1.25,
     adminInvincible: false, debugSpeedMult: 1,
     runScore: 0, wavesCleared: 0,
+    bossChargeTimer: 0,
   };
 }
 
@@ -1645,6 +1649,9 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   // so boss.waves[g.atkIdx] is always the exact Wave for the current attack.
   g.currentWaveConf = boss.waves?.[g.atkIdx];
 
+  // Charge-ring animation: count up during warn phase, reset otherwise
+  if (g.phase === 0) { g.bossChargeTimer += dt; } else { g.bossChargeTimer = 0; }
+
   if (atk === 'crystalRain')        { doCrystalRain(g, dt, boss);        return; }
   if (atk === 'mirrorWalls')        { doMirrorWalls(g, dt, boss);         return; }
   if (atk === 'shatterPulse')       { doShatterPulse(g, dt, boss);        return; }
@@ -1747,6 +1754,13 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   if (atk === 'brokenControls')    { doBrokenControls(g, dt, boss);      return; }
   if (atk === 'soulDuel')          { doSoulDuel(g, dt, boss);            return; }
   if (atk === 'firstMistake')      { doFirstMistake(g, dt, boss);        return; }
+
+  // ── Sans-inspired attacks ────────────────────────────────────────
+  if (atk === 'boneSweep')         { doBoneSweep(g, dt, boss);           return; }
+  if (atk === 'blasterVolley')     { doBlasterVolley(g, dt, boss);       return; }
+  if (atk === 'boneColumns')       { doBoneColumns(g, dt, boss);         return; }
+  if (atk === 'sansBarrage')       { doSansBarrage(g, dt, boss);         return; }
+  if (atk === 'karmaField')        { doKarmaField(g, dt, boss);          return; }
 }
 
 // --- BOSS SPECIALS applied every frame ---
@@ -4057,6 +4071,228 @@ function doFirstMistake(g: GameData, dt: number, boss: BossConf) {
 }
 
 // ================================================================
+// SANS-INSPIRED ATTACK FUNCTIONS
+// ================================================================
+
+// Bone Sweep — split bone bars sweep across the arena from a random edge with one navigable gap.
+function doBoneSweep(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.selectedEdge < 0) { g.selectedEdge = randInt(0, 3); }
+    if (g.warnMarkers.length === 0) {
+      const count = 7;
+      for (let i = 0; i < count; i++) {
+        const t = i / (count - 1);
+        let x = 0, y = 0;
+        if (g.selectedEdge === 0)      { x = BX + BW * t; y = BY; }
+        else if (g.selectedEdge === 1) { x = BX + BW; y = BY + BH * t; }
+        else if (g.selectedEdge === 2) { x = BX + BW * t; y = BY + BH; }
+        else                           { x = BX; y = BY + BH * t; }
+        g.warnMarkers.push({ id: nid(g), x, y, angle: 0, r: 5, color: '#ffffff', timer: warnDur(g, 1.0), maxTimer: warnDur(g, 1.0) });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= warnDur(g, 1.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; g.spawnTimer = 0; shake(g); }
+  } else if (g.phase === 1) {
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0 && g.spawnCount < 6) {
+      g.spawnTimer = 0.24;
+      g.spawnCount++;
+      const GAP = 64;
+      const spd = sm(g) * 125;
+      if (g.selectedEdge === 0 || g.selectedEdge === 2) {
+        const gapX = rand(BX + 28, BX + BW - GAP - 28);
+        const vy = g.selectedEdge === 0 ? spd : -spd;
+        const startY = g.selectedEdge === 0 ? BY - 18 : BY + BH + 18;
+        g.pistonBlocks.push({ id: nid(g), x: BX, y: startY, w: Math.max(0, gapX - BX), h: 15, vx: 0, vy, warnTimer: 0, active: true });
+        g.pistonBlocks.push({ id: nid(g), x: gapX + GAP, y: startY, w: Math.max(0, BX + BW - (gapX + GAP)), h: 15, vx: 0, vy, warnTimer: 0, active: true });
+      } else {
+        const gapY = rand(BY + 28, BY + BH - GAP - 28);
+        const vx = g.selectedEdge === 3 ? spd : -spd;
+        const startX = g.selectedEdge === 3 ? BX - 18 : BX + BW + 18;
+        g.pistonBlocks.push({ id: nid(g), x: startX, y: BY, w: 15, h: Math.max(0, gapY - BY), vx, vy: 0, warnTimer: 0, active: true });
+        g.pistonBlocks.push({ id: nid(g), x: startX, y: gapY + GAP, w: 15, h: Math.max(0, BY + BH - (gapY + GAP)), vx, vy: 0, warnTimer: 0, active: true });
+      }
+    }
+    const spd = g.debugSpeedMult;
+    for (const pb of g.pistonBlocks) { pb.x += pb.vx * spd * dt; pb.y += pb.vy * spd * dt; }
+    g.pistonBlocks = g.pistonBlocks.filter(pb =>
+      pb.x < BX + BW + 120 && pb.x + pb.w > BX - 120 && pb.y < BY + BH + 120 && pb.y + pb.h > BY - 120
+    );
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 3.6) { g.pistonBlocks = []; g.phase = 2; g.phaseTimer = 0; }
+  } else {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; g.selectedEdge = -1; }
+  }
+}
+
+// Blaster Volley — Gaster Blaster-style skull warn icons at edges then wide beams fire.
+function doBlasterVolley(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      const count = randInt(2, 4);
+      const edges = [0, 1, 2, 3].sort(() => Math.random() - 0.5).slice(0, count);
+      for (const edge of edges) {
+        let x = 0, y = 0, angle = 0;
+        if (edge === 0)      { x = rand(BX + 50, BX + BW - 50); y = BY - 8; angle = Math.PI / 2; }
+        else if (edge === 1) { x = BX + BW + 8; y = rand(BY + 50, BY + BH - 50); angle = Math.PI; }
+        else if (edge === 2) { x = rand(BX + 50, BX + BW - 50); y = BY + BH + 8; angle = -Math.PI / 2; }
+        else                 { x = BX - 8; y = rand(BY + 50, BY + BH - 50); angle = 0; }
+        g.warnMarkers.push({ id: nid(g), x, y, angle, r: 14, color: '#aaddff', timer: warnDur(g, 1.2), maxTimer: warnDur(g, 1.2) });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= warnDur(g, 1.2)) {
+      for (const wm of g.warnMarkers) {
+        const isVert = Math.abs(Math.sin(wm.angle)) > 0.5;
+        if (isVert) {
+          g.lasers.push({ id: nid(g), type: 'v' as 'v', pos: wm.x, width: 48, timer: 1.1, color: '#aaddff' });
+        } else {
+          g.lasers.push({ id: nid(g), type: 'h' as 'h', pos: wm.y, width: 48, timer: 1.1, color: '#aaddff' });
+        }
+      }
+      g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    for (const l of g.lasers) l.timer -= dt;
+    g.lasers = g.lasers.filter(l => l.timer > 0);
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.1) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
+  } else {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; }
+  }
+}
+
+// Bone Columns — warn markers at bottom, then bone pillars rise from the floor with 1-2 safe gaps.
+function doBoneColumns(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.pistonBlocks.length === 0) {
+      const count = randInt(5, 7);
+      const colW = 28;
+      const spacing = BW / count;
+      const gapSet = new Set<number>();
+      gapSet.add(randInt(0, count - 1));
+      if (Math.random() > 0.5) {
+        let g2 = randInt(0, count - 1);
+        for (let tries = 0; tries < 10 && gapSet.has(g2); tries++) g2 = randInt(0, count - 1);
+        gapSet.add(g2);
+      }
+      for (let i = 0; i < count; i++) {
+        if (gapSet.has(i)) continue;
+        const cx = BX + spacing * i + spacing / 2;
+        g.warnMarkers.push({ id: nid(g), x: cx, y: BY + BH - 6, angle: -Math.PI / 2, r: 6, color: '#ffffff', timer: warnDur(g, 1.1), maxTimer: warnDur(g, 1.1) });
+        g.pistonBlocks.push({ id: nid(g), x: cx - colW / 2, y: BY + BH + 12, w: colW, h: BH + 20, vx: 0, vy: -260, warnTimer: warnDur(g, 1.1), active: false });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= warnDur(g, 1.1)) {
+      g.warnMarkers = [];
+      for (const pb of g.pistonBlocks) pb.active = true;
+      g.phase = 1; g.phaseTimer = 0; shake(g);
+    }
+  } else if (g.phase === 1) {
+    const spd = g.debugSpeedMult;
+    for (const pb of g.pistonBlocks) {
+      if (pb.active) { pb.y += pb.vy * spd * dt; if (pb.y <= BY) { pb.y = BY; pb.vy = 0; } }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.9) { for (const pb of g.pistonBlocks) pb.vy = 260; g.phase = 2; g.phaseTimer = 0; }
+  } else if (g.phase === 2) {
+    const spd = g.debugSpeedMult;
+    for (const pb of g.pistonBlocks) pb.y += pb.vy * spd * dt;
+    g.pistonBlocks = g.pistonBlocks.filter(pb => pb.y < BY + BH + 120);
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.6 || g.pistonBlocks.length === 0) { g.pistonBlocks = []; g.phase = 3; g.phaseTimer = 0; }
+  } else {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.5) { g.phase = 0; g.phaseTimer = 0; }
+  }
+}
+
+// Sans Barrage — 3 bursts of 5 aimed bone bullets fired in a spread from the boss position.
+function doSansBarrage(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: g.bossX + Math.cos(a) * 30, y: g.bossY + Math.sin(a) * 30, angle: a, r: 5, color: '#4488ff', timer: warnDur(g, 0.8), maxTimer: warnDur(g, 0.8) });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
+  } else if (g.phase === 1) {
+    const BURST_COUNT = 3;
+    const BURST_SIZE = 5;
+    const BURST_INTERVAL = 0.55;
+    g.phaseTimer += dt;
+    const burstIdx = Math.floor(g.phaseTimer / BURST_INTERVAL);
+    if (burstIdx < BURST_COUNT && burstIdx >= g.spawnCount) {
+      g.spawnCount = burstIdx + 1;
+      const spd = sm(g);
+      const baseAngle = Math.atan2(g.player.y - g.bossY, g.player.x - g.bossX);
+      for (let i = 0; i < BURST_SIZE; i++) {
+        const spread = (i - Math.floor(BURST_SIZE / 2)) * 0.13;
+        const a = baseAngle + spread;
+        g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * 185 * spd, vy: Math.sin(a) * 185 * spd, r: 6, color: i % 2 === 0 ? '#ffffff' : '#4488ff', shape: 'square', rot: a, rotSpd: 0, frozen: false });
+      }
+      shake(g);
+    }
+    moveBullets(g, dt);
+    g.bullets = g.bullets.filter(b => b.x > BX - 80 && b.x < BX + BW + 80 && b.y > BY - 80 && b.y < BY + BH + 80);
+    if (burstIdx >= BURST_COUNT) { g.bullets = []; g.phase = 2; g.phaseTimer = 0; }
+  } else {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
+  }
+}
+
+// Karma Field — danger circles snap to player positions, then explode in radial bursts after a delay.
+function doKarmaField(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      g.warnMarkers.push({ id: nid(g), x: g.player.x, y: g.player.y, angle: 0, r: 9, color: '#ff4444', timer: warnDur(g, 0.6), maxTimer: warnDur(g, 0.6) });
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= warnDur(g, 0.6)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; g.spawnCount = 0; }
+  } else if (g.phase === 1) {
+    const MAX_CIRCLES = 4;
+    const SPAWN_INTERVAL = 0.75;
+    const EXPLODE_DELAY = 1.05;
+    g.phaseTimer += dt;
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0 && g.spawnCount < MAX_CIRCLES) {
+      g.spawnTimer = SPAWN_INTERVAL;
+      g.spawnCount++;
+      g.dangerZones.push({ id: nid(g), x: g.player.x - 32, y: g.player.y - 32, w: 64, h: 64, warnTimer: EXPLODE_DELAY, activeTimer: 0.9, color: '#ff4444' });
+    }
+    for (const dz of g.dangerZones) {
+      if (dz.warnTimer > 0) {
+        dz.warnTimer -= dt;
+        if (dz.warnTimer <= 0) {
+          const cx = dz.x + dz.w / 2, cy = dz.y + dz.h / 2;
+          const spd = sm(g);
+          for (let i = 0; i < 10; i++) {
+            const a = (i / 10) * Math.PI * 2;
+            g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 145 * spd, vy: Math.sin(a) * 145 * spd, r: 5, color: '#ff4444', shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+          }
+          shake(g);
+        }
+      } else {
+        dz.activeTimer -= dt;
+      }
+    }
+    g.dangerZones = g.dangerZones.filter(dz => dz.warnTimer > 0 || dz.activeTimer > 0);
+    moveBullets(g, dt);
+    g.bullets = g.bullets.filter(b => b.x > BX - 80 && b.x < BX + BW + 80 && b.y > BY - 80 && b.y < BY + BH + 80);
+    if (g.phaseTimer >= 5.5) { g.bullets = []; g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
+  } else {
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.6) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
+  }
+}
+
+// ================================================================
 // BULLET MOVEMENT + WARN MARKERS
 // ================================================================
 
@@ -4394,6 +4630,7 @@ function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
     ctx.beginPath(); ctx.moveTo(0, -9); ctx.lineTo(4, 0); ctx.lineTo(0, 9); ctx.lineTo(-4, 0); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4422,6 +4659,7 @@ function drawBoss2(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillStyle = boss.color2; ctx.font = '8px monospace'; ctx.globalAlpha = 0.7;
   ctx.fillText(Math.floor(g.time * 3) % 2 === 0 ? 'ERR' : '0xF', -30, -52 + goy);
   ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4444,6 +4682,7 @@ function drawBoss3(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.strokeStyle = boss.color + '66'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.moveTo(-29, -12); ctx.lineTo(-55, -42); ctx.lineTo(-40, -7); ctx.lineTo(-68, -12); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(29, -12); ctx.lineTo(55, -42); ctx.lineTo(40, -7); ctx.lineTo(68, -12); ctx.stroke();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4462,6 +4701,7 @@ function drawBoss4(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 2;
   ctx.save(); ctx.rotate(g.time * 1.3); ctx.beginPath(); ctx.moveTo(0, 5); ctx.lineTo(0, -36); ctx.stroke(); ctx.restore();
   ctx.fillStyle = boss.color2; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4482,6 +4722,7 @@ function drawBoss5(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillText(syms[Math.floor(t * 6) % syms.length], -10, 16);
   ctx.fillText(syms[(Math.floor(t * 8) + 3) % syms.length], 10, 16);
   ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4511,6 +4752,7 @@ function drawBoss6(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
   ctx.beginPath(); ctx.ellipse(0, -6, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, -6, 4, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4548,6 +4790,7 @@ function drawBoss7(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.beginPath(); ctx.ellipse(0, -48, 14, 12, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(-5, -48, 4, 4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(5, -48, 4, 4, 0, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4585,6 +4828,7 @@ function drawBoss8(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color;
   ctx.beginPath(); ctx.ellipse(-8, -22, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(8, -22, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4619,6 +4863,7 @@ function drawBoss9(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
     ctx.shadowBlur = warnOn ? 16 : 0;
     ctx.beginPath(); ctx.arc(i * 28, -42, 5, 0, Math.PI * 2); ctx.fill();
   }
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4656,6 +4901,7 @@ function drawBoss10(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.fillStyle = boss.color; ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
   ctx.beginPath(); ctx.arc(0, -14, 10, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, -14, 5, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4689,6 +4935,7 @@ function drawBoss11(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillStyle = i % 2 === 0 ? boss.color : boss.color2; ctx.shadowColor = ctx.fillStyle;
     ctx.beginPath(); ctx.arc(Math.cos(sa) * sr, Math.sin(sa) * sr * 0.6, 4, 0, Math.PI * 2); ctx.fill();
   }
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4718,6 +4965,7 @@ function drawBoss12(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillRect(-26 - i * 8 - 5, -h / 2, 5, h);
   }
   ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4750,6 +4998,7 @@ function drawBoss13(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r * 0.7, 2.5, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4780,6 +5029,7 @@ function drawBoss14(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   // Core
   ctx.fillStyle = boss.color; ctx.shadowColor = boss.color; ctx.shadowBlur = 18;
   ctx.beginPath(); ctx.arc(0, -4, 7, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4812,6 +5062,7 @@ function drawBoss15(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.fillStyle = boss.color2; ctx.shadowColor = boss.color2;
   ctx.beginPath(); ctx.arc(Math.cos(ca) * 38, Math.sin(ca) * 38, 4, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(Math.cos(ca + Math.PI) * 38, Math.sin(ca + Math.PI) * 38, 4, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4844,6 +5095,7 @@ function drawBoss16(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillRect(-3, -3, 6, 6);
     ctx.restore();
   }
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4874,6 +5126,7 @@ function drawBoss17(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(34, -22); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-34, -22); ctx.stroke();
   ctx.restore(); ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4907,6 +5160,7 @@ function drawBoss18(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
     ctx.fillRect(rx - 3, ry - 3, 6, 6);
   }
   ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4930,6 +5184,7 @@ function drawBoss19(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   ctx.beginPath(); ctx.moveTo(-14 + sway, -52); ctx.lineTo(-14, -22); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(14 + sway, -52); ctx.lineTo(14, -22); ctx.stroke();
   ctx.globalAlpha = 1;
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
@@ -4959,6 +5214,7 @@ function drawBoss20(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
   // Void eye at centre
   ctx.fillStyle = '#000';
   ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+  if (g.bossChargeTimer > 0) { const _cr = 12 + g.bossChargeTimer * 80; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - g.bossChargeTimer * 2) * 0.85; ctx.strokeStyle = boss.color; ctx.lineWidth = 3.5; ctx.shadowBlur = 24; ctx.shadowColor = boss.color; ctx.beginPath(); ctx.arc(0, 0, _cr, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
   ctx.restore();
 }
 
