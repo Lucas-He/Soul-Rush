@@ -1,0 +1,1024 @@
+MOVESYSTEM UPGRADE: UNIQUE MOVESET FOR EVERY BOSS
+
+Rewrite the boss wave data so every single wave has a different move.
+
+Important:
+- No repeated move names.
+- No copied attacks with only faster bullets.
+- No “same attack but harder” waves.
+- Every wave must introduce a different mechanic, pattern, arena effect, timing rule, player-control challenge, hazard type, or visual reading challenge.
+- Buff all bosses by making patterns more complex, faster, more layered, and more strategic.
+- Still keep everything fair, dodgeable, and readable with warning indicators.
+- Bosses should feel much harder than before.
+- Boss 1 should already feel like a real challenge.
+- Boss 20 should feel like a final impossible-but-fair nightmare.
+
+Wave Count:
+- Boss 1 = 5 waves
+- Boss 2 = 6 waves
+- Boss 3 = 7 waves
+- Boss 4 = 8 waves
+- Boss 5 = 9 waves
+- Boss 6 = 10 waves
+- Boss 7 = 11 waves
+- Boss 8 = 12 waves
+- Boss 9 = 13 waves
+- Boss 10 = 14 waves
+- Boss 11 = 15 waves
+- Boss 12 = 16 waves
+- Boss 13 = 17 waves
+- Boss 14 = 18 waves
+- Boss 15 = 19 waves
+- Boss 16 = 20 waves
+- Boss 17 = 21 waves
+- Boss 18 = 22 waves
+- Boss 19 = 23 waves
+- Boss 20 = 25 waves
+
+BUFF RULES:
+- Increase bullet variety.
+- Add more multi-layered attacks.
+- Add more arena manipulation.
+- Add more warning-based dodging.
+- Add more attacks that require planning, not just reaction.
+- Add attacks that test positioning, rhythm, memory, fakeouts, speed control, and pathing.
+- Later bosses can combine mechanics, but each wave must still have a unique identity.
+- All major attacks need warning visuals.
+- Avoid cheap unavoidable hits.
+- Avoid random unfair bullet spam.
+
+FULL UNIQUE BOSS MOVESETS
+
+Boss 1: Virel, the Glass Warden
+Theme: Crystal knight, glass, reflection, prisms.
+Buff: Faster shards, more reflective lasers, tighter escape gaps.
+
+1. Crystal Rain
+- Crystal shards fall from the top in staggered lanes.
+
+2. Mirror Walls
+- Horizontal and vertical laser walls appear after warning lines.
+
+3. Shatter Pulse
+- Expanding crystal rings grow from the center with rotating gaps.
+
+4. Prism Crossfire
+- Angled beams bounce off arena walls after warning reflections.
+
+5. Prism Prison
+- Crystal walls trap the player with one escape gap, then shatter into diagonal shards.
+
+Boss 2: Mawbyte, the Hungry Code
+Theme: Glitch monster, corrupted data, broken UI.
+Buff: Faster glitches, more lane pressure, stronger control tricks.
+
+1. Bit Storm
+- Pixel bullets scatter in square-grid bursts.
+
+2. Error Sweep
+- Giant glitch bars sweep across the arena from random sides.
+
+3. Devour Lane
+- Only one safe lane remains while corruption fills the rest.
+
+4. Corrupted Download
+- Blocks fall in chunky file-download patterns with moving gaps.
+
+5. Input Rot
+- Fake keyboard letters fall; only bright red letters damage.
+
+6. Cache Bite
+- The boss marks the player’s previous positions, then glitch teeth snap there.
+
+Boss 3: Seraph Null
+Theme: Robotic angel, judgment, halo geometry.
+Buff: More diagonal pressure, shrinking safe zones, fake judgment markers.
+
+1. Halo Spiral
+- Halo bullets spiral outward in rotating arms.
+
+2. Judgment Beams
+- Diagonal divine beams fire after golden warning lines.
+
+3. Wing Barrage
+- Feather bullets enter from both sides in alternating waves.
+
+4. False Judgment
+- Fake beam warnings appear, but only brighter beams become real.
+
+5. Null Verdict
+- Safe circles shrink while halo bullets orbit around them.
+
+6. Seraphic Cage
+- Golden cage bars close inward, forcing movement through small holy gaps.
+
+7. Broken Halo
+- Halo fragments ricochet around the arena like sharp triangle bullets.
+
+Boss 4: Orryx, the Clock Eater
+Theme: Time, clocks, gears, rewind.
+Buff: Time stops are shorter, reversals are more dangerous, clock hands sweep faster.
+
+1. Gear Maze
+- Rotating gears move through the arena like moving walls.
+
+2. Time Freeze
+- Bullets freeze briefly, then suddenly resume faster.
+
+3. Clock Hand Slash
+- Giant clock hands rotate across the arena.
+
+4. Rewind Strike
+- Bullets reverse direction after a warning flash.
+
+5. Midnight Loop
+- A pattern repeats three times, but each loop changes the safe gap.
+
+6. Second Hand Spiral
+- Thin clock-hand bullets spiral from the center.
+
+7. Pendulum Crush
+- Huge pendulum blades swing from side to side.
+
+8. Time Debt
+- Delayed ghost bullets appear where the player stood three seconds ago.
+
+Boss 5: The Unreadable King
+Theme: Symbols, crowns, broken text, reality tears.
+Buff: Heavy visual pressure, more fake text hazards, faster symbol walls.
+
+1. Impossible Script
+- Strange symbols rain from above in curved streams.
+
+2. Crown Collapse
+- Crown-shaped bullet rings close inward.
+
+3. Reality Tear
+- Red cracks split the arena into temporary danger zones.
+
+4. Broken Sentence
+- Word-like walls slide across the arena with missing-letter gaps.
+
+5. Crown of Static
+- Rotating symbol rings overlap with falling crown shards.
+
+6. Lost Paragraph
+- Text blocks cover parts of the arena, hiding incoming bullets until warning flashes.
+
+7. Glyph Spiral
+- Glyph bullets spiral from four corners.
+
+8. Unreadable Maze
+- Moving text walls create a temporary maze.
+
+9. Royal Redaction
+- Black redaction bars cover safe paths before revealing a final narrow escape.
+
+Boss 6: Nyxcoil, the Deep Current
+Theme: Electric eel, ocean, current, lightning.
+Buff: Stronger current physics, tighter electric cages, faster shock patterns.
+
+1. Current Surge
+- Electric lines sweep across the arena after blue flashes.
+
+2. Coil Trap
+- Curved electric trails form temporary cages.
+
+3. Undertow Pull
+- Water current pulls the player sideways while bullets drift opposite.
+
+4. Deep Shock
+- Electric circles expand from ripple warning points.
+
+5. Whirlpool Circuit
+- Player is pulled in a spiral while sparks fire outward.
+
+6. Abyss Spark
+- Tiny sparks hide in dark water, then flash into lightning bolts.
+
+7. Tide Cage
+- Water walls rise and fall, changing the usable arena space.
+
+8. Voltage Riptide
+- Fast electric streams rush diagonally across the arena.
+
+9. Serpent Loop
+- The boss’s eel body loops through the arena as a moving hazard.
+
+10. Blackwater Flash
+- The arena darkens, then lightning reveals danger zones for a split second.
+
+Boss 7: Marrow Saint
+Theme: Bones, ritual, skeletal saint.
+Buff: Bone cages close faster, orbit attacks are tighter, tracking is stronger.
+
+1. Bone Rain
+- Bone bullets fall in offset columns.
+
+2. Rib Cage
+- Bone walls close inward with small gaps.
+
+3. Halo Curse
+- Bone halos orbit the player before shooting outward.
+
+4. Grave Hymn
+- Bone bullets pulse outward in rhythm waves.
+
+5. Saint’s Ossuary
+- Bone walls and orbiting bullets create a moving cage.
+
+6. Marrow Spiral
+- Long bone spears spiral from the boss.
+
+7. Skull Lanterns
+- Skull bullets float slowly, then fire small teeth bullets.
+
+8. Tomb Step
+- The floor lights up in stepping-stone danger tiles.
+
+9. Bone Lattice
+- Crossing bone beams form a moving grid.
+
+10. Red Prayer
+- Crimson ritual circles appear under the player and explode after a chant.
+
+11. Final Relic
+- A giant relic bone rotates while smaller bones fall from above.
+
+Boss 8: Luxora, Queen of False Stars
+Theme: Stars, deception, constellations.
+Buff: More fake warnings, darker arena, more connected lasers.
+
+1. Starfall
+- Stars fall with sparkle warning markers.
+
+2. Constellation Lines
+- Stars connect into laser lines.
+
+3. False Star
+- Dim fake stars appear beside bright real hazards.
+
+4. Supernova Waltz
+- Large stars explode into smaller bullets in circular patterns.
+
+5. Royal Eclipse
+- Arena darkens; only real hazards glow clearly.
+
+6. Meteor Crown
+- Crown-shaped meteors fall in rotating arcs.
+
+7. Astral Mirror
+- Star bullets mirror the player’s vertical position.
+
+8. Nebula Bloom
+- Slow nebula clouds expand and block space.
+
+9. Comet Thread
+- Comets leave damaging trails behind them.
+
+10. Dark Sky Court
+- Four star judges fire beams from the arena corners.
+
+11. Star Map Trap
+- The arena becomes a constellation map; crossing glowing lines causes damage.
+
+12. Queen’s Nova
+- A massive nova warning expands, then leaves only a tiny safe ring.
+
+Boss 9: Ruin Engine Omega
+Theme: Machine core, pistons, industrial destruction.
+Buff: More moving machinery, stronger arena compression, faster cycles.
+
+1. Piston Crush
+- Pistons slam from the sides after red warnings.
+
+2. Engine Spin
+- Rotating machine arms sweep bullets around the arena.
+
+3. Overheat
+- Floor tiles glow orange, then explode.
+
+4. Compression Cycle
+- The arena shrinks while machine arms keep firing.
+
+5. Meltdown Protocol
+- Pistons, heat tiles, and spin arms activate in timed bursts.
+
+6. Furnace Lane
+- Fire vents leave one safe lane that moves every few seconds.
+
+7. Cog Barrage
+- Gear bullets roll across the arena and bounce off walls.
+
+8. Rust Storm
+- Rust flakes fall slowly, then accelerate downward.
+
+9. Hydraulic Snap
+- Mechanical jaws snap shut around marked zones.
+
+10. Core Vent
+- The boss vents steam clouds that block vision before bullets emerge.
+
+11. Redline Grid
+- Red machine lasers form a shifting grid.
+
+12. Shutdown Fakeout
+- The screen goes quiet, then emergency hazards restart suddenly.
+
+13. Omega Cycle
+- Every machine hazard runs in a short final sequence.
+
+Boss 10: Axiom, the End of Rules
+Theme: Geometry, rules, equations, paradox.
+Buff: Stronger arena shape changes, more rule-breaking patterns, harder fakeouts.
+
+1. Rule Rewrite
+- The battle box changes shape temporarily.
+
+2. Axis Collapse
+- Vertical and horizontal laser grids appear with safe gaps.
+
+3. Mirror Soul
+- A fake soul mirrors movement and damages on contact.
+
+4. Rule Stack
+- Arena shape changes while lasers fire through the new geometry.
+
+5. Undefined Behavior
+- Several rules shift at once with warning icons.
+
+6. Null Coordinate
+- Parts of the arena lose coordinates and become void zones.
+
+7. Logic Spiral
+- Mathematical symbols spiral outward in alternating clockwise patterns.
+
+8. Broken Equation
+- Equation fragments fall, then rearrange into laser walls.
+
+9. False Safe Zone
+- Several safe zones appear, but only one matches the correct symbol.
+
+10. Geometry Collapse
+- Triangle, square, and circle hazards collapse toward the center.
+
+11. Input Paradox
+- Movement briefly becomes delayed, with a countdown warning.
+
+12. Axiom Cage
+- A geometric cage rotates around the player.
+
+13. End of Pattern
+- A predictable pattern suddenly stops, forcing the player to react to silence.
+
+14. Rule Zero
+- The arena rapidly cycles through previous rule changes in a final test.
+
+Boss 11: Velmora, the Velvet Plague
+Theme: Moth plague queen, spores, poison.
+Buff: More poison pressure, stronger area denial, faster moth swarms.
+
+1. Spore Bloom
+- Poison clouds expand from warning spores.
+
+2. Wing Dust
+- Diagonal dust waves sweep across the arena.
+
+3. Infection Zones
+- Toxic zones appear and linger.
+
+4. Velvet Swarm
+- Moth bullets drift slowly, then accelerate.
+
+5. Plague Garden
+- Poison blooms grow while moths weave between them.
+
+6. Toxic Waltz
+- Poison clouds rotate around the arena in dance patterns.
+
+7. Moth Eclipse
+- A giant moth shadow crosses the arena, damaging covered areas.
+
+8. Fever Rings
+- Poison rings pulse outward with irregular rhythm.
+
+9. Velvet Veil
+- A soft veil hides bullets until they get close.
+
+10. Antidote Fakeout
+- Fake healing icons appear; touching them creates poison bursts.
+
+11. Green Cathedral
+- Tall poison pillars rise like cathedral columns.
+
+12. Rotting Petals
+- Petal bullets split into poison droplets.
+
+13. Spore Spiral
+- Spores spiral outward and leave toxic trails.
+
+14. Plague Crown
+- Crown-shaped poison bullets rotate around the player.
+
+15. Final Bloom
+- The arena fills with blooming poison zones, leaving a moving safe pocket.
+
+Boss 12: Iron Choir
+Theme: Mechanical choir, rhythm, sound waves.
+Buff: Faster rhythm swaps, overlapping tempos, stronger pulse hazards.
+
+1. Sound Bars
+- Horizontal sound lasers pulse with rhythm.
+
+2. Choir Split
+- Mechanical masks fire alternating bullet rhythms.
+
+3. Silent Beat
+- Bullets freeze, then jump forward on the beat.
+
+4. Crescendo Crush
+- Sound bars become closer with each pulse.
+
+5. Dissonance Finale
+- Two rhythms overlap with alternating safe beats.
+
+6. Bass Drop
+- A giant shockwave drops from top to bottom.
+
+7. Mask Canon
+- Choir masks fire in a repeating musical canon.
+
+8. Broken Rhythm
+- The beat intentionally skips, changing bullet timing.
+
+9. Echo Measure
+- Each sound attack repeats once at lower opacity.
+
+10. Red Note Rain
+- Red music-note bullets fall in syncopated patterns.
+
+11. Syncopation Trap
+- Safe zones appear on off-beats only.
+
+12. Chrome Hymn
+- Chrome beams sweep in slow rhythm.
+
+13. Rest Note Fakeout
+- A pause appears safe, then hidden bullets activate.
+
+14. Double Tempo
+- The entire attack rhythm doubles speed.
+
+15. Choir Wall
+- Masks form walls and sing damaging sound beams.
+
+16. Final Chord
+- All choir masks fire one massive layered chord attack.
+
+Boss 13: Gravitas Rex
+Theme: Black-hole lion king, gravity.
+Buff: Stronger pull, more gravity wells, tighter orbit attacks.
+
+1. Gravity Pull
+- A gravity orb pulls the player toward it.
+
+2. Orbiting Teeth
+- Teeth bullets orbit the center before launching outward.
+
+3. Collapse Ring
+- Arena edges slowly close inward.
+
+4. Gravity Flip
+- Gravity direction changes after warning arrows.
+
+5. Royal Singularity
+- Multiple gravity wells pull from different sides.
+
+6. Crown Well
+- Crown-shaped black holes appear and pull bullets into curved paths.
+
+7. Heavy Step
+- The player becomes temporarily heavier and slower.
+
+8. Orbit Break
+- Orbiting bullets suddenly break formation and shoot outward.
+
+9. Dark Matter Rain
+- Heavy bullets fall and curve toward gravity wells.
+
+10. Tidal Bite
+- Gravity waves push the player toward lion-mouth hazards.
+
+11. Center Crush
+- Everything pulls toward the center before a center explosion.
+
+12. Gravity Maze
+- Invisible gravity lanes become visible with warning arrows.
+
+13. Void Roar
+- The boss roars, pushing the player away while bullets approach.
+
+14. Silver Orbit
+- Silver bullets orbit the player, then collapse inward.
+
+15. Falling Crown
+- Gravity crowns drop from above and create pull zones.
+
+16. Singularity Cage
+- Gravity walls form a cage that moves around the arena.
+
+17. Rex Collapse
+- Multiple gravity effects stack for a final survival wave.
+
+Boss 14: Candlegrave
+Theme: Candle spirit, wax, flame, funeral.
+Buff: More lingering wax, faster flame flickers, stronger visibility tricks.
+
+1. Wax Drip
+- Wax drops fall and spread into floor puddles.
+
+2. Flame Flicker
+- Fire bullets blink in and out.
+
+3. Funeral March
+- Flame columns step across the arena.
+
+4. Last Ember
+- Slow flames split into fast sparks.
+
+5. Melting Cathedral
+- Wax puddles and flame columns force narrow paths.
+
+6. Candle Tears
+- Falling wax tears curve toward the player.
+
+7. Wick Spiral
+- Fire bullets spiral from a burning wick.
+
+8. Blue Flame Lane
+- Blue flames leave only one safe lane.
+
+9. Wax Flood
+- The lower arena slowly fills with wax.
+
+10. Ember Cross
+- Cross-shaped flame bursts appear after warnings.
+
+11. Flicker Fakeout
+- Fake flame flickers disappear; real ones explode.
+
+12. Smoke Veil
+- Smoke reduces visibility while warning glows stay visible.
+
+13. Mourning Bells
+- Bell rings trigger circular flame shockwaves.
+
+14. Lantern Drop
+- Lanterns fall and burst into sparks.
+
+15. Cathedral Collapse
+- Candle pillars fall diagonally across the arena.
+
+16. Final Candle
+- One giant candle beam sweeps across the box.
+
+17. Ash Ring
+- Ash rings contract inward.
+
+18. Grave Flame
+- Grave-shaped flames rise from the floor in a final pattern.
+
+Boss 15: Static Widow
+Theme: Static spider, web grid, screen corruption.
+Buff: Stronger glitch effects, more web pressure, faster target attacks.
+
+1. Web Grid
+- Laser webs form a grid with moving holes.
+
+2. Signal Bite
+- Triangle bullets target the player’s last position.
+
+3. Screen Tear
+- The arena visually shifts while hitboxes stay fair.
+
+4. Static Nest
+- Web nodes fire short alternating bursts.
+
+5. Widow’s Broadcast
+- Web grid, static bursts, and screen tear combine.
+
+6. Antenna Strike
+- Antenna beams stab downward after warning sparks.
+
+7. Pink Noise
+- Pink static bullets jitter unpredictably but dodgeably.
+
+8. Pixel Web
+- Pixel blocks connect into temporary web lines.
+
+9. Dead Channel
+- The screen briefly desaturates, then hazards flash back in.
+
+10. Signal Lag
+- Player movement creates delayed afterimage hazards.
+
+11. Glitch Fang
+- Sharp glitch fangs snap from arena edges.
+
+12. Web Collapse
+- Web lines collapse inward toward the player.
+
+13. VHS Storm
+- Horizontal scanline bullets sweep across the arena.
+
+14. Static Mirror
+- A static clone mirrors the player and emits small bursts.
+
+15. Corrupt Frame
+- The arena frame itself becomes dangerous in sections.
+
+16. Spider Pulse
+- The boss sends pulse rings through connected webs.
+
+17. Broken Feed
+- Warning icons appear out of order, then attacks resolve correctly.
+
+18. Final Broadcast
+- Multiple glitch systems activate in one readable sequence.
+
+19. Widow Crash
+- The screen glitches hard, then clears into a final web maze.
+
+Boss 16: Atlas Minor
+Theme: Child titan, planet, meteors, world physics.
+Buff: More arena physics, stronger tilting, larger meteor combos.
+
+1. Meteor Lesson
+- Meteors fall in grouped patterns.
+
+2. Planet Tilt
+- The arena tilts and slides the player.
+
+3. Crater Burst
+- Impact marks explode outward.
+
+4. Tiny Apocalypse
+- Meteors, tilt, and crater warnings combine.
+
+5. World Drop
+- A giant planet shadow falls, leaving meteor gaps.
+
+6. Magma Steps
+- Magma tiles activate in stepping patterns.
+
+7. Orbit Pebbles
+- Small rocks orbit the player before scattering.
+
+8. Titan Toss
+- Giant rocks are thrown from the boss.
+
+9. Continent Crack
+- Cracks split the arena floor into danger lines.
+
+10. Falling Lesson
+- Slow meteors teach a pattern, then fast meteors repeat it.
+
+11. Gravity Playground
+- Gravity becomes bouncy and light.
+
+12. Little Cataclysm
+- Several small disasters happen in quick sequence.
+
+13. Planet Spin
+- The arena rotates visually while movement remains readable.
+
+14. Stone Rain
+- Heavy stones fall and bounce once.
+
+15. Cracked Horizon
+- The horizon line becomes a sweeping hazard.
+
+16. Atlas Shrug
+- The whole arena shakes and drops debris.
+
+17. Moon Bounce
+- Moon bullets bounce off walls.
+
+18. Small Extinction
+- Meteor clusters close in from all sides.
+
+19. Core Break
+- Magma erupts from the center outward.
+
+20. World Lesson
+- Every planet mechanic returns in a final exam.
+
+Boss 17: The Paper Emperor
+Theme: Origami, ink, paper blades.
+Buff: Faster blade attacks, tighter paper mazes, stronger ink denial.
+
+1. Paper Cuts
+- Thin blade bullets slice across the box.
+
+2. Folded Walls
+- Paper walls fold inward to create maze paths.
+
+3. Ink Decree
+- Ink drops create temporary danger puddles.
+
+4. Royal Guillotine
+- Massive paper blades fall after thin warning lines.
+
+5. Thousand Folds
+- Maze walls fold while paper cuts slice through lanes.
+
+6. Origami Spears
+- Folded spears shoot from corners.
+
+7. Ink Rain
+- Ink falls and splashes into smaller droplets.
+
+8. Scroll Maze
+- Scrolling paper walls move horizontally.
+
+9. Paper Fan
+- Fan-shaped waves sweep across the arena.
+
+10. Fold Trap
+- Safe areas fold shut after warning creases.
+
+11. Red Stamp
+- Giant stamp marks danger zones, then slams down.
+
+12. Blade Script
+- Written ink lines become cutting blades.
+
+13. Emperor’s Letter
+- Paper envelopes open and release bullet patterns.
+
+14. Paper Storm
+- Tiny paper scraps swirl around the player.
+
+15. Ink Mirror
+- Ink reflections copy some player movement.
+
+16. Crown Fold
+- A paper crown folds into rotating blades.
+
+17. White Edge
+- Nearly invisible white blades show only by shadow warnings.
+
+18. Guillotine Hall
+- Several guillotines fall in hallway sequence.
+
+19. Final Decree
+- The boss announces a pattern, then changes one rule.
+
+20. Shredded Throne
+- Paper throne fragments fly in sharp arcs.
+
+21. Thousand Cuts
+- A final rapid sequence of thin but clearly warned blade paths.
+
+Boss 18: Echovault
+Theme: Memory, echoes, delayed hazards.
+Buff: More delayed attacks, stronger memory patterns, tighter replay challenges.
+
+1. Echo Trail
+- Bullets repeat the player’s movement path.
+
+2. Memory Replay
+- A previous boss attack returns in changed form.
+
+3. Vault Lock
+- Four corners fire inward.
+
+4. Shattered Recall
+- Weak versions of old attacks overlap briefly.
+
+5. Perfect Echo
+- The player’s recent path becomes a delayed hazard.
+
+6. Crystal Repeat
+- Crystal bullets repeat their path twice.
+
+7. Ghost Step
+- Ghost copies of the player leave dangerous footprints.
+
+8. Delayed Ring
+- Rings appear harmless, then activate after a delay.
+
+9. Memory Shards
+- Shards replay the last bullet pattern in reverse.
+
+10. Past Mistake
+- The arena marks where the player got hit before and attacks those zones.
+
+11. Locked Reflection
+- Mirror walls reflect bullets from earlier positions.
+
+12. Replayed Rain
+- Falling bullets repeat with offset timing.
+
+13. Echo Cage
+- The player is caged by delayed copies of old walls.
+
+14. Vault Spiral
+- Spiral bullets pause, echo, then continue.
+
+15. Familiar Beam
+- Beams look like earlier bosses’ attacks but resolve differently.
+
+16. Old Pattern New Rules
+- A known pattern changes its safe zone logic.
+
+17. Delayed Mirror
+- A mirror clone repeats the player’s movement three seconds late.
+
+18. Recall Storm
+- Multiple remembered bullet paths return together.
+
+19. Archive Collapse
+- The arena fills with falling archive tiles.
+
+20. Memory Leak
+- Hazards slowly leak from previous wave positions.
+
+21. Crystal Afterimage
+- Crystal bullets leave delayed afterimages that become real.
+
+22. Final Echo
+- The boss replays the player’s entire recent route as a hazard maze.
+
+Boss 19: Blood Moon Marionette
+Theme: Puppet, strings, stage, blood moon.
+Buff: Stronger pull mechanics, faster dance bullets, more stage hazards.
+
+1. String Pull
+- Warning strings tug the player briefly.
+
+2. Puppet Dance
+- Bullets move in choreographed dance steps.
+
+3. Moon Drop
+- Large moons fall and shatter into smaller bullets.
+
+4. Final Bow
+- Strings, dance bullets, and moon shards combine.
+
+5. Red Stage Collapse
+- Stage curtains close from the sides while strings fire.
+
+6. Marionette Waltz
+- Bullets dance in circular three-step patterns.
+
+7. Lunar Strings
+- Moonlit strings drop vertically as laser lines.
+
+8. Blood Curtain
+- Red curtains sweep across the arena.
+
+9. Dance Step Trap
+- Floor tiles activate in rhythm with dance steps.
+
+10. Silver Hook
+- Hook bullets curve toward the player’s previous position.
+
+11. Puppet Spin
+- A puppet figure spins and throws crescent bullets.
+
+12. Moon Shatter
+- A giant moon breaks into unpredictable but warned fragments.
+
+13. String Cage
+- Strings form a cage with moving exits.
+
+14. Red Spotlight
+- Spotlights track the player, then fire beams.
+
+15. Theater Crush
+- Stage props fall from above.
+
+16. Cruel Applause
+- Clapping shockwaves pulse from both sides.
+
+17. Hanging Thread
+- Threads hang down and sway as hazards.
+
+18. Blood Moon Rain
+- Red moon droplets fall in curved paths.
+
+19. Stage Tilt
+- The stage tilts and slides the player.
+
+20. Last Dance
+- The player must dodge bullets moving in dance rhythm.
+
+21. Curtain Call
+- Curtains close and open, hiding incoming moon shards.
+
+22. Broken Puppet
+- Puppet limbs fly across the arena after warnings.
+
+23. Moonlit Finale
+- Every puppet-stage mechanic returns in a final sequence.
+
+Boss 20: The First Mistake
+Theme: Corrupted player soul, all previous bosses, final regret.
+Buff: Extremely intense, layered, multi-mechanic, but still readable.
+
+1. Regret Spiral
+- Red soul bullets spiral inward and outward at the same time.
+
+2. Boss Memory Chain
+- One short signature attack from each previous boss appears in sequence.
+
+3. Broken Controls
+- Movement becomes slippery after a clear warning.
+
+4. Soul Duel
+- Corrupted soul clone follows with delay and fires counter-bullets.
+
+5. Memory Overload
+- Several previous boss attacks overlap in short readable bursts.
+
+6. Last Mistake
+- Falling hazards, rotating lasers, shrinking arena, and fake hearts combine.
+
+7. Final Error
+- Battle box fractures into safe and unsafe zones.
+
+8. Crystal Regret
+- Crystal prisons and reflective beams return with corrupted colors.
+
+9. Glitch Hunger
+- Mawbyte-style glitch lanes combine with snapping teeth.
+
+10. Null Prayer
+- Seraph beams and shrinking safe circles overlap.
+
+11. Clock Debt
+- Delayed time ghosts repeat the player’s route.
+
+12. Unreadable Crown
+- Crown bullets and broken text walls close in.
+
+13. Deep Current Memory
+- Electric currents push the player through shock lanes.
+
+14. Bone Confession
+- Bone cages close while ritual circles explode.
+
+15. False Star Memory
+- Fake stars hide real laser connections.
+
+16. Omega Ruin
+- Pistons, gears, and overheat tiles return in machine rhythm.
+
+17. Axiom Rewrite
+- Arena rules change every few seconds.
+
+18. Velvet Infection
+- Poison clouds bloom while moth bullets drift.
+
+19. Iron Dissonance
+- Two rhythm systems overlap with different tempos.
+
+20. Gravity Sin
+- Gravity wells pull bullets and player in opposite directions.
+
+21. Candle Mourning
+- Wax floods the bottom while flame columns march.
+
+22. Static Widow Memory
+- Glitch webs and screen tears return.
+
+23. Atlas Burden
+- Meteors fall while arena tilt shifts movement.
+
+24. Paper Judgment
+- Paper blades, ink zones, and folding walls combine.
+
+25. First Mistake
+- Final wave: all mechanics appear in short, fair, brutal phases; player must survive a complete final exam.
+
+IMPLEMENTATION REQUIREMENT:
+- Put all of these moves into the real boss data array.
+- Each wave object must have:
+  - id
+  - name
+  - description
+  - duration
+  - attackType
+  - warningType
+  - bulletSpeed
+  - spawnRate
+  - damage
+  - arenaEffect
+  - patternTags
+  - execute
+- Make every execute function actually do something different.
+- Do not leave moves as descriptions only.
+- The game must read the waves from the boss data.
+- The wave UI must use boss.waves.length.
+- Buff all boss difficulty values, but keep Boss 1 playable enough to teach mechanics.

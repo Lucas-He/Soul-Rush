@@ -315,16 +315,16 @@ const BOSSES: BossConf[] = [
       '...Your soul is transparent to me.',
       'Precision is eternal. Let us begin.'
     ],
-    attacks: ['crystalRain', 'mirrorWalls', 'shatterPulse', 'crystalRain', 'mirrorWalls'],
+    attacks: ['crystalRain', 'mirrorWalls', 'shatterPulse', 'constellationLines', 'haloCurse'],
     dmg: 16,
     atkDur: 5,
     rewardItemPool: ['candle_ash', 'echo_fragment'],
     waves: [
-      { id: 'vr1', name: 'Crystal Rain', description: 'Aimed crystal shards rain from above.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 180, spawnRate: 10, damage: 16, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
-      { id: 'vr2', name: 'Mirror Walls', description: 'Horizontal laser walls close inward.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'mirrorWalls' },
-      { id: 'vr3', name: 'Shatter Pulse', description: 'Two expanding rings burst outward.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 110, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'shatterPulse' },
-      { id: 'vr4', name: 'Crystal Rain II', description: 'Heavier crystal shard rain.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 190, spawnRate: 12, damage: 16, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
-      { id: 'vr5', name: 'Mirror Walls II', description: 'Faster closing mirror walls.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'mirrorWalls' },
+      { id: 'vr1', name: 'Crystal Rain', description: 'Crystal shards fall from the top in staggered lanes.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 185, spawnRate: 11, damage: 16, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
+      { id: 'vr2', name: 'Mirror Walls', description: 'Horizontal and vertical laser walls appear after warning lines.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'mirrorWalls' },
+      { id: 'vr3', name: 'Shatter Pulse', description: 'Expanding crystal rings grow from center with rotating gaps.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 115, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'shatterPulse' },
+      { id: 'vr4', name: 'Prism Crossfire', description: 'Angled beams connect across the arena after warning reflections.', duration: 5, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 6, damage: 16, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
+      { id: 'vr5', name: 'Prism Prison', description: 'Crystal walls trap the player with one escape gap then shatter into diagonal shards.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 90, spawnRate: 1, damage: 16, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'haloCurse' },
     ],
   },
   {
@@ -337,17 +337,17 @@ const BOSSES: BossConf[] = [
       'ERR_SOUL_DETECTED // CONSUMING...',
       'HUNGRY // HUNGRY // HUNGRY //'
     ],
-    attacks: ['bitStorm', 'errorSweep', 'devourLane', 'bitStorm', 'errorSweep', 'devourLane'],
+    attacks: ['bitStorm', 'errorSweep', 'devourLane', 'bitStorm', 'wingBarrage', 'boneRain'],
     dmg: 18,
     atkDur: 6,
     rewardItemPool: ['candle_ash', 'moth_wing'],
     waves: [
-      { id: 'mb1', name: 'Bit Storm', description: 'Frenzied bits sweep from both sides.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 190, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
-      { id: 'mb2', name: 'Error Sweep', description: 'Columns of error bullets march inward.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 6, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
-      { id: 'mb3', name: 'Devour Lane', description: 'A hungry lane sweeps the arena.', duration: 6, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 18, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
-      { id: 'mb4', name: 'Bit Storm II', description: 'Denser bit sweep.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 200, spawnRate: 10, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
-      { id: 'mb5', name: 'Error Sweep II', description: 'Reversed error march.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 185, spawnRate: 6, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
-      { id: 'mb6', name: 'Devour Lane II', description: 'Final devouring pass.', duration: 6, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 18, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
+      { id: 'mb1', name: 'Bit Storm', description: 'Pixel bullets scatter in square-grid bursts from both sides.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 195, spawnRate: 11, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'mb2', name: 'Error Sweep', description: 'Giant glitch bars sweep across the arena from random sides.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 182, spawnRate: 7, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'errorSweep' },
+      { id: 'mb3', name: 'Devour Lane', description: 'Only one safe lane remains while corruption fills the rest.', duration: 6, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 18, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
+      { id: 'mb4', name: 'Corrupted Download', description: 'Blocks fall in chunky file-download patterns with a moving gap.', duration: 6, attackType: 'sweep', warningType: 'side', bulletSpeed: 202, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['sweep'], execute: 'bitStorm' },
+      { id: 'mb5', name: 'Input Rot', description: 'Fake letters rain down — only bright-red ones deal damage.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 9, damage: 18, arenaEffect: 'none', patternTags: ['rain', 'fake'], execute: 'wingBarrage' },
+      { id: 'mb6', name: 'Cache Bite', description: 'Glitch teeth snap at the positions you occupied a moment ago.', duration: 6, attackType: 'aimed', warningType: 'target', bulletSpeed: 195, spawnRate: 6, damage: 18, arenaEffect: 'none', patternTags: ['aimed', 'memory'], execute: 'boneRain' },
     ],
   },
   {
@@ -360,16 +360,18 @@ const BOSSES: BossConf[] = [
       'Insufficient. Begin examination.',
       'Your score: failing. Proceed, if you can.'
     ],
-    attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'haloSpiral', 'judgmentBeams'],
+    attacks: ['haloSpiral', 'judgmentBeams', 'wingBarrage', 'judgmentBeams', 'mothEclipse', 'ribCage', 'crownCollapse'],
     dmg: 20,
     atkDur: 6,
     rewardItemPool: ['wax_seal', 'candle_ash'],
     waves: [
-      { id: 'sn1', name: 'Halo Spiral', description: 'Golden spiral bullets expand from center.', duration: 6, attackType: 'spiral', warningType: 'ring', bulletSpeed: 130, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['spiral'], execute: 'haloSpiral' },
-      { id: 'sn2', name: 'Judgment Beams', description: 'Vertical laser beams of divine judgment.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'column'], execute: 'judgmentBeams' },
-      { id: 'sn3', name: 'Wing Barrage', description: 'Dense wing-feather burst from above.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 160, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['rain', 'dense'], execute: 'wingBarrage' },
-      { id: 'sn4', name: 'Halo Spiral II', description: 'Denser golden spiral.', duration: 6, attackType: 'spiral', warningType: 'ring', bulletSpeed: 140, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['spiral'], execute: 'haloSpiral' },
-      { id: 'sn5', name: 'Judgment Beams II', description: 'More beams, final verdict.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'column'], execute: 'judgmentBeams' },
+      { id: 'sn1', name: 'Halo Spiral', description: 'Halo bullets spiral outward in rotating golden arms.', duration: 6, attackType: 'spiral', warningType: 'ring', bulletSpeed: 135, spawnRate: 7, damage: 20, arenaEffect: 'none', patternTags: ['spiral'], execute: 'haloSpiral' },
+      { id: 'sn2', name: 'Judgment Beams', description: 'Diagonal divine beams fire after golden warning lines.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'column'], execute: 'judgmentBeams' },
+      { id: 'sn3', name: 'Wing Barrage', description: 'Feather bullets enter from both sides in alternating waves.', duration: 6, attackType: 'rain', warningType: 'top', bulletSpeed: 165, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['rain', 'dense'], execute: 'wingBarrage' },
+      { id: 'sn4', name: 'False Judgment', description: 'Fake beam warnings appear — only the brighter beams are real.', duration: 6, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'fake'], execute: 'judgmentBeams' },
+      { id: 'sn5', name: 'Null Verdict', description: 'Safe circles shrink while halo bullets orbit around them.', duration: 6, attackType: 'ring', warningType: 'ring', bulletSpeed: 82, spawnRate: 1, damage: 20, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
+      { id: 'sn6', name: 'Seraphic Cage', description: 'Golden cage bars close inward forcing movement through holy gaps.', duration: 6, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
+      { id: 'sn7', name: 'Broken Halo', description: 'Halo fragments ricochet around the arena like sharp triangle bullets.', duration: 6, attackType: 'radial', warningType: 'ring', bulletSpeed: 165, spawnRate: 12, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
     ],
   },
   {
@@ -382,17 +384,19 @@ const BOSSES: BossConf[] = [
       'T  i  m  e...  s  l  o  w  s...',
       'You cannot outrun the gears of eternity.'
     ],
-    attacks: ['gearMaze', 'clockSlash', 'timeFreeze', 'gearMaze', 'clockSlash', 'gearMaze'],
+    attacks: ['gearMaze', 'timeFreeze', 'clockSlash', 'timeFreeze', 'gearMaze', 'haloSpiral', 'ribCage', 'boneRain'],
     dmg: 22,
     atkDur: 7,
     rewardItemPool: ['echo_fragment', 'candle_ash'],
     waves: [
-      { id: 'or1', name: 'Gear Maze', description: 'Rotating gear-pattern bullet maze.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 90, spawnRate: 6, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
-      { id: 'or2', name: 'Clock Slash', description: 'Clock hands sweep laser arcs.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 3, damage: 22, arenaEffect: 'none', patternTags: ['orbit', 'laser'], execute: 'clockSlash' },
-      { id: 'or3', name: 'Time Freeze', description: 'Bullets slow then burst free simultaneously.', duration: 7, attackType: 'freeze', warningType: 'glow', bulletSpeed: 130, spawnRate: 5, damage: 22, arenaEffect: 'freeze', patternTags: ['freeze', 'burst'], execute: 'timeFreeze' },
-      { id: 'or4', name: 'Gear Maze II', description: 'Faster gear rotation maze.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 100, spawnRate: 7, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
-      { id: 'or5', name: 'Clock Slash II', description: 'Accelerating clock-hand sweep.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 4, damage: 22, arenaEffect: 'none', patternTags: ['orbit', 'laser'], execute: 'clockSlash' },
-      { id: 'or6', name: 'Gear Maze III', description: 'Maximum gear density finale.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 110, spawnRate: 8, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
+      { id: 'or1', name: 'Gear Maze', description: 'Rotating gears move through the arena like crushing mechanical walls.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 95, spawnRate: 7, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
+      { id: 'or2', name: 'Time Freeze', description: 'Bullets freeze briefly then suddenly resume at full speed.', duration: 7, attackType: 'freeze', warningType: 'glow', bulletSpeed: 135, spawnRate: 6, damage: 22, arenaEffect: 'freeze', patternTags: ['freeze', 'burst'], execute: 'timeFreeze' },
+      { id: 'or3', name: 'Clock Hand Slash', description: 'Giant clock hands rotate across the arena in sweeping arcs.', duration: 7, attackType: 'orbit', warningType: 'center', bulletSpeed: 0, spawnRate: 3, damage: 22, arenaEffect: 'none', patternTags: ['orbit', 'laser'], execute: 'clockSlash' },
+      { id: 'or4', name: 'Rewind Strike', description: 'Bullets reverse direction after a warning flash.', duration: 7, attackType: 'freeze', warningType: 'glow', bulletSpeed: 145, spawnRate: 6, damage: 22, arenaEffect: 'freeze', patternTags: ['freeze', 'reverse'], execute: 'timeFreeze' },
+      { id: 'or5', name: 'Midnight Loop', description: 'A pattern repeats three times but each loop shifts the safe gap.', duration: 7, attackType: 'maze', warningType: 'center', bulletSpeed: 105, spawnRate: 8, damage: 22, arenaEffect: 'none', patternTags: ['maze', 'rotate'], execute: 'gearMaze' },
+      { id: 'or6', name: 'Second Hand Spiral', description: 'Thin clock-hand bullets spiral tightly from the center outward.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 140, spawnRate: 7, damage: 22, arenaEffect: 'none', patternTags: ['spiral', 'thin'], execute: 'haloSpiral' },
+      { id: 'or7', name: 'Pendulum Crush', description: 'Huge pendulum blades swing from side to side with warning arcs.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 22, arenaEffect: 'none', patternTags: ['wall', 'swing'], execute: 'ribCage' },
+      { id: 'or8', name: 'Time Debt', description: 'Delayed ghost bullets appear where the player stood three seconds ago.', duration: 7, attackType: 'aimed', warningType: 'target', bulletSpeed: 175, spawnRate: 6, damage: 22, arenaEffect: 'none', patternTags: ['aimed', 'memory'], execute: 'boneRain' },
     ],
   },
   {
@@ -405,17 +409,20 @@ const BOSSES: BossConf[] = [
       'T\u0336H\u0337E\u0338 \u0336E\u0337N\u0338D\u0336 \u0337I\u0338S\u0336 \u0337R\u0338E\u0336A\u0337D\u0338Y\u0336',
       'Y\u0336o\u0337u\u0338 \u0336c\u0337a\u0338n\u0336n\u0337o\u0338t\u0336 \u0337r\u0338e\u0336a\u0337d\u0338 \u0336t\u0337h\u0338i\u0336s\u0337'
     ],
-    attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'soulSplit', 'impossibleScript', 'finalPattern'],
+    attacks: ['impossibleScript', 'crownCollapse', 'realityTear', 'errorSweep', 'soulSplit', 'devourLane', 'haloSpiral', 'gearMaze', 'finalPattern'],
     dmg: 26,
     atkDur: 8,
     rewardItemPool: ['ink_blot', 'candle_ash'],
     waves: [
-      { id: 'uk1', name: 'Impossible Script', description: 'Unreadable columns of dense bullets march inward.', duration: 8, attackType: 'column', warningType: 'column', bulletSpeed: 170, spawnRate: 10, damage: 26, arenaEffect: 'none', patternTags: ['column', 'dense'], execute: 'impossibleScript' },
-      { id: 'uk2', name: 'Crown Collapse', description: 'Crown shards rain from all directions.', duration: 8, attackType: 'radial', warningType: 'ring', bulletSpeed: 150, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
-      { id: 'uk3', name: 'Reality Tear', description: 'A horizontal reality rift divides the arena.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 26, arenaEffect: 'none', patternTags: ['laser', 'split'], execute: 'realityTear' },
-      { id: 'uk4', name: 'Soul Split', description: 'Mirror copies fire aimed shots at you.', duration: 8, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 155, spawnRate: 5, damage: 26, arenaEffect: 'none', patternTags: ['mirror', 'aimed'], execute: 'soulSplit' },
-      { id: 'uk5', name: 'Impossible Script II', description: 'Denser unreadable volley.', duration: 8, attackType: 'column', warningType: 'column', bulletSpeed: 180, spawnRate: 12, damage: 26, arenaEffect: 'none', patternTags: ['column'], execute: 'impossibleScript' },
-      { id: 'uk6', name: 'Final Pattern', description: 'The ultimate unreadable pattern descends.', duration: 8, attackType: 'chaos', warningType: 'all', bulletSpeed: 190, spawnRate: 14, damage: 26, arenaEffect: 'none', patternTags: ['chaos', 'finale'], execute: 'finalPattern' },
+      { id: 'uk1', name: 'Impossible Script', description: 'Strange symbols rain from above in curved streams that defy logic.', duration: 8, attackType: 'column', warningType: 'column', bulletSpeed: 175, spawnRate: 11, damage: 26, arenaEffect: 'none', patternTags: ['column', 'dense'], execute: 'impossibleScript' },
+      { id: 'uk2', name: 'Crown Collapse', description: 'Crown-shaped bullet rings close inward from every direction.', duration: 8, attackType: 'radial', warningType: 'ring', bulletSpeed: 155, spawnRate: 9, damage: 26, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
+      { id: 'uk3', name: 'Reality Tear', description: 'Red cracks split the arena into temporary danger zones.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 26, arenaEffect: 'none', patternTags: ['laser', 'split'], execute: 'realityTear' },
+      { id: 'uk4', name: 'Broken Sentence', description: 'Word-like walls slide across the arena with missing-letter gaps.', duration: 8, attackType: 'sweep', warningType: 'side', bulletSpeed: 185, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['sweep', 'gap'], execute: 'errorSweep' },
+      { id: 'uk5', name: 'Crown of Static', description: 'Rotating symbol rings overlap with falling crown shards simultaneously.', duration: 8, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 160, spawnRate: 6, damage: 26, arenaEffect: 'none', patternTags: ['mirror', 'combo'], execute: 'soulSplit' },
+      { id: 'uk6', name: 'Lost Paragraph', description: 'Text blocks cover parts of the arena — only the blank lane is safe.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 26, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
+      { id: 'uk7', name: 'Glyph Spiral', description: 'Glyph bullets spiral outward from four corners simultaneously.', duration: 8, attackType: 'spiral', warningType: 'ring', bulletSpeed: 145, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['spiral', 'corner'], execute: 'haloSpiral' },
+      { id: 'uk8', name: 'Unreadable Maze', description: 'Moving text walls create a shifting maze with no clear pattern.', duration: 8, attackType: 'maze', warningType: 'center', bulletSpeed: 105, spawnRate: 8, damage: 26, arenaEffect: 'none', patternTags: ['maze'], execute: 'gearMaze' },
+      { id: 'uk9', name: 'Royal Redaction', description: 'Black redaction bars cover safe paths before the final narrow escape.', duration: 8, attackType: 'chaos', warningType: 'all', bulletSpeed: 195, spawnRate: 15, damage: 26, arenaEffect: 'none', patternTags: ['chaos', 'finale'], execute: 'finalPattern' },
     ],
   },
   {
@@ -428,17 +435,21 @@ const BOSSES: BossConf[] = [
       '...',
       'The current takes everything in the end.'
     ],
-    attacks: ['currentSurge', 'coilTrap', 'undertowPull', 'currentSurge', 'coilTrap', 'undertowPull'],
+    attacks: ['currentSurge', 'coilTrap', 'undertowPull', 'shatterPulse', 'coilTrap', 'starfall', 'ribCage', 'currentSurge', 'undertowPull', 'screenTear'],
     dmg: 28,
     atkDur: 7,
     rewardItemPool: ['moonthread', 'candle_ash'],
     waves: [
-      { id: 'nx1', name: 'Current Surge', description: 'Powerful wave sweeps across the arena.', duration: 7, attackType: 'sweep', warningType: 'side', bulletSpeed: 170, spawnRate: 8, damage: 28, arenaEffect: 'current', patternTags: ['sweep', 'wave'], execute: 'currentSurge' },
-      { id: 'nx2', name: 'Coil Trap', description: 'Spiral coil of bullets tightens inward.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 100, spawnRate: 6, damage: 28, arenaEffect: 'none', patternTags: ['spiral', 'coil'], execute: 'coilTrap' },
-      { id: 'nx3', name: 'Undertow Pull', description: 'Forceful current drags player toward danger.', duration: 7, attackType: 'pull', warningType: 'arrow', bulletSpeed: 150, spawnRate: 5, damage: 28, arenaEffect: 'current', patternTags: ['pull', 'flow'], execute: 'undertowPull' },
-      { id: 'nx4', name: 'Current Surge II', description: 'Stronger wave crossing.', duration: 7, attackType: 'sweep', warningType: 'side', bulletSpeed: 180, spawnRate: 8, damage: 28, arenaEffect: 'current', patternTags: ['sweep'], execute: 'currentSurge' },
-      { id: 'nx5', name: 'Coil Trap II', description: 'Tighter coil finale.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 110, spawnRate: 7, damage: 28, arenaEffect: 'none', patternTags: ['spiral'], execute: 'coilTrap' },
-      { id: 'nx6', name: 'Undertow Pull II', description: 'Maximum undertow pressure.', duration: 7, attackType: 'pull', warningType: 'arrow', bulletSpeed: 160, spawnRate: 5, damage: 28, arenaEffect: 'current', patternTags: ['pull'], execute: 'undertowPull' },
+      { id: 'nx1', name: 'Current Surge', description: 'Electric lines sweep across the arena after blue warning flashes.', duration: 7, attackType: 'sweep', warningType: 'side', bulletSpeed: 175, spawnRate: 9, damage: 28, arenaEffect: 'current', patternTags: ['sweep', 'wave'], execute: 'currentSurge' },
+      { id: 'nx2', name: 'Coil Trap', description: 'Curved electric trails form temporary cages that tighten inward.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 105, spawnRate: 7, damage: 28, arenaEffect: 'none', patternTags: ['spiral', 'coil'], execute: 'coilTrap' },
+      { id: 'nx3', name: 'Undertow Pull', description: 'Water current pulls the player sideways while bullets drift opposite.', duration: 7, attackType: 'pull', warningType: 'arrow', bulletSpeed: 155, spawnRate: 6, damage: 28, arenaEffect: 'current', patternTags: ['pull', 'flow'], execute: 'undertowPull' },
+      { id: 'nx4', name: 'Deep Shock', description: 'Electric circles expand from ripple warning points across the arena.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 120, spawnRate: 2, damage: 28, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'shatterPulse' },
+      { id: 'nx5', name: 'Whirlpool Circuit', description: 'A coiling spiral pulls inward while sparks fire outward simultaneously.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 115, spawnRate: 8, damage: 28, arenaEffect: 'none', patternTags: ['spiral', 'pull'], execute: 'coilTrap' },
+      { id: 'nx6', name: 'Abyss Spark', description: 'Tiny sparks hide in the arena then flash into full lightning bolts.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 10, damage: 28, arenaEffect: 'none', patternTags: ['rain', 'fake'], execute: 'starfall' },
+      { id: 'nx7', name: 'Tide Cage', description: 'Water walls rise and fall changing the usable arena space.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 28, arenaEffect: 'current', patternTags: ['wall', 'tide'], execute: 'ribCage' },
+      { id: 'nx8', name: 'Voltage Riptide', description: 'Fast electric streams rush diagonally across the arena with little warning.', duration: 7, attackType: 'sweep', warningType: 'side', bulletSpeed: 190, spawnRate: 9, damage: 28, arenaEffect: 'current', patternTags: ['sweep', 'fast'], execute: 'currentSurge' },
+      { id: 'nx9', name: 'Serpent Loop', description: 'The eel body loops through the arena as a relentless moving hazard.', duration: 7, attackType: 'pull', warningType: 'arrow', bulletSpeed: 162, spawnRate: 6, damage: 28, arenaEffect: 'current', patternTags: ['pull', 'loop'], execute: 'undertowPull' },
+      { id: 'nx10', name: 'Blackwater Flash', description: 'The arena darkens then lightning reveals all danger zones for a split second.', duration: 7, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 28, arenaEffect: 'none', patternTags: ['laser', 'flash'], execute: 'screenTear' },
     ],
   },
   {
@@ -451,16 +462,22 @@ const BOSSES: BossConf[] = [
       'Rest now. This will only take a moment.',
       'Your bones will remember this lesson.'
     ],
-    attacks: ['boneRain', 'ribCage', 'haloCurse', 'boneRain', 'ribCage'],
+    attacks: ['boneRain', 'ribCage', 'haloCurse', 'shatterPulse', 'ribCage', 'haloSpiral', 'falseStar', 'inkDecree', 'webGrid', 'overheat', 'engineSpin'],
     dmg: 30,
     atkDur: 7,
     rewardItemPool: ['blood_vial', 'candle_ash'],
     waves: [
-      { id: 'ms1', name: 'Bone Rain', description: 'Aimed bone shards fall from above.', duration: 7, attackType: 'aimed', warningType: 'top', bulletSpeed: 160, spawnRate: 5, damage: 30, arenaEffect: 'none', patternTags: ['rain', 'aimed'], execute: 'boneRain' },
-      { id: 'ms2', name: 'Rib Cage', description: 'Rib walls slide in from both sides with a gap.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
-      { id: 'ms3', name: 'Halo Curse', description: 'Cursed halo ring closes from all sides.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'haloCurse' },
-      { id: 'ms4', name: 'Bone Rain II', description: 'Heavier bone shard storm.', duration: 7, attackType: 'aimed', warningType: 'top', bulletSpeed: 170, spawnRate: 6, damage: 30, arenaEffect: 'none', patternTags: ['rain', 'aimed'], execute: 'boneRain' },
-      { id: 'ms5', name: 'Rib Cage II', description: 'Faster rib wall close.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
+      { id: 'ms1', name: 'Bone Rain', description: 'Bone bullets fall in offset columns with precise aim.', duration: 7, attackType: 'aimed', warningType: 'top', bulletSpeed: 165, spawnRate: 6, damage: 30, arenaEffect: 'none', patternTags: ['rain', 'aimed'], execute: 'boneRain' },
+      { id: 'ms2', name: 'Rib Cage', description: 'Bone walls close inward from both sides with a single tight gap.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'gap'], execute: 'ribCage' },
+      { id: 'ms3', name: 'Halo Curse', description: 'Cursed halo ring closes from all sides with one gap.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 88, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'haloCurse' },
+      { id: 'ms4', name: 'Grave Hymn', description: 'Bone bullets pulse outward in rhythm waves from the center.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 120, spawnRate: 2, damage: 30, arenaEffect: 'none', patternTags: ['ring', 'rhythm'], execute: 'shatterPulse' },
+      { id: 'ms5', name: "Saint's Ossuary", description: 'Bone walls and orbiting bullets create a layered moving cage.', duration: 7, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['wall', 'combo'], execute: 'ribCage' },
+      { id: 'ms6', name: 'Marrow Spiral', description: 'Long bone spears spiral outward from the boss in tight arms.', duration: 7, attackType: 'spiral', warningType: 'ring', bulletSpeed: 148, spawnRate: 8, damage: 30, arenaEffect: 'none', patternTags: ['spiral', 'spear'], execute: 'haloSpiral' },
+      { id: 'ms7', name: 'Skull Lanterns', description: 'Skull bullets float slowly then fire bursts of small teeth.', duration: 7, attackType: 'decoy', warningType: 'glow', bulletSpeed: 145, spawnRate: 1, damage: 30, arenaEffect: 'none', patternTags: ['decoy', 'burst'], execute: 'falseStar' },
+      { id: 'ms8', name: 'Tomb Step', description: 'The floor lights up in stepping-stone danger tiles in sequence.', duration: 7, attackType: 'zone', warningType: 'grid', bulletSpeed: 0, spawnRate: 2, damage: 30, arenaEffect: 'none', patternTags: ['zone', 'rhythm'], execute: 'inkDecree' },
+      { id: 'ms9', name: 'Bone Lattice', description: 'Crossing bone beams form a moving grid hazard.', duration: 7, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 4, damage: 30, arenaEffect: 'none', patternTags: ['laser', 'grid'], execute: 'webGrid' },
+      { id: 'ms10', name: 'Red Prayer', description: 'Crimson ritual circles appear under the player and explode after a chant.', duration: 7, attackType: 'burst', warningType: 'area', bulletSpeed: 185, spawnRate: 20, damage: 30, arenaEffect: 'none', patternTags: ['burst', 'area'], execute: 'overheat' },
+      { id: 'ms11', name: 'Final Relic', description: 'A giant relic bone rotates while smaller bones rain from above.', duration: 7, attackType: 'spiral', warningType: 'center', bulletSpeed: 152, spawnRate: 9, damage: 30, arenaEffect: 'none', patternTags: ['spiral', 'rain'], execute: 'engineSpin' },
     ],
   },
   {
@@ -473,16 +490,23 @@ const BOSSES: BossConf[] = [
       'Can you tell which stars are real, little soul?',
       'Beauty is the oldest deception.'
     ],
-    attacks: ['starfall', 'constellationLines', 'falseStar', 'starfall', 'constellationLines'],
+    attacks: ['starfall', 'constellationLines', 'falseStar', 'crownCollapse', 'devourLane', 'meteorLesson', 'soulSplit', 'plagueGarden', 'echoTrail', 'axisCollapse', 'webGrid', 'mothEclipse'],
     dmg: 32,
     atkDur: 7,
     rewardItemPool: ['wax_seal', 'candle_ash'],
     waves: [
-      { id: 'lx1', name: 'Starfall', description: 'Dense star-shaped burst rains across arena.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 165, spawnRate: 8, damage: 32, arenaEffect: 'none', patternTags: ['rain', 'star'], execute: 'starfall' },
-      { id: 'lx2', name: 'Constellation Lines', description: 'Laser lines connect across the star map.', duration: 7, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 6, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
-      { id: 'lx3', name: 'False Star', description: 'A decoy star glows — avoid its explosion.', duration: 7, attackType: 'decoy', warningType: 'glow', bulletSpeed: 140, spawnRate: 1, damage: 32, arenaEffect: 'none', patternTags: ['decoy'], execute: 'falseStar' },
-      { id: 'lx4', name: 'Starfall II', description: 'Heavier star rain finale.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 175, spawnRate: 10, damage: 32, arenaEffect: 'none', patternTags: ['rain', 'star'], execute: 'starfall' },
-      { id: 'lx5', name: 'Constellation Lines II', description: 'Faster connecting lasers.', duration: 7, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 8, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
+      { id: 'lx1', name: 'Starfall', description: 'Stars fall with sparkle warning markers in staggered dense rain.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 170, spawnRate: 9, damage: 32, arenaEffect: 'none', patternTags: ['rain', 'star'], execute: 'starfall' },
+      { id: 'lx2', name: 'Constellation Lines', description: 'Stars connect into laser lines spanning the arena.', duration: 7, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 7, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
+      { id: 'lx3', name: 'False Star', description: 'Dim fake stars appear beside bright real hazards — read carefully.', duration: 7, attackType: 'decoy', warningType: 'glow', bulletSpeed: 145, spawnRate: 1, damage: 32, arenaEffect: 'none', patternTags: ['decoy'], execute: 'falseStar' },
+      { id: 'lx4', name: 'Supernova Waltz', description: 'Large stars explode into smaller bullets in circular rotating patterns.', duration: 7, attackType: 'radial', warningType: 'ring', bulletSpeed: 158, spawnRate: 10, damage: 32, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'crownCollapse' },
+      { id: 'lx5', name: 'Royal Eclipse', description: 'Arena darkens — only the real hazards glow clearly.', duration: 7, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'dark'], execute: 'devourLane' },
+      { id: 'lx6', name: 'Meteor Crown', description: 'Crown-shaped meteors fall in rotating arcs after warning flashes.', duration: 7, attackType: 'rain', warningType: 'top', bulletSpeed: 168, spawnRate: 6, damage: 32, arenaEffect: 'none', patternTags: ['rain', 'large'], execute: 'meteorLesson' },
+      { id: 'lx7', name: 'Astral Mirror', description: 'Star bullets mirror the player\'s vertical position precisely.', duration: 7, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 162, spawnRate: 6, damage: 32, arenaEffect: 'none', patternTags: ['mirror', 'aimed'], execute: 'soulSplit' },
+      { id: 'lx8', name: 'Nebula Bloom', description: 'Slow nebula clouds expand and deny space in the arena.', duration: 7, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 32, arenaEffect: 'none', patternTags: ['zone', 'slow'], execute: 'plagueGarden' },
+      { id: 'lx9', name: 'Comet Thread', description: 'Comets leave damaging trails that linger after passing.', duration: 7, attackType: 'echo', warningType: 'trail', bulletSpeed: 140, spawnRate: 5, damage: 32, arenaEffect: 'none', patternTags: ['echo', 'trail'], execute: 'echoTrail' },
+      { id: 'lx10', name: 'Dark Sky Court', description: 'Four star judges fire beams inward from the arena corners.', duration: 7, attackType: 'laser', warningType: 'cross', bulletSpeed: 0, spawnRate: 2, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'cross'], execute: 'axisCollapse' },
+      { id: 'lx11', name: 'Star Map Trap', description: 'The arena becomes a constellation map — crossing glowing lines causes damage.', duration: 7, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 5, damage: 32, arenaEffect: 'none', patternTags: ['laser', 'grid'], execute: 'webGrid' },
+      { id: 'lx12', name: "Queen's Nova", description: 'A massive nova expands then leaves only a tiny safe ring to survive.', duration: 7, attackType: 'ring', warningType: 'ring', bulletSpeed: 83, spawnRate: 1, damage: 32, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
     ],
   },
   {
@@ -495,17 +519,24 @@ const BOSSES: BossConf[] = [
       'INITIATING SOUL PROCESSING PROTOCOL.',
       'RESISTANCE IS MECHANICAL NOISE.'
     ],
-    attacks: ['pistonCrush', 'engineSpin', 'overheat', 'pistonCrush', 'engineSpin', 'overheat'],
+    attacks: ['pistonCrush', 'engineSpin', 'overheat', 'centerCrush', 'tinyApocalypse', 'devourLane', 'gearMaze', 'crystalRain', 'ribCage', 'waxFlood', 'webGrid', 'falseStar', 'finalRule'],
     dmg: 34,
     atkDur: 8,
     rewardItemPool: ['crater_core', 'candle_ash'],
     waves: [
-      { id: 're1', name: 'Piston Crush', description: 'Massive horizontal slab slams across arena.', duration: 8, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 34, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
-      { id: 're2', name: 'Engine Spin', description: 'Spinning bullet sprays from engine core.', duration: 8, attackType: 'spiral', warningType: 'center', bulletSpeed: 140, spawnRate: 8, damage: 34, arenaEffect: 'none', patternTags: ['spiral', 'spin'], execute: 'engineSpin' },
-      { id: 're3', name: 'Overheat', description: 'Overloaded arena erupts in bursts.', duration: 8, attackType: 'burst', warningType: 'area', bulletSpeed: 180, spawnRate: 20, damage: 34, arenaEffect: 'none', patternTags: ['burst', 'area'], execute: 'overheat' },
-      { id: 're4', name: 'Piston Crush II', description: 'Double piston squeeze.', duration: 8, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 34, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
-      { id: 're5', name: 'Engine Spin II', description: 'Faster engine rotation.', duration: 8, attackType: 'spiral', warningType: 'center', bulletSpeed: 155, spawnRate: 10, damage: 34, arenaEffect: 'none', patternTags: ['spiral'], execute: 'engineSpin' },
-      { id: 're6', name: 'Overheat II', description: 'Maximum meltdown burst.', duration: 8, attackType: 'burst', warningType: 'area', bulletSpeed: 195, spawnRate: 22, damage: 34, arenaEffect: 'none', patternTags: ['burst'], execute: 'overheat' },
+      { id: 're1', name: 'Piston Crush', description: 'Pistons slam from the sides after red warning alerts.', duration: 8, attackType: 'piston', warningType: 'side', bulletSpeed: 0, spawnRate: 1, damage: 34, arenaEffect: 'none', patternTags: ['piston'], execute: 'pistonCrush' },
+      { id: 're2', name: 'Engine Spin', description: 'Rotating machine arms sweep bullets around the arena in tight spirals.', duration: 8, attackType: 'spiral', warningType: 'center', bulletSpeed: 148, spawnRate: 9, damage: 34, arenaEffect: 'none', patternTags: ['spiral', 'spin'], execute: 'engineSpin' },
+      { id: 're3', name: 'Overheat', description: 'Arena tiles glow orange then explode in rapid bursts.', duration: 8, attackType: 'burst', warningType: 'area', bulletSpeed: 185, spawnRate: 22, damage: 34, arenaEffect: 'none', patternTags: ['burst', 'area'], execute: 'overheat' },
+      { id: 're4', name: 'Compression Cycle', description: 'The arena shrinks while machine arms keep firing from all sides.', duration: 8, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 34, arenaEffect: 'none', patternTags: ['piston', 'multi'], execute: 'centerCrush' },
+      { id: 're5', name: 'Meltdown Protocol', description: 'Pistons, heat tiles, and spin arms activate in timed bursts simultaneously.', duration: 8, attackType: 'combo', warningType: 'ring', bulletSpeed: 138, spawnRate: 9, damage: 34, arenaEffect: 'none', patternTags: ['combo', 'multi'], execute: 'tinyApocalypse' },
+      { id: 're6', name: 'Furnace Lane', description: 'Fire vents leave only one safe lane that shifts every few seconds.', duration: 8, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 34, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'devourLane' },
+      { id: 're7', name: 'Cog Barrage', description: 'Gear bullets roll across the arena and bounce off the walls.', duration: 8, attackType: 'maze', warningType: 'center', bulletSpeed: 112, spawnRate: 9, damage: 34, arenaEffect: 'none', patternTags: ['maze', 'bounce'], execute: 'gearMaze' },
+      { id: 're8', name: 'Rust Storm', description: 'Rust flakes rain slowly then suddenly accelerate to full speed.', duration: 8, attackType: 'rain', warningType: 'top', bulletSpeed: 195, spawnRate: 13, damage: 34, arenaEffect: 'none', patternTags: ['rain', 'accel'], execute: 'crystalRain' },
+      { id: 're9', name: 'Hydraulic Snap', description: 'Mechanical jaws snap shut around marked zones after warnings.', duration: 8, attackType: 'wall', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 34, arenaEffect: 'none', patternTags: ['wall', 'snap'], execute: 'ribCage' },
+      { id: 're10', name: 'Core Vent', description: 'Steam clouds flood the arena blocking vision before bullets emerge.', duration: 8, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 34, arenaEffect: 'none', patternTags: ['zone', 'blind'], execute: 'waxFlood' },
+      { id: 're11', name: 'Redline Grid', description: 'Red machine lasers form a shifting grid of death.', duration: 8, attackType: 'grid', warningType: 'grid', bulletSpeed: 0, spawnRate: 5, damage: 34, arenaEffect: 'none', patternTags: ['laser', 'grid'], execute: 'webGrid' },
+      { id: 're12', name: 'Shutdown Fakeout', description: 'The screen goes quiet then emergency hazards restart suddenly.', duration: 8, attackType: 'decoy', warningType: 'glow', bulletSpeed: 185, spawnRate: 1, damage: 34, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'falseStar' },
+      { id: 're13', name: 'Omega Cycle', description: 'Every machine hazard runs in a devastating final sequence.', duration: 8, attackType: 'chaos', warningType: 'all', bulletSpeed: 200, spawnRate: 22, damage: 34, arenaEffect: 'all', patternTags: ['chaos', 'finale'], execute: 'finalRule' },
     ],
   },
   {
@@ -518,19 +549,25 @@ const BOSSES: BossConf[] = [
       'Rules existed. They have been read.',
       'Now they end.'
     ],
-    attacks: ['ruleRewrite', 'axisCollapse', 'mirrorSoul', 'patternOverload', 'ruleRewrite', 'axisCollapse', 'mirrorSoul', 'finalRule'],
+    attacks: ['ruleRewrite', 'axisCollapse', 'mirrorSoul', 'ruleRewrite', 'patternOverload', 'devourLane', 'haloSpiral', 'constellationLines', 'falseStar', 'tinyApocalypse', 'timeFreeze', 'collapseRing', 'falseStar', 'finalRule'],
     dmg: 38,
     atkDur: 9,
     rewardItemPool: ['memory_stone', 'blood_vial'],
     waves: [
-      { id: 'ax1', name: 'Rule Rewrite', description: 'Arena laws rewrite — all bullet paths shift.', duration: 9, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'rewrite', patternTags: ['rewrite'], execute: 'ruleRewrite' },
-      { id: 'ax2', name: 'Axis Collapse', description: 'Both axes collapse simultaneously with lasers.', duration: 9, attackType: 'laser', warningType: 'cross', bulletSpeed: 0, spawnRate: 2, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'cross'], execute: 'axisCollapse' },
-      { id: 'ax3', name: 'Mirror Soul', description: 'A mirror fires your own movement back at you.', duration: 9, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 160, spawnRate: 5, damage: 38, arenaEffect: 'none', patternTags: ['mirror'], execute: 'mirrorSoul' },
-      { id: 'ax4', name: 'Pattern Overload', description: 'All patterns fire simultaneously for 2 seconds.', duration: 9, attackType: 'chaos', warningType: 'all', bulletSpeed: 170, spawnRate: 16, damage: 38, arenaEffect: 'none', patternTags: ['chaos'], execute: 'patternOverload' },
-      { id: 'ax5', name: 'Rule Rewrite II', description: 'Second law rewrite — faster bullets.', duration: 9, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'rewrite', patternTags: ['rewrite'], execute: 'ruleRewrite' },
-      { id: 'ax6', name: 'Axis Collapse II', description: 'Diagonal axis collapse.', duration: 9, attackType: 'laser', warningType: 'cross', bulletSpeed: 0, spawnRate: 2, damage: 38, arenaEffect: 'none', patternTags: ['laser'], execute: 'axisCollapse' },
-      { id: 'ax7', name: 'Mirror Soul II', description: 'Heavier mirror barrage.', duration: 9, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 170, spawnRate: 6, damage: 38, arenaEffect: 'none', patternTags: ['mirror'], execute: 'mirrorSoul' },
-      { id: 'ax8', name: 'Final Rule', description: 'The last rule fires — maximum chaos.', duration: 9, attackType: 'chaos', warningType: 'all', bulletSpeed: 190, spawnRate: 20, damage: 38, arenaEffect: 'all', patternTags: ['chaos', 'finale'], execute: 'finalRule' },
+      { id: 'ax1', name: 'Rule Rewrite', description: 'The battle box changes shape temporarily — all bullet paths shift.', duration: 9, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'rewrite', patternTags: ['rewrite'], execute: 'ruleRewrite' },
+      { id: 'ax2', name: 'Axis Collapse', description: 'Vertical and horizontal laser grids appear with safe gaps.', duration: 9, attackType: 'laser', warningType: 'cross', bulletSpeed: 0, spawnRate: 2, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'cross'], execute: 'axisCollapse' },
+      { id: 'ax3', name: 'Mirror Soul', description: 'A fake soul mirrors movement and damages on contact.', duration: 9, attackType: 'mirror', warningType: 'mirror', bulletSpeed: 162, spawnRate: 5, damage: 38, arenaEffect: 'none', patternTags: ['mirror'], execute: 'mirrorSoul' },
+      { id: 'ax4', name: 'Rule Stack', description: 'Arena shape changes while lasers fire through the new geometry.', duration: 9, attackType: 'rewrite', warningType: 'flash', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'rewrite', patternTags: ['rewrite', 'combo'], execute: 'ruleRewrite' },
+      { id: 'ax5', name: 'Undefined Behavior', description: 'Several rules shift at once with warning icons — prepare for anything.', duration: 9, attackType: 'chaos', warningType: 'all', bulletSpeed: 175, spawnRate: 18, damage: 38, arenaEffect: 'none', patternTags: ['chaos'], execute: 'patternOverload' },
+      { id: 'ax6', name: 'Null Coordinate', description: 'Parts of the arena lose coordinates and become void zones.', duration: 9, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'void'], execute: 'devourLane' },
+      { id: 'ax7', name: 'Logic Spiral', description: 'Mathematical symbols spiral outward in alternating clockwise patterns.', duration: 9, attackType: 'spiral', warningType: 'ring', bulletSpeed: 148, spawnRate: 8, damage: 38, arenaEffect: 'none', patternTags: ['spiral'], execute: 'haloSpiral' },
+      { id: 'ax8', name: 'Broken Equation', description: 'Equation fragments fall then rearrange into laser walls.', duration: 9, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 7, damage: 38, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'constellationLines' },
+      { id: 'ax9', name: 'False Safe Zone', description: 'Several safe zones appear — only one matches the correct rule.', duration: 9, attackType: 'decoy', warningType: 'glow', bulletSpeed: 155, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'falseStar' },
+      { id: 'ax10', name: 'Geometry Collapse', description: 'Triangle, square, and circle hazards collapse toward the center.', duration: 9, attackType: 'combo', warningType: 'ring', bulletSpeed: 142, spawnRate: 9, damage: 38, arenaEffect: 'none', patternTags: ['combo', 'multi'], execute: 'tinyApocalypse' },
+      { id: 'ax11', name: 'Input Paradox', description: 'Movement becomes delayed after a countdown warning — plan ahead.', duration: 9, attackType: 'freeze', warningType: 'glow', bulletSpeed: 148, spawnRate: 6, damage: 38, arenaEffect: 'freeze', patternTags: ['freeze', 'delay'], execute: 'timeFreeze' },
+      { id: 'ax12', name: 'Axiom Cage', description: 'A geometric cage ring rotates around the player with a single gap.', duration: 9, attackType: 'ring', warningType: 'ring', bulletSpeed: 78, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'collapseRing' },
+      { id: 'ax13', name: 'End of Pattern', description: 'A predictable pattern suddenly stops — react to the silence.', duration: 9, attackType: 'decoy', warningType: 'glow', bulletSpeed: 178, spawnRate: 1, damage: 38, arenaEffect: 'none', patternTags: ['decoy', 'fake'], execute: 'falseStar' },
+      { id: 'ax14', name: 'Rule Zero', description: 'The arena rapidly cycles through all previous rule changes in a final test.', duration: 9, attackType: 'chaos', warningType: 'all', bulletSpeed: 198, spawnRate: 22, damage: 38, arenaEffect: 'all', patternTags: ['chaos', 'finale'], execute: 'finalRule' },
     ],
   },
   // ── Bosses 11–20 ─────────────────────────────────────────────
@@ -543,25 +580,25 @@ const BOSSES: BossConf[] = [
     design: 'Moth form; wings drip iridescent spores; antennae pulse neon green.',
     arenaModifier: 'Spore clouds obscure edge visibility.',
     dialog: ['Your air tastes like rot already.', 'Bloom, little garden.'],
-    attacks: ['sporeBloom', 'plagueGarden', 'velvetSwarm', 'feverRings', 'mothEclipse', 'plagueGarden', 'velvetSwarm', 'sporeBloom', 'feverRings', 'plagueCrown', 'sporeBloom', 'velvetSwarm', 'mothEclipse', 'plagueCrown', 'sporeBloom'],
+    attacks: ['sporeBloom', 'velvetSwarm', 'plagueGarden', 'velvetSwarm', 'plagueGarden', 'sporeBloom', 'mothEclipse', 'feverRings', 'velvetSwarm', 'plagueCrown', 'sporeBloom', 'plagueGarden', 'feverRings', 'plagueCrown', 'sporeBloom'],
     dmg: 20, atkDur: 8,
     rewardItemPool: ['moth_wing', 'velvet_spore'],
     waves: [
-      { id: 'v1', name: 'Spore Bloom', description: 'Radial spore burst from center.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 100, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'slow'], execute: 'sporeBloom' },
-      { id: 'v2', name: 'Plague Garden', description: 'Danger zones bloom across arena.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'plague', patternTags: ['zone', 'spread'], execute: 'plagueGarden' },
-      { id: 'v3', name: 'Velvet Swarm', description: 'Homing spore bullets rain down.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 120, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing', 'rain'], execute: 'velvetSwarm' },
-      { id: 'v4', name: 'Fever Rings', description: 'Three expanding concentric rings.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 95, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
-      { id: 'v5', name: 'Moth Eclipse', description: 'Full-arena ring contracts with small gap.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 80, spawnRate: 1, damage: 20, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
-      { id: 'v6', name: 'Garden Surge', description: 'Denser plague zones.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'plague', patternTags: ['zone'], execute: 'plagueGarden' },
-      { id: 'v7', name: 'Velvet Veil', description: 'Heavy spore swarm.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 130, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing'], execute: 'velvetSwarm' },
-      { id: 'v8', name: 'Spore Spiral', description: 'Dense spiral bloom.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 100, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
-      { id: 'v9', name: 'Fever Rings II', description: 'Faster concentric rings.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 105, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
-      { id: 'v10', name: 'Plague Crown', description: 'Corner eruption burst.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 150, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
-      { id: 'v11', name: 'Spore Bloom II', description: 'Heavier radial burst.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 105, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
-      { id: 'v12', name: 'Velvet Storm', description: 'Max spore homing.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 135, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing'], execute: 'velvetSwarm' },
-      { id: 'v13', name: 'Moth Eclipse II', description: 'Closing moth ring, faster.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 20, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
-      { id: 'v14', name: 'Crown Burst', description: 'Heavy corner eruption.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 160, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
-      { id: 'v15', name: 'Final Bloom', description: 'Maximum spore finale.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 110, spawnRate: 10, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
+      { id: 'v1', name: 'Spore Bloom', description: 'Spores burst radially from the center in a spiral pattern.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 102, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'slow'], execute: 'sporeBloom' },
+      { id: 'v2', name: 'Wing Dust', description: 'Diagonal dust waves sweep from both sides of the arena.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 122, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing', 'rain'], execute: 'velvetSwarm' },
+      { id: 'v3', name: 'Infection Zones', description: 'Danger zones bloom unpredictably across the arena floor.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'plague', patternTags: ['zone', 'spread'], execute: 'plagueGarden' },
+      { id: 'v4', name: 'Velvet Swarm', description: 'Homing spore bullets track the player with slow drift.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 126, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing', 'rain'], execute: 'velvetSwarm' },
+      { id: 'v5', name: 'Plague Garden', description: 'Dense plague zone clusters form around the player.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'plague', patternTags: ['zone'], execute: 'plagueGarden' },
+      { id: 'v6', name: 'Toxic Waltz', description: 'Spore clouds rotate in pairs through the arena.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 104, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
+      { id: 'v7', name: 'Moth Eclipse', description: 'Full-arena spore ring contracts with one escape gap.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 82, spawnRate: 1, damage: 20, arenaEffect: 'eclipse', patternTags: ['ring', 'gap'], execute: 'mothEclipse' },
+      { id: 'v8', name: 'Fever Rings', description: 'Three expanding concentric spore rings pulse outward.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 97, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
+      { id: 'v9', name: 'Velvet Veil', description: 'A homing veil of spores hides the bullet paths from view.', duration: 5, attackType: 'homing', warningType: 'top', bulletSpeed: 132, spawnRate: 8, damage: 20, arenaEffect: 'none', patternTags: ['homing'], execute: 'velvetSwarm' },
+      { id: 'v10', name: 'Antidote Fakeout', description: 'Glowing safe icons appear but only one is real — avoid the fakes.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 154, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
+      { id: 'v11', name: 'Green Cathedral', description: 'Poison pillars form walls with shifting gaps.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 106, spawnRate: 9, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
+      { id: 'v12', name: 'Rotting Petals', description: 'Petal-shaped zone clusters split and spread across the arena.', duration: 6, attackType: 'zone', warningType: 'area', bulletSpeed: 0, spawnRate: 3, damage: 20, arenaEffect: 'plague', patternTags: ['zone'], execute: 'plagueGarden' },
+      { id: 'v13', name: 'Spore Spiral', description: 'Spores spiral outward in tight arms with narrowing gaps.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 108, spawnRate: 3, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'feverRings' },
+      { id: 'v14', name: 'Plague Crown', description: 'Corner spore eruptions fire bursts that spread to center.', duration: 4, attackType: 'corner', warningType: 'corner', bulletSpeed: 162, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['corner', 'burst'], execute: 'plagueCrown' },
+      { id: 'v15', name: 'Final Bloom', description: 'Maximum spore radial finale — center erupts.', duration: 5, attackType: 'radial', warningType: 'ring', bulletSpeed: 112, spawnRate: 10, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'sporeBloom' },
     ],
   },
   {
@@ -573,26 +610,26 @@ const BOSSES: BossConf[] = [
     design: 'Conductor figure; wears a cracked mask; baton drips sound waves.',
     arenaModifier: 'Reverb pulses distort bullet trails briefly.',
     dialog: ['The choir will drown your heartbeat.', 'Sing. Or be silenced.'],
-    attacks: ['soundBars', 'choirSplit', 'crescendoCrush', 'silentBeat', 'soundBars', 'choirSplit', 'silentBeat', 'doubleTempo', 'choirSplit', 'crescendoCrush', 'silentBeat', 'soundBars', 'silentBeat', 'doubleTempo', 'choirSplit', 'soundBars'],
+    attacks: ['soundBars', 'choirSplit', 'silentBeat', 'crescendoCrush', 'doubleTempo', 'soundBars', 'choirSplit', 'silentBeat', 'crescendoCrush', 'soundBars', 'silentBeat', 'choirSplit', 'silentBeat', 'doubleTempo', 'soundBars', 'silentBeat'],
     dmg: 20, atkDur: 8,
     rewardItemPool: ['echo_fragment', 'choir_mask'],
     waves: [
-      { id: 'e1', name: 'Sound Bars', description: 'Piano-key laser bars sweep inward.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'soundBars' },
-      { id: 'e2', name: 'Choir Split', description: 'Diagonal quad burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 160, spawnRate: 20, damage: 20, arenaEffect: 'none', patternTags: ['quad', 'burst'], execute: 'choirSplit' },
-      { id: 'e3', name: 'Crescendo Crush', description: 'Accelerating laser sweep.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'accel'], execute: 'crescendoCrush' },
-      { id: 'e4', name: 'Silent Beat', description: 'Long silence then massive burst.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'silentBeat' },
-      { id: 'e5', name: 'Sound Bars II', description: 'Faster piano-key bars.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
-      { id: 'e6', name: 'Choir Split II', description: 'Denser diagonal burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 165, spawnRate: 22, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
-      { id: 'e7', name: 'Silent Beat II', description: 'Heavier silent burst.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
-      { id: 'e8', name: 'Double Tempo', description: 'Two sweeping lasers back to back.', duration: 6, attackType: 'laser', warningType: 'multi', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'multi'], execute: 'doubleTempo' },
-      { id: 'e9', name: 'Choir Split III', description: 'Max choir burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 170, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
-      { id: 'e10', name: 'Crescendo Crush II', description: 'Fast crescendo sweep.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'crescendoCrush' },
-      { id: 'e11', name: 'Silent Beat III', description: 'Dense silent volley.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
-      { id: 'e12', name: 'Sound Bars III', description: 'Dense piano bars.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
-      { id: 'e13', name: 'Silent Beat IV', description: 'Heaviest silent beat.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
-      { id: 'e14', name: 'Double Tempo II', description: 'Max tempo double sweep.', duration: 6, attackType: 'laser', warningType: 'multi', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'multi'], execute: 'doubleTempo' },
-      { id: 'e15', name: 'Final Choir', description: 'Last quad burst.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 175, spawnRate: 26, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
-      { id: 'e16', name: 'Sound Bars Final', description: 'Closing piano bars.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 7, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+      { id: 'e1', name: 'Sound Bars', description: 'Piano-key laser bars sweep inward from alternating sides.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'sweep'], execute: 'soundBars' },
+      { id: 'e2', name: 'Choir Split', description: 'Diagonal quad burst from all four directions at once.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 162, spawnRate: 20, damage: 20, arenaEffect: 'none', patternTags: ['quad', 'burst'], execute: 'choirSplit' },
+      { id: 'e3', name: 'Silent Beat', description: 'Long silence builds then erupts in a massive radial burst.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial', 'burst'], execute: 'silentBeat' },
+      { id: 'e4', name: 'Crescendo Crush', description: 'A laser sweep accelerates from slow to fast across the arena.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'accel'], execute: 'crescendoCrush' },
+      { id: 'e5', name: 'Dissonance Finale', description: 'Two rhythm systems overlap — sweeps fire in conflicting timing.', duration: 6, attackType: 'laser', warningType: 'multi', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'multi'], execute: 'doubleTempo' },
+      { id: 'e6', name: 'Bass Drop', description: 'A shockwave drops from the top of the screen like a bass hit.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 5, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+      { id: 'e7', name: 'Mask Canon', description: 'Repeating musical canon — burst fires again after a short delay.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 166, spawnRate: 22, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
+      { id: 'e8', name: 'Broken Rhythm', description: 'The beat intentionally skips — bullets fire on the off-beat.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
+      { id: 'e9', name: 'Echo Measure', description: 'Each attack repeats as a faded echo moments later.', duration: 5, attackType: 'laser', warningType: 'row', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'crescendoCrush' },
+      { id: 'e10', name: 'Red Note Rain', description: 'Red music notes fall in rhythmic columns from above.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 6, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+      { id: 'e11', name: 'Syncopation Trap', description: 'Safe zones only appear on the off-beats of the rhythm pattern.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
+      { id: 'e12', name: 'Chrome Hymn', description: 'Chrome laser beams sweep in rhythm from alternating corners.', duration: 4, attackType: 'quad', warningType: 'center', bulletSpeed: 171, spawnRate: 24, damage: 20, arenaEffect: 'none', patternTags: ['quad'], execute: 'choirSplit' },
+      { id: 'e13', name: 'Rest Note Fakeout', description: 'A pause appears safe — but hidden bullets fire in the silence.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 200, spawnRate: 48, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
+      { id: 'e14', name: 'Double Tempo', description: 'Two laser sweeps fire back to back with tiny recovery windows.', duration: 6, attackType: 'laser', warningType: 'multi', bulletSpeed: 0, spawnRate: 2, damage: 20, arenaEffect: 'none', patternTags: ['laser', 'multi'], execute: 'doubleTempo' },
+      { id: 'e15', name: 'Choir Wall', description: 'Choir masks form walls while singing beams fire between the gaps.', duration: 5, attackType: 'laser', warningType: 'column', bulletSpeed: 0, spawnRate: 7, damage: 20, arenaEffect: 'none', patternTags: ['laser'], execute: 'soundBars' },
+      { id: 'e16', name: 'Final Chord', description: 'A massive layered chord fires every active attack pattern at once.', duration: 5, attackType: 'radial', warningType: 'pulse', bulletSpeed: 202, spawnRate: 50, damage: 20, arenaEffect: 'none', patternTags: ['radial'], execute: 'silentBeat' },
     ],
   },
   {
@@ -604,27 +641,27 @@ const BOSSES: BossConf[] = [
     design: 'Massive purple serpent; orbiting debris rings; empty eyes like event horizons.',
     arenaModifier: 'Bullet paths arc toward center gravitational well.',
     dialog: ['Gravity is the only honest force.', 'All things collapse. Eventually.'],
-    attacks: ['gravityPull', 'orbitBreak', 'collapseRing', 'centerCrush', 'gravityPull', 'orbitBreak', 'collapseRing', 'gravityPull', 'centerCrush', 'collapseRing', 'orbitBreak', 'gravityPull', 'centerCrush', 'orbitBreak', 'gravityPull', 'collapseRing', 'centerCrush'],
+    attacks: ['gravityPull', 'orbitBreak', 'collapseRing', 'gravityPull', 'gravityPull', 'orbitBreak', 'collapseRing', 'gravityPull', 'centerCrush', 'collapseRing', 'orbitBreak', 'gravityPull', 'centerCrush', 'orbitBreak', 'gravityPull', 'collapseRing', 'centerCrush'],
     dmg: 20, atkDur: 9,
     rewardItemPool: ['gravity_lens', 'orbit_stone'],
     waves: [
-      { id: 'va1', name: 'Gravity Pull', description: 'Bullets arc toward center.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 80, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'arc'], execute: 'gravityPull' },
-      { id: 'va2', name: 'Orbit Break', description: 'Ring holds then explodes.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 200, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'orbitBreak' },
-      { id: 'va3', name: 'Collapse Ring', description: 'Ring shrinks from edge inward.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 75, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'collapseRing' },
-      { id: 'va4', name: 'Center Crush', description: 'All 4 pistons close to center.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston', 'multi'], execute: 'centerCrush' },
-      { id: 'va5', name: 'Gravity Pull II', description: 'Heavy gravity arc.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 85, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
-      { id: 'va6', name: 'Orbit Break II', description: 'Ring holds longer then bursts.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 205, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
-      { id: 'va7', name: 'Collapse Ring II', description: 'Faster ring contraction.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 80, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
-      { id: 'va8', name: 'Gravity Spiral', description: 'Dense gravity arc barrage.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 88, spawnRate: 8, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
-      { id: 'va9', name: 'Center Crush II', description: 'Tighter center crush.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
-      { id: 'va10', name: 'Ring Collapse', description: 'Max ring collapse.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
-      { id: 'va11', name: 'Orbit Break III', description: 'Largest orbit burst.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
-      { id: 'va12', name: 'Gravity Storm', description: 'Final gravity spiral.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 90, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
-      { id: 'va13', name: 'Center Crush III', description: 'Triple center crush.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
-      { id: 'va14', name: 'Orbit Break IV', description: 'Max orbit explosion.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
-      { id: 'va15', name: 'Gravity Finale', description: 'Final gravity arc.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 90, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
-      { id: 'va16', name: 'Collapse Final', description: 'Maximum ring contraction.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 90, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
-      { id: 'va17', name: 'Core Crush', description: 'Final 4-way crush.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
+      { id: 'va1', name: 'Gravity Pull', description: 'Bullets arc toward the gravity well — the center is dangerous.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 82, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'arc'], execute: 'gravityPull' },
+      { id: 'va2', name: 'Orbiting Teeth', description: 'Bullet teeth orbit the center before launching outward in all directions.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 202, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'burst'], execute: 'orbitBreak' },
+      { id: 'va3', name: 'Collapse Ring', description: 'Ring shrinks inward from the edges with one gap to survive.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 77, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring', 'gap'], execute: 'collapseRing' },
+      { id: 'va4', name: 'Gravity Flip', description: 'Gravity reverses — bullets that curved inward now curve outward.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 86, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'reverse'], execute: 'gravityPull' },
+      { id: 'va5', name: 'Royal Singularity', description: 'Multiple gravity wells appear and arc bullets into overlapping paths.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 88, spawnRate: 8, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity', 'multi'], execute: 'gravityPull' },
+      { id: 'va6', name: 'Crown Well', description: 'Crown-shaped black holes pull bullets inward in a spiral.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 206, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va7', name: 'Heavy Step', description: 'Gravity increases suddenly — movement slows and danger zones appear on the floor.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 80, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
+      { id: 'va8', name: 'Orbit Break', description: 'Debris ring holds then erupts into a scattered bullet storm.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 90, spawnRate: 8, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
+      { id: 'va9', name: 'Dark Matter Rain', description: 'Heavy bullets fall in curved paths — gravity bends their trajectories.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
+      { id: 'va10', name: 'Tidal Bite', description: 'Gravity waves push the player toward hazard zones repeatedly.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 85, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
+      { id: 'va11', name: 'Center Crush', description: 'All four pistons close to center simultaneously.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va12', name: 'Gravity Maze', description: 'Invisible gravity lanes form a maze that curves bullets unpredictably.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 90, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
+      { id: 'va13', name: 'Void Roar', description: 'Boss roars pushing bullets outward then they snap back inward.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
+      { id: 'va14', name: 'Silver Orbit', description: 'Silver bullets orbit the player then collapse inward suddenly.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 210, spawnRate: 16, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'orbitBreak' },
+      { id: 'va15', name: 'Falling Crown', description: 'Gravity crowns drop from above with wide warning arcs.', duration: 5, attackType: 'gravity', warningType: 'ring', bulletSpeed: 91, spawnRate: 7, damage: 20, arenaEffect: 'gravity', patternTags: ['gravity'], execute: 'gravityPull' },
+      { id: 'va16', name: 'Singularity Cage', description: 'Gravity walls form a cage that rotates around the arena.', duration: 4, attackType: 'ring', warningType: 'ring', bulletSpeed: 91, spawnRate: 1, damage: 20, arenaEffect: 'none', patternTags: ['ring'], execute: 'collapseRing' },
+      { id: 'va17', name: 'Rex Collapse', description: 'Multiple gravity effects stack in a devastating final sequence.', duration: 5, attackType: 'piston', warningType: 'all', bulletSpeed: 0, spawnRate: 4, damage: 20, arenaEffect: 'none', patternTags: ['piston'], execute: 'centerCrush' },
     ],
   },
   {
@@ -5263,6 +5300,7 @@ export default function SoulRush() {
       if ((e.key === 'p' || e.key === 'P') && g.state === 'playing') pausedRef.current = !pausedRef.current;
       if (e.key === 'q' || e.key === 'Q') { useItem(0); }
       if (e.key === 'z' || e.key === 'Z') { useItem(1); }
+      if (e.key === 'Escape') { setAdminPanelOpen(false); }
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
     };
     const onUp = (e: KeyboardEvent) => {
@@ -5819,58 +5857,61 @@ export default function SoulRush() {
         {/* Admin panel overlay */}
         {adminPanelOpen && (
           <div style={OVERLAY_STYLE}>
-            <div style={PANEL_STYLE}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                <div style={{ color: '#00ffcc', fontSize: 22, fontWeight: 'bold', letterSpacing: 2, textShadow: '0 0 18px #00ffcc88' }}>
+            <div style={{ ...PANEL_STYLE, padding: '12px 16px', minWidth: 460, maxWidth: 580, maxHeight: 'min(88vh, 560px)', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={{ color: '#00ffcc', fontSize: 16, fontWeight: 'bold', letterSpacing: 2, textShadow: '0 0 14px #00ffcc88' }}>
                   ⚙ ADMIN PANEL
                 </div>
-                <button style={{ ...btnStyle('#555'), fontSize: 16, padding: '2px 10px' }} onClick={() => setAdminPanelOpen(false)}>✕</button>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ color: '#333', fontSize: 10, fontFamily: 'monospace' }}>ESC to close</span>
+                  <button style={{ ...btnStyle('#555'), fontSize: 13, padding: '1px 8px' }} onClick={() => setAdminPanelOpen(false)}>✕</button>
+                </div>
               </div>
 
-              <div style={{ background: '#0d0d1a', border: '1px solid #00ffcc33', borderRadius: 6, padding: '10px 16px', marginBottom: 20, textAlign: 'center' }}>
-                <span style={{ color: '#666', fontSize: 12 }}>CURRENT DIFFICULTY — </span>
-                <span style={{ color: '#00ffcc', fontSize: 16, fontWeight: 'bold' }}>
+              <div style={{ background: '#0d0d1a', border: '1px solid #00ffcc33', borderRadius: 5, padding: '6px 12px', marginBottom: 10, textAlign: 'center' }}>
+                <span style={{ color: '#666', fontSize: 11 }}>DIFFICULTY — </span>
+                <span style={{ color: '#00ffcc', fontSize: 13, fontWeight: 'bold' }}>
                   {DIFF_LEVELS[diffIdx].label} &nbsp;{DIFF_LEVELS[diffIdx].mult}×
                 </span>
               </div>
 
-              <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-                <button style={{ flex: 1, ...btnStyle('#44aaff'), fontSize: 16, padding: '10px 0', fontWeight: 'bold' }} onClick={() => { if (diffIdx > 0) setDiffIdx(diffIdx - 1); }}>◀ Easier</button>
-                <button style={{ flex: 1, ...btnStyle('#ff4444'), fontSize: 16, padding: '10px 0', fontWeight: 'bold' }} onClick={() => { if (diffIdx < DIFF_LEVELS.length - 1) setDiffIdx(diffIdx + 1); }}>Harder ▶</button>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                <button style={{ flex: 1, ...btnStyle('#44aaff'), fontSize: 12, padding: '6px 0', fontWeight: 'bold' }} onClick={() => { if (diffIdx > 0) setDiffIdx(diffIdx - 1); }}>◀ Easier</button>
+                <button style={{ flex: 1, ...btnStyle('#ff4444'), fontSize: 12, padding: '6px 0', fontWeight: 'bold' }} onClick={() => { if (diffIdx < DIFF_LEVELS.length - 1) setDiffIdx(diffIdx + 1); }}>Harder ▶</button>
               </div>
 
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ fontSize: 11, color: '#555', marginBottom: 8 }}>SELECT LEVEL</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: '#555', marginBottom: 5 }}>SELECT LEVEL</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {DIFF_LEVELS.map((dl, i) => (
-                    <button key={dl.label} style={{ ...btnStyle(i === diffIdx ? '#00ffcc' : '#444'), background: i === diffIdx ? '#00ffcc22' : 'transparent', fontSize: 13, padding: '6px 14px' }} onClick={() => setDiffIdx(i)}>
+                    <button key={dl.label} style={{ ...btnStyle(i === diffIdx ? '#00ffcc' : '#444'), background: i === diffIdx ? '#00ffcc22' : 'transparent', fontSize: 11, padding: '4px 10px' }} onClick={() => setDiffIdx(i)}>
                       {dl.label} {dl.mult}×
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: '#555', marginBottom: 8 }}>BOSS SELECT — click to jump (wave 1) · or pick a wave below</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: '#555', marginBottom: 5 }}>BOSS SELECT — click to jump (wave 1)</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {BOSSES.map((b, i) => (
-                    <button key={b.name} style={{ ...btnStyle(b.color), fontSize: 12, padding: '6px 12px', fontWeight: 'bold' }}
+                    <button key={b.name} style={{ ...btnStyle(b.color), fontSize: 10, padding: '4px 8px', fontWeight: 'bold' }}
                       onClick={() => { setAdminWaveBoss(i); jumpBoss(i); }}>
-                      {i === 9 ? '0' : i < 9 ? i + 1 : i + 1}. {b.name}
+                      {i + 1}. {b.name}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Wave Jump */}
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 11, color: '#555', marginBottom: 6 }}>
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: '#555', marginBottom: 4 }}>
                   WAVE JUMP — <span style={{ color: BOSSES[adminWaveBoss].color }}>{BOSSES[adminWaveBoss].name}</span>
-                  {' · pick boss above then a wave ↓'}
+                  {' · pick boss above'}
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {(BOSSES[adminWaveBoss].waves ?? []).map((_w, wi) => (
-                    <button key={wi} style={{ ...btnStyle(BOSSES[adminWaveBoss].color), fontSize: 12, padding: '5px 10px', minWidth: 32, fontWeight: 'bold' }}
+                    <button key={wi} style={{ ...btnStyle(BOSSES[adminWaveBoss].color), fontSize: 10, padding: '3px 7px', minWidth: 28, fontWeight: 'bold' }}
                       onClick={() => { jumpToBossWave(adminWaveBoss, wi); }}>
                       W{wi + 1}
                     </button>
@@ -5879,11 +5920,10 @@ export default function SoulRush() {
               </div>
 
               {/* Live controls */}
-              <div style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <div style={{ fontSize: 11, color: '#555', width: '100%', marginBottom: 2 }}>LIVE CONTROLS (works mid-fight)</div>
+              <div style={{ marginBottom: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{ fontSize: 10, color: '#555', width: '100%', marginBottom: 1 }}>LIVE CONTROLS</div>
 
-                {/* Invincibility */}
-                <button style={{ ...btnStyle(adminInvPanel ? '#00ff88' : '#444'), background: adminInvPanel ? '#00ff8822' : 'transparent', fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                <button style={{ ...btnStyle(adminInvPanel ? '#00ff88' : '#444'), background: adminInvPanel ? '#00ff8822' : 'transparent', fontSize: 11, padding: '4px 10px', fontWeight: 'bold' }}
                   onClick={() => {
                     const next = !adminInvPanel;
                     setAdminInvPanel(next);
@@ -5892,20 +5932,17 @@ export default function SoulRush() {
                   {adminInvPanel ? '🛡 INV: ON' : '🛡 INV: off'}
                 </button>
 
-                {/* Clear bullets */}
-                <button style={{ ...btnStyle('#ff8844'), fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                <button style={{ ...btnStyle('#ff8844'), fontSize: 11, padding: '4px 10px', fontWeight: 'bold' }}
                   onClick={() => clearEntities(gameRef.current)}>
-                  💥 Clear Bullets
+                  💥 Clear
                 </button>
 
-                {/* Next wave */}
-                <button style={{ ...btnStyle('#44ccff'), fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                <button style={{ ...btnStyle('#44ccff'), fontSize: 11, padding: '4px 10px', fontWeight: 'bold' }}
                   onClick={() => { const g = gameRef.current; g.atkTimer = 0; g.atkFinishTimer = 0; }}>
                   ⏭ Next Wave
                 </button>
 
-                {/* Restart wave */}
-                <button style={{ ...btnStyle('#cc88ff'), fontSize: 12, padding: '6px 14px', fontWeight: 'bold' }}
+                <button style={{ ...btnStyle('#cc88ff'), fontSize: 11, padding: '4px 10px', fontWeight: 'bold' }}
                   onClick={() => {
                     const g = gameRef.current;
                     clearEntities(g);
@@ -5913,10 +5950,9 @@ export default function SoulRush() {
                     g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
                     g.hitsThisWave = 0; g.waveStartHp = g.player.hp;
                   }}>
-                  🔄 Restart Wave
+                  🔄 Restart
                 </button>
 
-                {/* HP setter */}
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   <input
                     type="number" min={1} max={100} placeholder="HP"
@@ -5928,13 +5964,13 @@ export default function SoulRush() {
                         if (!isNaN(v)) gameRef.current.player.hp = v;
                       }
                     }}
-                    style={{ width: 60, background: '#0a0a14', border: '1px solid #333', borderRadius: 4, color: '#aac', fontFamily: 'monospace', fontSize: 12, padding: '5px 8px', outline: 'none' }}
+                    style={{ width: 50, background: '#0a0a14', border: '1px solid #333', borderRadius: 4, color: '#aac', fontFamily: 'monospace', fontSize: 11, padding: '4px 6px', outline: 'none' }}
                   />
-                  <button style={{ ...btnStyle('#ff4466'), fontSize: 12, padding: '6px 10px' }}
+                  <button style={{ ...btnStyle('#ff4466'), fontSize: 11, padding: '4px 8px' }}
                     onClick={() => { const v = Math.min(100, Math.max(1, Number(adminHpInput))); if (!isNaN(v)) gameRef.current.player.hp = v; }}>
                     Set HP
                   </button>
-                  <button style={{ ...btnStyle('#ff4466'), fontSize: 12, padding: '6px 10px' }}
+                  <button style={{ ...btnStyle('#ff4466'), fontSize: 11, padding: '4px 8px' }}
                     onClick={() => { gameRef.current.player.hp = 100; }}>
                     +100
                   </button>
@@ -5942,11 +5978,11 @@ export default function SoulRush() {
               </div>
 
               {/* Bullet speed */}
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 11, color: '#555', marginBottom: 6 }}>BULLET SPEED MULT</div>
-                <div style={{ display: 'flex', gap: 6 }}>
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: '#555', marginBottom: 4 }}>BULLET SPEED</div>
+                <div style={{ display: 'flex', gap: 5 }}>
                   {[0.5, 1, 2].map(m => (
-                    <button key={m} style={{ ...btnStyle(adminSpeedMult === m ? '#ffff44' : '#444'), background: adminSpeedMult === m ? '#ffff4422' : 'transparent', fontSize: 13, padding: '6px 18px', fontWeight: 'bold' }}
+                    <button key={m} style={{ ...btnStyle(adminSpeedMult === m ? '#ffff44' : '#444'), background: adminSpeedMult === m ? '#ffff4422' : 'transparent', fontSize: 11, padding: '4px 14px', fontWeight: 'bold' }}
                       onClick={() => { setAdminSpeedMult(m); gameRef.current.debugSpeedMult = m; }}>
                       {m === 0.5 ? '½×' : m === 1 ? '1×' : '2×'}
                     </button>
