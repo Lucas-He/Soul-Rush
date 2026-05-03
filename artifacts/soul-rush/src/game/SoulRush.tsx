@@ -4822,20 +4822,29 @@ function drawBox(ctx: CanvasRenderingContext2D, boss: BossConf, g: GameData) {
 function drawDevourLanes(ctx: CanvasRenderingContext2D, g: GameData) {
   if (g.devourLane < 0) return;
   const lH = BH / 5;
+  // Visual border thickness scaled 30% larger; hitbox (lane geometry) unchanged
+  const edgeSW   = 2   * HAZARD_VISUAL_SCALE;
+  const glowBlur = 14  * HAZARD_VISUAL_SCALE;
+  const dangerBlur = 18 * HAZARD_VISUAL_SCALE;
   for (let i = 0; i < 5; i++) {
     const ly = BY + i * lH;
     ctx.save();
     if (i === g.devourLane) {
       ctx.fillStyle = '#002800'; ctx.globalAlpha = 0.55; ctx.fillRect(BX + 1, ly, BW - 2, lH); ctx.globalAlpha = 1;
-      ctx.strokeStyle = '#00ff55'; ctx.lineWidth = 2; ctx.shadowBlur = 14; ctx.shadowColor = '#00ff55'; ctx.setLineDash([7, 5]);
+      ctx.strokeStyle = '#00ff55'; ctx.lineWidth = edgeSW; ctx.shadowBlur = glowBlur; ctx.shadowColor = '#00ff55'; ctx.setLineDash([7, 5]);
       ctx.strokeRect(BX + 1, ly, BW - 2, lH); ctx.setLineDash([]);
       ctx.fillStyle = '#00ff55'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
       ctx.fillText('SAFE', BX + BW / 2, ly + lH / 2 + 4);
     } else if (g.devourActive) {
+      ctx.shadowBlur = dangerBlur; ctx.shadowColor = '#ff0000';
       ctx.fillStyle = '#ff000055'; ctx.fillRect(BX + 1, ly, BW - 2, lH);
       ctx.globalAlpha = 0.35 + 0.25 * Math.sin(g.time * 9 + i);
       ctx.fillStyle = '#ff0000'; ctx.fillRect(BX + 1, ly, BW - 2, lH);
+      // Scaled danger border stroke so active hazard lanes read visually larger
+      ctx.globalAlpha = 1; ctx.strokeStyle = '#ff4400';
+      ctx.lineWidth = edgeSW * 0.75; ctx.strokeRect(BX + 1, ly, BW - 2, lH);
     } else {
+      ctx.shadowBlur = dangerBlur * 0.6; ctx.shadowColor = '#ff2200';
       ctx.globalAlpha = 0.18 + 0.12 * Math.sin(g.time * 6 + i);
       ctx.fillStyle = '#ff2200'; ctx.fillRect(BX + 1, ly, BW - 2, lH);
     }
@@ -5029,8 +5038,8 @@ function drawElectricLaser(ctx: CanvasRenderingContext2D, l: Laser, time: number
   // Two jagged-line passes: wide colored core + thin white highlight
   for (let pass = 0; pass < 2; pass++) {
     ctx.strokeStyle = pass === 0 ? l.color : '#aaeeff';
-    ctx.lineWidth   = pass === 0 ? 2.5 : 1;
-    ctx.shadowBlur  = pass === 0 ? 20 : 8;
+    ctx.lineWidth   = (pass === 0 ? 2.5 : 1) * HAZARD_VISUAL_SCALE;
+    ctx.shadowBlur  = (pass === 0 ? 20 : 8) * HAZARD_VISUAL_SCALE;
     ctx.shadowColor = l.color;
     ctx.beginPath();
     if (l.type === 'h') {
