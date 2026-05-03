@@ -3866,7 +3866,7 @@ function doSoulDuel(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) g.warnMarkers.push({ id: nid(g), x: BCX + (BCX - g.player.x), y: BCY + (BCY - g.player.y), angle: 0, r: 10, color: boss.color2, timer: warnDur(g, 1.0), maxTimer: warnDur(g, 1.0) });
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.mirrorSoulActive = true; g.mirrorSoulX = BCX + (BCX - g.player.x); g.mirrorSoulY = BCY + (BCY - g.player.y); g.mirrorSoulPulsing = true; g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 1.0)) { g.mirrorSoulActive = true; g.mirrorSoulX = BCX + (BCX - g.player.x); g.mirrorSoulY = BCY + (BCY - g.player.y); g.mirrorSoulPulsing = true; g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.mirrorSoulX = BCX + (BCX - g.player.x); g.mirrorSoulY = BCY + (BCY - g.player.y);
     g.spawnTimer -= dt;
@@ -3883,7 +3883,7 @@ function doFirstMistake(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 32; i++) { const a = (i / 32) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 80, y: BCY + Math.sin(a) * 80, angle: a, r: 5, color: boss.color, timer: warnDur(g, 1.0), maxTimer: warnDur(g, 1.0) }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) {
+    if (g.phaseTimer >= warnDur(g, 1.0)) {
       const spd = sm(g);
       g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 15, speed: 120 * spd, thick: 20, gaps: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2 + Math.PI], gapSz: 0.45, color: boss.color });
       g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 100, speed: 100 * spd, thick: 16, gaps: [Math.random() * Math.PI * 2], gapSz: 0.5, color: boss.color2 });
@@ -5199,8 +5199,9 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
     ctx.restore();
   }
 
-  // Rings — visual thickness scaled; hitbox (ring.thick) unchanged
+  // Rings — visual radius and thickness scaled 30%; hitbox (ring.r, ring.thick) unchanged
   for (const ring of g.rings) {
+    const vr = ring.r * HAZARD_VISUAL_SCALE;
     ctx.save(); ctx.strokeStyle = ring.color; ctx.lineWidth = ring.thick * HAZARD_VISUAL_SCALE; ctx.shadowBlur = 16; ctx.shadowColor = ring.color;
     const segs = 240;
     const step = (Math.PI * 2) / segs;
@@ -5208,7 +5209,7 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
       const angle = s * step;
       let inGap = false;
       for (const gap of ring.gaps) { if (Math.abs(angleDiff(angle, gap)) < ring.gapSz) { inGap = true; break; } }
-      if (!inGap) { ctx.beginPath(); ctx.arc(ring.cx, ring.cy, ring.r, angle, angle + step + 0.01); ctx.stroke(); }
+      if (!inGap) { ctx.beginPath(); ctx.arc(ring.cx, ring.cy, vr, angle, angle + step + 0.01); ctx.stroke(); }
     }
     ctx.restore();
   }
