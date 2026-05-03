@@ -1,0 +1,119 @@
+Please make the boss actually move during the fight instead of staying mostly static.
+
+Do NOT rebuild the whole game.
+Do NOT change the boss progression system.
+Keep the existing attacks and mechanics, but add real boss movement behavior.
+
+Main goal:
+The boss should feel alive and active. It should reposition, dodge, charge, retreat, and move during attacks instead of just standing in one place.
+
+Required changes:
+
+1. Boss idle movement
+Add constant subtle movement while the boss is not attacking:
+- slow floating / bobbing
+- small side-to-side drift
+- slight rotation or scale pulse if appropriate
+- boss should never feel completely frozen
+
+2. Boss repositioning
+Between attacks, the boss should move to new positions.
+
+Examples:
+- move left or right
+- move closer to the player
+- retreat after attacking
+- move to the top/center/side of the arena before special attacks
+- choose a new position every few seconds
+
+Use smooth movement, not instant teleporting, unless the boss has a teleport-style move.
+
+3. Boss movement patterns
+Add several movement types and use them depending on the attack:
+
+- Strafe: boss moves horizontally while shooting
+- Chase: boss slowly moves toward the player
+- Retreat: boss backs away after player gets close
+- Dash: boss quickly moves in a straight line after a warning cue
+- Circle: boss moves around the arena or around the player
+- Hover: boss floats while preparing a ranged attack
+- Slam setup: boss moves above/near the player before a slam attack
+
+4. Movement should match attacks
+Do not make movement random only.
+
+Examples:
+- before a charge attack, boss moves back slightly, pauses, then dashes forward
+- before a beam attack, boss moves to the center and locks position
+- during projectile attacks, boss strafes left and right
+- during a summon attack, boss retreats to a safer location
+- during phase transition, boss moves to center and performs a visual animation
+
+5. Keep movement fair
+Boss movement should make the fight more exciting, not impossible.
+
+Rules:
+- Boss should not instantly collide with the player without warning
+- Fast dashes need a visual telegraph first
+- Boss should stay inside the arena boundaries
+- Boss should not overlap walls or leave the screen
+- Boss should not move so fast that attacks become unreadable
+- Player should have time to react
+
+6. Add movement state logic
+Please add or update boss states such as:
+
+- idle
+- moving
+- windup
+- attacking
+- recovering
+- phaseTransition
+- defeated
+
+The boss should move differently depending on state.
+
+Example behavior:
+- idle: slow bobbing and drifting
+- moving: smooth movement to a target position
+- windup: reduced movement or dramatic pause
+- attacking: movement based on the selected attack
+- recovering: brief slowdown or recoil
+- phaseTransition: move to center, glow, then continue
+- defeated: stop attacking, shake/fade/explode
+
+7. Smooth animation
+Use interpolation/tweening if available.
+
+Movement should feel smooth:
+- lerp position toward target
+- use easing if available
+- avoid jumpy movement
+- add small animation effects during movement
+
+8. Boss should react to player position
+When possible, make the boss respond to where the player is.
+
+Examples:
+- if player is far away, boss moves closer
+- if player is too close, boss retreats or uses a close-range move
+- if player stays still, boss aims attacks toward the player
+- if player hides at one side, boss repositions to pressure that side
+
+9. Different bosses can have different movement styles
+Do not make every boss move the same way.
+
+Examples:
+- early boss: slow side-to-side movement
+- fast boss: quick dashes and strafing
+- heavy boss: slow movement but strong slam repositioning
+- magic boss: teleports or floats
+- final boss: combines several movement styles
+
+10. Remove static boss behavior
+Search the code for any logic that fixes the boss in one position during the whole fight.
+
+Replace static positioning with dynamic movement behavior while keeping attack timing stable.
+
+Final goal:
+Bosses should feel like active enemies, not stationary targets. They should move around the arena, reposition between attacks, react to the player, and use movement as part of their attack patterns while staying fair and readable.
