@@ -4707,7 +4707,7 @@ function drawMirrorSoul(ctx: CanvasRenderingContext2D, g: GameData) {
   const alpha = g.mirrorSoulPulsing ? 0.4 + 0.4 * Math.sin(g.time * 10) : 0.85;
   ctx.save();
   ctx.globalAlpha = alpha;
-  drawHeart(ctx, g.mirrorSoulX, g.mirrorSoulY - 7, 7, g.mirrorSoulPulsing ? '#8888ff' : '#ffffff');
+  drawHeart(ctx, g.mirrorSoulX, g.mirrorSoulY - 7 * HAZARD_VISUAL_SCALE, 7 * HAZARD_VISUAL_SCALE, g.mirrorSoulPulsing ? '#8888ff' : '#ffffff');
   if (!g.mirrorSoulPulsing) {
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.globalAlpha = 0.4;
     ctx.setLineDash([3, 5]);
@@ -5014,7 +5014,7 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
   // Fake soul
   if (g.fakeSoul.active) {
     ctx.save(); ctx.globalAlpha = 0.72;
-    drawHeart(ctx, g.fakeSoul.x, g.fakeSoul.y - 7, 6, '#ff8833');
+    drawHeart(ctx, g.fakeSoul.x, g.fakeSoul.y - 6 * HAZARD_VISUAL_SCALE, 6 * HAZARD_VISUAL_SCALE, '#ff8833');
     ctx.restore();
   }
 
@@ -6310,17 +6310,38 @@ export default function SoulRush() {
                 {fairnessOpen && fairnessResults.length > 0 && (() => {
                   const failing = fairnessResults.filter(r => !r.passed);
                   const passing = fairnessResults.filter(r => r.passed);
-                  const totalIssues = fairnessResults.reduce((n, r) => n + r.issues.length, 0);
+                  const allIssues = fairnessResults.flatMap(r => r.issues);
+                  const totalIssues = allIssues.length;
+                  const countOf = (t: string) => allIssues.filter(i => i.type === t).length;
+                  const issueTypes: Array<{ type: string; label: string; color: string }> = [
+                    { type: 'bannedCombo',       label: 'banned combos',      color: '#ff4444' },
+                    { type: 'possiblyImpossible', label: 'impossible',         color: '#ff4444' },
+                    { type: 'missingWarning',    label: 'no warning',         color: '#ffaa44' },
+                    { type: 'warnTime',          label: 'short warn time',    color: '#ffaa44' },
+                    { type: 'layerCount',        label: 'too many layers',    color: '#cc88ff' },
+                    { type: 'safeGap',           label: 'no safe gap',        color: '#cc88ff' },
+                  ];
                   return (
                     <div>
-                      <div style={{ display: 'flex', gap: 12, marginBottom: 8, fontSize: 11, fontFamily: 'monospace' }}>
+                      <div style={{ display: 'flex', gap: 12, marginBottom: 6, fontSize: 11, fontFamily: 'monospace', flexWrap: 'wrap' }}>
                         <span style={{ color: failing.length > 0 ? '#ff6644' : '#44ff88', fontWeight: 'bold' }}>
-                          {failing.length} waves flagged
+                          {fairnessResults.length} checked
+                        </span>
+                        <span style={{ color: '#555' }}>·</span>
+                        <span style={{ color: failing.length > 0 ? '#ff6644' : '#44ff88', fontWeight: 'bold' }}>
+                          {failing.length} flagged
                         </span>
                         <span style={{ color: '#555' }}>·</span>
                         <span style={{ color: '#44ff88' }}>{passing.length} clean</span>
                         <span style={{ color: '#555' }}>·</span>
                         <span style={{ color: '#cc88ff' }}>{totalIssues} issues total</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 10px', marginBottom: 8, fontSize: 10, fontFamily: 'monospace', paddingLeft: 4 }}>
+                        {issueTypes.filter(it => countOf(it.type) > 0).map(it => (
+                          <span key={it.type} style={{ color: it.color }}>
+                            {countOf(it.type)}× {it.label}
+                          </span>
+                        ))}
                       </div>
                       {failing.length === 0 ? (
                         <div style={{ color: '#44ff88', fontSize: 11, padding: '6px 0' }}>All waves passed fairness checks.</div>
