@@ -1538,67 +1538,76 @@ function updateBossMovement(g: GameData, dt: number) {
   const mv = BOSS_MOVE[g.bossIdx];
   g.bossMoveTimer -= dt;
 
-  if (g.bossMoveTimer <= 0) {
+  // ── WINDUP (phase 0) ─────────────────────────────────────────────────────
+  // Override every frame — no timer gate — so the boss reliably eases away
+  // from the player the moment a new warning phase starts.
+  if (g.phase === 0) {
+    const awaySign = g.player.x < BCX ? 1 : -1;
+    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + awaySign * mv.range * 0.35));
+    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, BOSS_BASE_Y - mv.vertRange * 0.5));
+    // Slower lerp for the dramatic "coiling up" feel
+    const wef = 1 - Math.exp(-mv.lerpRate * 0.5 * dt);
+    g.bossX += (g.bossTX - g.bossX) * wef;
+    g.bossY += (g.bossTY - g.bossY) * wef;
+    return;
+  }
+
+  // ── POST-ATTACK RETREAT (atkFinishTimer >= 0) ─────────────────────────────
+  // Fires for up to 2.5 s after the attack timer expires, before waveEnd.
+  // Boss retreats to the side opposite the player.
+  if (g.atkFinishTimer >= 0) {
+    const retreatSign = g.bossX < BCX ? -1 : 1;
+    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + retreatSign * mv.range * 0.4));
+    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, BOSS_BASE_Y - mv.vertRange * 0.3));
+    const ref = 1 - Math.exp(-mv.lerpRate * 0.7 * dt);
+    g.bossX += (g.bossTX - g.bossX) * ref;
+    g.bossY += (g.bossTY - g.bossY) * ref;
+    return;
+  }
+
+  // ── ACTIVE ATTACK — timer-based repositioning ─────────────────────────────
+
+  // Circle style: continuous arc (overrides timer approach)
+  if (mv.style === 'circle') {
+    const ca = g.time * 0.7;
+    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + Math.cos(ca) * mv.range * 0.55));
+    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, BOSS_BASE_Y + Math.sin(ca * 0.6) * mv.vertRange * 0.6));
+  } else if (g.bossMoveTimer <= 0) {
     const [minI, maxI] = mv.repositionInterval;
-    const interval = (mv.style === 'erratic' && g.phase >= 1)
+    g.bossMoveTimer = (mv.style === 'erratic')
       ? rand(minI * 0.45, maxI * 0.5)
       : rand(minI, maxI);
-    g.bossMoveTimer = interval;
 
     let tx: number;
     let ty: number;
 
-    if (g.phase === 0) {
-      // Windup — pull back slightly away from the player's side
-      const awaySign = g.player.x < BCX ? 1 : -1;
-      tx = BCX + awaySign * mv.range * 0.35;
-      ty = BOSS_BASE_Y - mv.vertRange * 0.5;
-    } else if (mv.style === 'chase' && g.phase >= 1) {
-      // Track player X
+    if (mv.style === 'chase') {
       tx = g.player.x;
       ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 0.6;
-    } else if (mv.style === 'strafe' && g.phase >= 1) {
-      // Alternate sides: lean toward the opposite side from current position
+    } else if (mv.style === 'strafe') {
       const side = g.bossX < BCX ? 1 : -1;
       const bias = Math.random() > 0.35 ? side : -side;
       tx = BCX + bias * (mv.range * 0.3 + Math.random() * mv.range * 0.5);
       ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 0.5;
     } else if (mv.style === 'erratic') {
-      // Fully random within arena overhead zone
       tx = BCX + (Math.random() - 0.5) * mv.range * 2;
       ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 1.4;
     } else {
-      // Drift: gentle wander around center
       tx = BCX + (Math.random() - 0.5) * mv.range * 0.9;
       ty = BOSS_BASE_Y + (Math.random() - 0.5) * mv.vertRange * 0.7;
-    }
-
-    // Brief retreat when attack is nearly over (adds recovery feel)
-    if (g.phase >= 1 && g.atkTimer < 0.6 && mv.style !== 'erratic') {
-      const retreatSign = g.bossX < BCX ? -1 : 1;
-      tx = BCX + retreatSign * mv.range * 0.25;
-      ty = BOSS_BASE_Y - mv.vertRange * 0.3;
     }
 
     g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, tx));
     g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, ty));
 
-    // Boss 20 (Soulvex): snap-teleport instead of lerp; flash timer creates fade-in
-    if (g.bossIdx === 19 && g.phase >= 1) {
+    // Boss 20 (Soulvex): snap-teleport + fade-in flash
+    if (g.bossIdx === 19) {
       g.bossX = g.bossTX;
       g.bossY = g.bossTY;
       g.bossFlashTimer = 0.18;
     }
   }
 
-  // Circle style (Lunara): override target continuously for a smooth arc
-  if (mv.style === 'circle') {
-    const ca = g.time * 0.7;
-    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + Math.cos(ca) * mv.range * 0.55));
-    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, BOSS_BASE_Y + Math.sin(ca * 0.6) * mv.vertRange * 0.6));
-  }
-
-  // Flash countdown
   if (g.bossFlashTimer > 0) g.bossFlashTimer -= dt;
 
   // Exponential lerp toward target — smooth regardless of frame rate
@@ -6043,6 +6052,7 @@ export default function SoulRush() {
       gameRef.current.postBossTimer = 0;
     } else {
       gameRef.current.state = 'playing';
+      gameRef.current.bossMoveTimer = 0; // force immediate reposition on new wave
     }
     inputFocusedRef.current = false;
   };
