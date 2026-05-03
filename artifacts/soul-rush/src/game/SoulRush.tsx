@@ -47,6 +47,7 @@ const SHAKE_DUR = 0.28;
 // Player size, player hitbox, and collision radii are NOT changed.
 // ================================================================
 const HAZARD_VISUAL_SCALE = 1.3;
+const PLAYER_VISUAL_SCALE  = 1.0; // player draw size is intentionally unchanged
 
 // ================================================================
 // DIFFICULTY LEVELS
