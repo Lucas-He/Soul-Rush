@@ -1640,7 +1640,7 @@ function doCrystalRain(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.7)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
@@ -1688,7 +1688,7 @@ function doMirrorWalls(g: GameData, dt: number, boss: BossConf) {
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.6) {
+    if (g.phaseTimer >= warnDur(g, 1.6)) {
       g.phase = 1; g.phaseTimer = 0;
       g.lasers = g.laserWarns.map(lw => ({ id: nid(g), type: lw.type, pos: lw.pos, width: lw.width, timer: 2.2, color: lw.color }));
       g.laserSnapshot = g.laserWarns.map(lw => ({ type: lw.type, pos: lw.pos, width: lw.width, color: lw.color }));
@@ -1892,7 +1892,7 @@ function doDevourLane(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.devourLane < 0) { g.devourLane = randInt(0, 4); g.devourActive = false; }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.8) { g.phase = 1; g.phaseTimer = 0; g.devourActive = true; g.spawnTimer = 0; }
+    if (g.phaseTimer >= warnDur(g, 1.8)) { g.phase = 1; g.phaseTimer = 0; g.devourActive = true; g.spawnTimer = 0; }
   } else if (g.phase === 1) {
     // Switch lane halfway if variant
     if (laneSwitch && g.phaseTimer >= 1.75 && g.phaseTimer - dt < 1.75) {
@@ -1948,7 +1948,7 @@ function doHaloSpiral(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
@@ -1994,7 +1994,7 @@ function doJudgmentBeams(g: GameData, dt: number, boss: BossConf) {
     }
     for (const dw of g.diagWarns) dw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.6) {
+    if (g.phaseTimer >= warnDur(g, 1.6)) {
       g.phase = 1; g.phaseTimer = 0;
       g.diagLasers = g.diagWarns.filter(dw => !dw.fake).map(dw => ({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 2.2, color: boss.color }));
       g.diagWarns = []; shake(g);
@@ -2022,7 +2022,7 @@ function doWingBarrage(g: GameData, dt: number, boss: BossConf) {
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.laserWarns = []; }
+    if (g.phaseTimer >= warnDur(g, 0.65)) { g.phase = 1; g.phaseTimer = 0; g.laserWarns = []; }
     return;
   }
 
@@ -2085,7 +2085,7 @@ function doGearMaze(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
@@ -2141,7 +2141,7 @@ function doClockSlash(g: GameData, dt: number, boss: BossConf) {
     }
     g.phaseTimer += dt;
     for (const hand of g.clockHands) hand.angle += hand.rotSpd * dt;
-    if (g.phaseTimer >= 1.2) {
+    if (g.phaseTimer >= warnDur(g, 1.2)) {
       g.phase = 1;
       for (const hand of g.clockHands) hand.warming = false;
       shake(g);
@@ -2212,7 +2212,7 @@ function doImpossibleScript(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.65)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
@@ -2274,7 +2274,7 @@ function doCrownCollapse(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
@@ -2335,7 +2335,7 @@ function doSoulSplit(g: GameData, dt: number, boss: BossConf) {
     g.fakeSoul.x = BX + BW - (g.player.x - BX);
     g.fakeSoul.y = g.player.y;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.65) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.65)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
@@ -2373,7 +2373,7 @@ function doFinalPattern(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.75) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.75)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
   g.spawnTimer -= dt;
@@ -2422,7 +2422,7 @@ function doCurrentSurge(g: GameData, dt: number, boss: BossConf) {
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) {
+    if (g.phaseTimer >= warnDur(g, 1.0)) {
       const lw = g.laserWarns[0];
       g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 64, timer: 5.0, color: boss.color });
       g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
@@ -2477,7 +2477,7 @@ function doCoilTrap(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
+    if (g.phaseTimer >= warnDur(g, 1.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -2511,7 +2511,7 @@ function doUndertowPull(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.pullActive = true; g.spawnTimer = 0; }
+    if (g.phaseTimer >= warnDur(g, 1.2)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.pullActive = true; g.spawnTimer = 0; }
   } else if (g.phase === 1) {
     // Apply pull and rain bullets from the pull direction
     g.spawnTimer -= dt;
@@ -2553,7 +2553,7 @@ function doBoneRain(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
+    if (g.phaseTimer >= warnDur(g, 1.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -2598,7 +2598,7 @@ function doRibCage(g: GameData, dt: number, boss: BossConf) {
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.3) {
+    if (g.phaseTimer >= warnDur(g, 1.3)) {
       g.lasers.push({ id: nid(g), type: 'v', pos: BX, width: wallWidth, timer: 4.0, color: boss.color });
       g.lasers.push({ id: nid(g), type: 'v', pos: BX + BW, width: wallWidth, timer: 4.0, color: boss.color });
       g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
@@ -2644,7 +2644,7 @@ function doHaloCurse(g: GameData, dt: number, boss: BossConf) {
       g.warnMarkers[i].y = g.player.y + Math.sin(a) * orbitR;
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.8) {
+    if (g.phaseTimer >= warnDur(g, 1.8)) {
       // ERUPT: spawn bullets from player position outward
       const spd = sm(g);
       for (let i = 0; i < 8; i++) {
@@ -2689,7 +2689,7 @@ function doStarfall(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 1.2)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -2730,7 +2730,7 @@ function doConstellationLines(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.4) {
+    if (g.phaseTimer >= warnDur(g, 1.4)) {
       // Activate laser lines connecting adjacent stars
       for (let i = 0; i < g.starPoints.length - 1; i++) {
         const a = g.starPoints[i], b2 = g.starPoints[i + 1];
@@ -2765,7 +2765,7 @@ function doFalseStar(g: GameData, dt: number, boss: BossConf) {
       g.starPoints.push({ id: nid(g), x: cx, y: cy }); // store actual position for phase 1
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 1.2)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     // Erupt real small stars outward from the fake star's actual position
     if (g.spawnTimer <= 0 && g.bullets.length < 5) {
@@ -2815,7 +2815,7 @@ function doPistonCrush(g: GameData, dt: number, boss: BossConf) {
     }
     for (const pb of g.pistonBlocks) pb.warnTimer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.1) {
+    if (g.phaseTimer >= warnDur(g, 1.1)) {
       for (const pb of g.pistonBlocks) { pb.active = true; pb.warnTimer = 0; }
       g.arenaShrunken = true;
       g.phase = 1; g.phaseTimer = 0; shake(g);
@@ -2863,7 +2863,7 @@ function doEngineSpin(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     // Accelerating spin
     const waveProgress = g.phaseTimer / 4.0;
@@ -2921,7 +2921,7 @@ function doRuleRewrite(g: GameData, dt: number, boss: BossConf) {
       }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) {
+    if (g.phaseTimer >= warnDur(g, 0.8)) {
       // New smaller box — shrinks by ~25% on each side
       const shrink = 0.28 + (g.diffMult - 1) * 0.08;
       const newBx = BX + BW * shrink;
@@ -2964,7 +2964,7 @@ function doAxisCollapse(g: GameData, dt: number, boss: BossConf) {
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.5) {
+    if (g.phaseTimer >= warnDur(g, 1.5)) {
       g.lasers = g.laserWarns.filter(lw => !lw.fake).map(lw => ({ id: nid(g), type: lw.type, pos: lw.pos, width: lw.width, timer: 2.0, color: lw.color }));
       g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
     }
@@ -2995,7 +2995,7 @@ function doMirrorSoul(g: GameData, dt: number, boss: BossConf) {
     g.mirrorSoulX += (mirX - g.mirrorSoulX) * 4.0 * dt;
     g.mirrorSoulY += (mirY - g.mirrorSoulY) * 4.0 * dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) {
+    if (g.phaseTimer >= warnDur(g, 1.0)) {
       g.mirrorSoulPulsing = false; // now becomes dangerous
       g.phase = 1; g.phaseTimer = 0; g.spawnTimer = 0;
     }
@@ -3047,7 +3047,7 @@ function doPatternOverload(g: GameData, dt: number, boss: BossConf) {
     }
     for (const dw of g.diagWarns) dw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.2) {
+    if (g.phaseTimer >= warnDur(g, 1.2)) {
       g.diagLasers = g.diagWarns.map(dw => ({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 5.0, color: boss.color }));
       g.diagWarns = []; g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
     }
@@ -3149,7 +3149,7 @@ function doSporeBloom(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 55, y: BCY + Math.sin(a) * 55, angle: a, r: 6, color: boss.color, timer: 0.9, maxTimer: 0.9 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -3166,7 +3166,7 @@ function doVelvetSwarm(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 6; i++) g.warnMarkers.push({ id: nid(g), x: rand(BX + 20, BX + BW - 20), y: BY - 8, angle: Math.PI / 2, r: 5, color: boss.color2, timer: 0.8, maxTimer: 0.8 });
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -3183,7 +3183,7 @@ function doMothEclipse(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 180, y: BCY + Math.sin(a) * 180, angle: a, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) {
+    if (g.phaseTimer >= warnDur(g, 1.0)) {
       g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 180, speed: -80 * sm(g), thick: 28, gaps: [g.bossAngle], gapSz: 0.45, color: boss.color });
       g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g);
     }
@@ -3207,7 +3207,7 @@ function doFeverRings(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 50, y: BCY + Math.sin(a) * 50, angle: a, r: 4, color: boss.color2, timer: 0.7, maxTimer: 0.7 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) {
+    if (g.phaseTimer >= warnDur(g, 0.7)) {
       const spd = sm(g); const gaps = [0, (Math.PI * 2) / 3, (Math.PI * 4) / 3];
       for (let i = 0; i < 3; i++) g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 10 + i * 30, speed: (90 + i * 20) * spd, thick: 16, gaps: [...gaps], gapSz: 0.55, color: i === 0 ? boss.color : boss.color2 });
       g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
@@ -3224,7 +3224,7 @@ function doPlagueCrown(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (const [cx, cy] of corners) for (let i = 0; i < 4; i++) { const a = Math.atan2(BCY - cy, BCX - cx) + rand(-0.4, 0.4); g.warnMarkers.push({ id: nid(g), x: cx + Math.cos(a) * i * 18, y: cy + Math.sin(a) * i * 18, angle: a, r: 5, color: boss.color, timer: 1.1, maxTimer: 1.1 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.1) {
+    if (g.phaseTimer >= warnDur(g, 1.1)) {
       const spd = sm(g);
       for (const [cx, cy] of corners) { const baseA = Math.atan2(BCY - cy, BCX - cx); for (let i = 0; i < 6; i++) { const a = baseA + rand(-0.55, 0.55); g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 150 * spd, vy: Math.sin(a) * 150 * spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); } }
       g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
@@ -3242,7 +3242,7 @@ function doSoundBars(g: GameData, dt: number, boss: BossConf) {
       for (let i = 0; i < 4; i++) g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW * (i / 3), width: 38, timer: 0.9, color: boss.color, fake: i % 2 !== 0 });
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) {
+    if (g.phaseTimer >= warnDur(g, 0.9)) {
       for (const lw of g.laserWarns) if (!lw.fake) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 38, timer: 3.5, color: boss.color });
       g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g);
     }
@@ -3258,7 +3258,7 @@ function doChoirSplit(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (const [dx, dy] of dirs) for (let d = 1; d <= 3; d++) g.warnMarkers.push({ id: nid(g), x: BCX + dx * d * 40, y: BCY + dy * d * 30, angle: Math.atan2(dy, dx), r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 });
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) {
+    if (g.phaseTimer >= warnDur(g, 0.8)) {
       const spd = sm(g);
       for (const [dx, dy] of dirs) for (let i = 0; i < 5; i++) { const a = Math.atan2(dy, dx) + rand(-0.4, 0.4); g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 160 * spd, vy: Math.sin(a) * 160 * spd, r: 5, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: rand(-2, 2), frozen: false }); }
       g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g);
@@ -3273,7 +3273,7 @@ function doCrescendoCrush(g: GameData, dt: number, boss: BossConf) {
     if (g.laserWarns.length === 0) g.laserWarns.push({ id: nid(g), type: 'h', pos: BY, width: 48, timer: 0.8, color: boss.color, fake: false });
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 48, timer: 8.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.8)) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 48, timer: 8.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     const sweepSpd = (30 + g.phaseTimer * 80) * sm(g);
     for (const l of g.lasers) { l.pos += sweepSpd * dt; l.timer -= dt; }
@@ -3286,7 +3286,7 @@ function doSilentBeat(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0) g.warnMarkers.push({ id: nid(g), x: BCX, y: BCY, angle: 0, r: 80, color: boss.color, timer: 2.0, maxTimer: 2.0 });
     for (const wm of g.warnMarkers) { wm.timer -= dt; }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 2.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); shake(g); }
+    if (g.phaseTimer >= warnDur(g, 2.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); shake(g); }
   } else if (g.phase === 1) {
     if (g.spawnCount === 0) {
       g.spawnCount = 1; const spd = sm(g);
@@ -3301,7 +3301,7 @@ function doDoubleTempo(g: GameData, dt: number, boss: BossConf) {
     if (g.laserWarns.length === 0) g.laserWarns.push({ id: nid(g), type: 'h', pos: BY, width: 56, timer: 0.7, color: boss.color, fake: false });
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 56, timer: 4.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.7)) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 56, timer: 4.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     const spd = sm(g); for (const l of g.lasers) { l.pos += (BH + 80) / 1.6 * spd * dt; l.timer -= dt; }
     g.lasers = g.lasers.filter(l => l.pos < BY + BH + 50 && l.timer > 0);
@@ -3325,7 +3325,7 @@ function doGravityPull(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 55, y: BCY + Math.sin(a) * 55, angle: a + Math.PI, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -3345,7 +3345,7 @@ function doOrbitBreak(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 90, y: BCY + Math.sin(a) * 90, angle: a, r: 5, color: boss.color, timer: 0.9, maxTimer: 0.9 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 90, speed: 0, thick: 20, gaps: [Math.random() * Math.PI * 2], gapSz: 0.7, color: boss.color }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 90, speed: 0, thick: 20, gaps: [Math.random() * Math.PI * 2], gapSz: 0.7, color: boss.color }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.5 && g.rings.length > 0) {
@@ -3363,7 +3363,7 @@ function doCollapseRing(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 170, y: BCY + Math.sin(a) * 170, angle: a, r: 4, color: boss.color2, timer: 0.9, maxTimer: 0.9 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 170, speed: -75 * sm(g), thick: 22, gaps: [Math.random() * Math.PI * 2], gapSz: 0.6, color: boss.color2 }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 170, speed: -75 * sm(g), thick: 22, gaps: [Math.random() * Math.PI * 2], gapSz: 0.6, color: boss.color2 }); g.warnMarkers = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     for (const ring of g.rings) { ring.r += ring.speed * dt; ring.gaps[0] += 0.7 * dt; }
     g.rings = g.rings.filter(r => r.r > 15);
@@ -3421,7 +3421,7 @@ function doFuneralMarch(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 8; i++) g.warnMarkers.push({ id: nid(g), x: BX + BW * (i / 7), y: BY + 12, angle: Math.PI / 2, r: 6, color: boss.color, timer: 1.0, maxTimer: 1.0 });
-    g.phaseTimer += dt; if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 1.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0 && g.spawnCount < 8) {
@@ -3437,7 +3437,7 @@ function doCandleTears(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 5; i++) g.warnMarkers.push({ id: nid(g), x: BX + BW * (i / 4), y: BY - 4, angle: Math.PI * 0.6 + i * 0.08, r: 5, color: boss.color2, timer: 0.8, maxTimer: 0.8 });
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -3452,7 +3452,7 @@ function doLastEmber(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) g.warnMarkers.push({ id: nid(g), x: BCX, y: BCY, angle: 0, r: 100, color: boss.color, timer: 2.5, maxTimer: 2.5 });
     for (const wm of g.warnMarkers) { wm.timer -= dt; wm.r = 100 * (wm.timer / wm.maxTimer); }
-    g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); shake(g); }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 2.5)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); shake(g); }
   } else if (g.phase === 1) {
     if (g.spawnCount === 0) {
       g.spawnCount = 1; const spd = sm(g);
@@ -3481,7 +3481,7 @@ function doWebGrid(g: GameData, dt: number, boss: BossConf) {
     }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 30, timer: 2.5, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 30, timer: 2.5, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
     g.phaseTimer += dt; if (g.phaseTimer >= 2.5) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
@@ -3491,7 +3491,7 @@ function doSignalBite(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 5; i++) g.warnMarkers.push({ id: nid(g), x: g.player.x, y: g.player.y, angle: Math.PI * 2 * i / 5, r: 5 + i * 3, color: boss.color, timer: 0.8, maxTimer: 0.8 });
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0 && g.spawnCount < 6) {
@@ -3544,7 +3544,7 @@ function doVHSStorm(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0) {
       for (let i = 0; i < 18; i++) { const t = i / 18; const pos = t < 0.25 ? { x: BX + BW * (t / 0.25), y: BY } : t < 0.5 ? { x: BX + BW, y: BY + BH * ((t - 0.25) / 0.25) } : t < 0.75 ? { x: BX + BW * (1 - (t - 0.5) / 0.25), y: BY + BH } : { x: BX, y: BY + BH * (1 - (t - 0.75) / 0.25) }; g.warnMarkers.push({ id: nid(g), x: pos.x, y: pos.y, angle: Math.atan2(BCY - pos.y, BCX - pos.x), r: 4, color: boss.color, timer: 0.7, maxTimer: 0.7 }); }
     }
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.7)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -3562,7 +3562,7 @@ function doVHSStorm(g: GameData, dt: number, boss: BossConf) {
 function doMeteorLesson(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) { const count = 4 + Math.floor(g.diffMult); for (let i = 0; i < count; i++) { const x = rand(BX + 20, BX + BW - 20); g.warnMarkers.push({ id: nid(g), x, y: BCY, angle: 0, r: 22, color: boss.color, timer: 1.2, maxTimer: 1.2 }); g.starPoints.push({ id: nid(g), x, y: BCY }); } }
-    g.phaseTimer += dt; if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 1.2)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     if (g.spawnCount < g.starPoints.length) { g.spawnTimer -= dt; if (g.spawnTimer <= 0) { g.spawnTimer = 0.2; const pt = g.starPoints[g.spawnCount]; g.bullets.push({ id: nid(g), x: pt.x, y: BY - 20, vx: 0, vy: 200 * sm(g) * 0.8, r: 16, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); g.spawnCount++; } }
     moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 40);
@@ -3573,7 +3573,7 @@ function doPlanetTilt(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
       for (let arm = 0; arm < 6; arm++) { const a = (arm / 6) * Math.PI * 2; for (let d = 1; d <= 3; d++) g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * d * 35, y: BCY + Math.sin(a) * d * 35, angle: a, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.8) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.8)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
@@ -3587,7 +3587,7 @@ function doPlanetTilt(g: GameData, dt: number, boss: BossConf) {
 function doCraterBurst(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) { const cx = rand(BX + BW * 0.25, BX + BW * 0.75); const cy = rand(BY + BH * 0.25, BY + BH * 0.75); g.starPoints.push({ id: nid(g), x: cx, y: cy }); for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: cx + Math.cos(a) * 30, y: cy + Math.sin(a) * 30, angle: a, r: 6, color: boss.color, timer: 1.0, maxTimer: 1.0 }); } }
-    g.phaseTimer += dt; if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 1.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; shake(g); }
   } else if (g.phase === 1) {
     if (g.spawnCount === 0 && g.starPoints.length > 0) { g.spawnCount = 1; const pt = g.starPoints[0]; const spd = sm(g); for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2; g.bullets.push({ id: nid(g), x: pt.x, y: pt.y, vx: Math.cos(a) * 185 * spd, vy: Math.sin(a) * 185 * spd, r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); if (i % 5 === 0) g.bullets.push({ id: nid(g), x: pt.x, y: pt.y, vx: Math.cos(a) * 90 * spd, vy: Math.sin(a) * 90 * spd, r: 9, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); } }
     moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.x > -60 && b.x < W + 60 && b.y > -60 && b.y < H + 60);
@@ -3599,7 +3599,7 @@ function doTinyApocalypse(g: GameData, dt: number, boss: BossConf) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 70, y: BCY + Math.sin(a) * 70, angle: a, r: 5, color: boss.color, timer: 0.8, maxTimer: 0.8 }); }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) {
+    if (g.phaseTimer >= warnDur(g, 0.8)) {
       const spd = sm(g);
       g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 20, speed: 95 * spd, thick: 18, gaps: [Math.random() * Math.PI * 2, Math.random() * Math.PI * 2 + Math.PI], gapSz: 0.5, color: boss.color });
       g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 80, speed: 110 * spd, thick: 14, gaps: [Math.random() * Math.PI * 2], gapSz: 0.6, color: boss.color2 });
@@ -3668,7 +3668,7 @@ function doOrigamiSpears(g: GameData, dt: number, boss: BossConf) {
       for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; const len = 240; g.diagWarns.push({ id: nid(g), x1: BCX, y1: BCY, x2: BCX + Math.cos(a) * len, y2: BCY + Math.sin(a) * len, width: 18, timer: 0.9, color: boss.color, fake: i % 2 !== 0 }); }
     for (const dw of g.diagWarns) dw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { g.diagLasers = g.diagWarns.filter(dw => !dw.fake).map(dw => ({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: 18, timer: 0.9, color: boss.color })); g.diagWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { g.diagLasers = g.diagWarns.filter(dw => !dw.fake).map(dw => ({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: 18, timer: 0.9, color: boss.color })); g.diagWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     for (const dl of g.diagLasers) dl.timer -= dt; g.diagLasers = g.diagLasers.filter(dl => dl.timer > 0);
     g.phaseTimer += dt; if (g.phaseTimer >= 1.2) { g.diagLasers = []; g.diagWarns = []; g.phase = 2; g.phaseTimer = 0; }
@@ -3679,7 +3679,7 @@ function doOrigamiSpears(g: GameData, dt: number, boss: BossConf) {
 function doEchoTrail(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) { const pp = g.prevPlayerPositions[0] ?? { x: g.player.x, y: g.player.y }; for (let i = 0; i < 6; i++) g.warnMarkers.push({ id: nid(g), x: pp.x + rand(-30, 30), y: pp.y + rand(-30, 30), angle: 0, r: 8, color: boss.color, timer: 0.9, maxTimer: 0.9 }); }
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.9) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.9)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0 && g.spawnCount < 12) {
@@ -3707,7 +3707,7 @@ function doVaultLock(g: GameData, dt: number, boss: BossConf) {
     if (g.laserWarns.length === 0) { for (let i = 1; i <= 2; i++) { g.laserWarns.push({ id: nid(g), type: 'h', pos: BY + BH * (i / 3), width: 32, timer: 0.7, color: boss.color, fake: false }); g.laserWarns.push({ id: nid(g), type: 'v', pos: BX + BW * (i / 3), width: 32, timer: 0.7, color: boss.color2, fake: false }); } }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.7) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 32, timer: 1.2, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.7)) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 32, timer: 1.2, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     for (const l of g.lasers) l.timer -= dt; g.lasers = g.lasers.filter(l => l.timer > 0);
     g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.lasers = []; g.phase = 2; g.phaseTimer = 0; }
@@ -3743,7 +3743,7 @@ function doStringPull(g: GameData, dt: number, boss: BossConf) {
       const a = Math.atan2(diagY, diagX);
       for (let i = 0; i < 5; i++) g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * i * 45, y: BCY + Math.sin(a) * i * 45, angle: a, r: 8, color: boss.color, timer: 1.0, maxTimer: 1.0 });
     }
-    g.phaseTimer += dt; if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.pullActive = true; g.spawnTimer = 0; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 1.0)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.pullActive = true; g.spawnTimer = 0; }
   } else if (g.phase === 1) {
     g.player.x = Math.max(BX + P_HIT_R, Math.min(BX + BW - P_HIT_R, g.player.x + g.currentPullX));
     g.player.y = Math.max(BY + P_HIT_R, Math.min(BY + BH - P_HIT_R, g.player.y + g.currentPullY));
@@ -3762,7 +3762,7 @@ function doPuppetDance(g: GameData, dt: number, boss: BossConf) {
     if (g.laserWarns.length === 0) { const gapY = rand(BY + BH * 0.2, BY + BH * 0.7); g.spawnCount = Math.round(gapY); g.laserWarns.push({ id: nid(g), type: 'h', pos: gapY - 30, width: 35, timer: 0.9, color: boss.color, fake: false }); g.laserWarns.push({ id: nid(g), type: 'h', pos: gapY + 30, width: 35, timer: 0.9, color: boss.color2, fake: false }); }
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.9) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 35, timer: 3.0, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 0.9)) { for (const lw of g.laserWarns) g.lasers.push({ id: nid(g), type: lw.type, pos: lw.pos, width: 35, timer: 3.0, color: lw.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     const spd = sm(g); for (const l of g.lasers) { l.pos += (l.pos < g.spawnCount ? 1 : -1) * 45 * spd * dt; l.timer -= dt; }
     g.lasers = g.lasers.filter(l => l.timer > 0 && Math.abs(l.pos - g.spawnCount) > 18);
@@ -3775,7 +3775,7 @@ function doPuppetDance(g: GameData, dt: number, boss: BossConf) {
 function doMoonDrop(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0) { const count = 2 + Math.floor(g.diffMult * 0.5); for (let i = 0; i < count; i++) { const x = rand(BX + 30, BX + BW - 30); g.warnMarkers.push({ id: nid(g), x, y: BCY, angle: 0, r: 28, color: boss.color, timer: 1.5, maxTimer: 1.5 }); g.starPoints.push({ id: nid(g), x, y: BCY }); } }
-    g.phaseTimer += dt; if (g.phaseTimer >= 1.5) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 1.5)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     if (g.spawnCount < g.starPoints.length) { g.spawnTimer -= dt; if (g.spawnTimer <= 0) { g.spawnTimer = 0.3; const pt = g.starPoints[g.spawnCount]; g.bullets.push({ id: nid(g), x: pt.x, y: BY - 30, vx: 0, vy: 110, r: 22, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false }); g.spawnCount++; } }
     moveBullets(g, dt); g.bullets = g.bullets.filter(b => b.y < BY + BH + 40);
@@ -3787,7 +3787,7 @@ function doBloodCurtain(g: GameData, dt: number, boss: BossConf) {
     if (g.laserWarns.length === 0) g.laserWarns.push({ id: nid(g), type: 'h', pos: BY, width: 60, timer: 1.5, color: boss.color, fake: false });
     for (const lw of g.laserWarns) lw.timer -= dt;
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.5) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 60, timer: 5.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
+    if (g.phaseTimer >= warnDur(g, 1.5)) { g.lasers.push({ id: nid(g), type: 'h', pos: BY, width: 60, timer: 5.0, color: boss.color }); g.laserWarns = []; g.phase = 1; g.phaseTimer = 0; shake(g); }
   } else if (g.phase === 1) {
     const spd = sm(g); for (const l of g.lasers) { l.pos += (BH + 80) / 1.2 * spd * dt; l.timer -= dt; }
     g.lasers = g.lasers.filter(l => l.pos < BY + BH + 60 && l.timer > 0);
@@ -3829,7 +3829,7 @@ function doRegretSpiral(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (g.warnMarkers.length === 0)
       for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2; g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 20, y: BCY + Math.sin(a) * 20, angle: a, r: 5, color: boss.color, timer: 0.7, maxTimer: 0.7 }); }
-    g.phaseTimer += dt; if (g.phaseTimer >= 0.7) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; if (g.phaseTimer >= warnDur(g, 0.7)) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
   } else if (g.phase === 1) {
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
