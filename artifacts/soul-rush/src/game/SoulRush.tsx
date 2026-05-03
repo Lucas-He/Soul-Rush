@@ -1015,14 +1015,28 @@ const BOSSES: BossConf[] = [
       if (srCap !== undefined && wave.spawnRate > srCap) wave.spawnRate = srCap;
 
       // ── Step 5: Enforce warning-time floor ──────────────────────
-      // If warnDuration is below the tier minimum for a bullet-based hazard,
-      // reduce bulletSpeed so slow bullets compensate for the short warning window.
+      // Primary: upgrade warningType to meet the tier minimum warning duration.
+      // Secondary: if upgrading is not enough, also reduce bulletSpeed proportionally.
       const minWarn = tierMinWarnSecs[tier];
-      if (wave.warnDuration < minWarn && wave.bulletSpeed > 0) {
-        const deficit = minWarn - wave.warnDuration; // seconds short
-        // Reduce speed proportional to the warning deficit (max 35% reduction)
-        const reduction = Math.min(0.35, deficit / minWarn);
-        wave.bulletSpeed = Math.round(wave.bulletSpeed * (1 - reduction));
+      // Upgrade ladder: each entry maps a warningType to the next longer-warning type
+      const WARN_UPGRADE: Record<string, string> = {
+        none: 'pulse', pulse: 'edge', edge: 'area', random: 'area', trail: 'target',
+        top: 'area', target: 'corner', mirror: 'center',
+      };
+      if ((wave.warnDuration ?? 0) < minWarn && wave.bulletSpeed > 0) {
+        // Walk upgrade ladder until warnDuration meets the floor or no upgrade available
+        let wt = wave.warningType;
+        while ((WARN_SECS[wt] ?? 0) < minWarn && WARN_UPGRADE[wt]) {
+          wt = WARN_UPGRADE[wt];
+        }
+        wave.warningType  = wt;
+        wave.warnDuration = WARN_SECS[wt] ?? minWarn;
+        // If still below (warningType maxed out), compensate with speed reduction
+        if (wave.warnDuration < minWarn) {
+          const deficit   = minWarn - wave.warnDuration;
+          const reduction = Math.min(0.35, deficit / minWarn);
+          wave.bulletSpeed = Math.round(wave.bulletSpeed * (1 - reduction));
+        }
       }
 
       // ── Step 6: Enforce safe-gap minimum ───────────────────────
@@ -5301,7 +5315,7 @@ function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
 // ================================================================
 
 interface FairnessIssue {
-  type: 'warnTime' | 'safeGap' | 'layerCount' | 'bannedCombo' | 'missingWarning' | 'possiblyImpossible';
+  type: 'warnTime' | 'safeGap' | 'layerCount' | 'bannedCombo' | 'missingWarning' | 'possiblyImpossible' | 'spawnOnPlayer';
   message: string;
 }
 
@@ -5427,7 +5441,32 @@ function validateWaveFairness(wave: Wave, bossIdx: number): FairnessIssue[] {
     });
   }
 
-  // ── 6. Possibly impossible ────────────────────────────────────
+  // ── 6. Hazard-on-player spawn detection ─────────────────────
+  // Waves that target or spawn directly at the player's position with insufficient
+  // warning time give the player no opportunity to pre-position.
+  const isAimedAtPlayer = wave.attackType === 'aimed' || wave.warningType === 'target' || wave.warningType === 'trail';
+  if (isAimedAtPlayer && warnDuration < minWarnSecs) {
+    issues.push({
+      type: 'spawnOnPlayer',
+      message: `Aimed/tracking attack (warningType "${wave.warningType}") with warnDuration ${warnDuration.toFixed(2)}s < tier-${tier + 1} min ${minWarnSecs}s — hazard may spawn on player before they can react`,
+    });
+  }
+  // Direct spawn at player with no warning is always flagged
+  if (wave.warningType === 'none' && (wave.attackType === 'aimed' || wave.attackType === 'mirror')) {
+    issues.push({
+      type: 'spawnOnPlayer',
+      message: `Hazard type "${wave.attackType}" spawns at/toward player position with no warning — player has zero reaction time`,
+    });
+  }
+  // High-density random spawn near center (common spawn location overlapping player start)
+  if (wave.warningType === 'random' && wave.spawnRate > 10 && wave.bulletSpeed > 140 && warnDuration < minWarnSecs) {
+    issues.push({
+      type: 'spawnOnPlayer',
+      message: `Random high-density spawn (rate ${wave.spawnRate}, speed ${wave.bulletSpeed}) with only ${warnDuration.toFixed(2)}s warning — bullets may materialize on player`,
+    });
+  }
+
+  // ── 7. Possibly impossible ────────────────────────────────────
   if (wave.bulletSpeed > 220 && !tags.includes('gap') && wave.attackType !== 'chain' && wave.attackType !== 'replay') {
     issues.push({
       type: 'possiblyImpossible',
@@ -6437,6 +6476,7 @@ export default function SoulRush() {
                   const issueTypes: Array<{ type: string; label: string; color: string }> = [
                     { type: 'bannedCombo',       label: 'banned combos',      color: '#ff4444' },
                     { type: 'possiblyImpossible', label: 'impossible',         color: '#ff4444' },
+                    { type: 'spawnOnPlayer',     label: 'spawn on player',    color: '#ff6622' },
                     { type: 'missingWarning',    label: 'no warning',         color: '#ffaa44' },
                     { type: 'warnTime',          label: 'short warn time',    color: '#ffaa44' },
                     { type: 'layerCount',        label: 'too many layers',    color: '#cc88ff' },
