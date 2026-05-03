@@ -4613,7 +4613,17 @@ function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
     ctx.fillStyle = wm.color;
     ctx.translate(wm.x, wm.y);
 
-    if (wm.color === '#aaddff') {
+    if (wm.color === '#ff4444') {
+      // Karma Field: pulsing red circle that shrinks as warn expires
+      const shrink = 0.55 + 0.45 * (wm.timer / wm.maxTimer);
+      const cr = vr * shrink;
+      ctx.shadowBlur = 18; ctx.shadowColor = '#ff4444';
+      ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, 0, cr, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha *= 0.22;
+      ctx.fillStyle = '#ff4444';
+      ctx.beginPath(); ctx.arc(0, 0, cr, 0, Math.PI * 2); ctx.fill();
+    } else if (wm.color === '#aaddff') {
       // Gaster Blaster skull icon: circle head + diamond eye sockets + charge glow ring
       ctx.rotate(wm.angle);
       const r = vr * 1.0;
@@ -5370,8 +5380,24 @@ function drawPistonBlocks(ctx: CanvasRenderingContext2D, g: GameData, boss: Boss
     const vph = pb.h * HAZARD_VISUAL_SCALE;
     // Bone sweep bars are thin (hitbox w=15 or h=15) with no warnTimer
     const isBoneSweep = pb.warnTimer === 0 && pb.active && (pb.w <= 15 || pb.h <= 15);
+    // Bone columns: tall narrow pillars spawned by doBoneColumns (w≈28, h >> w)
+    const isBoneColumn = pb.active && !isBoneSweep && pb.w <= 32 && pb.h > pb.w * 3;
     ctx.save();
-    if (isBoneSweep) {
+    if (isBoneColumn) {
+      // Bone column: tall white/bone pillar with rounded top cap
+      const colR = vpw / 2;
+      ctx.shadowBlur = 18; ctx.shadowColor = '#ffffff';
+      ctx.fillStyle = '#ddeeff';
+      ctx.strokeStyle = '#aaddff'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(vpx, vpy + colR);
+      ctx.arc(vpx + colR, vpy + colR, colR, Math.PI, 0);
+      ctx.lineTo(vpx + vpw, vpy + vph);
+      ctx.lineTo(vpx, vpy + vph);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if (isBoneSweep) {
       // Elongated bone bar with rounded caps — white/bone Sans-style
       const r = Math.min(vpw, vph) / 2;
       ctx.shadowBlur = 16; ctx.shadowColor = '#ffffff';
@@ -5625,8 +5651,26 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
     const vdy = dz.y - (dz.h * (HAZARD_VISUAL_SCALE - 1)) / 2;
     const vdw = dz.w * HAZARD_VISUAL_SCALE;
     const vdh = dz.h * HAZARD_VISUAL_SCALE;
+    const isKarmaCircle = dz.color === '#ff4444' && dz.w === 48;
     ctx.save();
-    if (dz.warnTimer > 0) {
+    if (isKarmaCircle) {
+      // Karma Field danger zones render as circles with fuse shrink
+      const cx = vdx + vdw / 2; const cy = vdy + vdh / 2; const cr = vdw / 2;
+      if (dz.warnTimer > 0) {
+        // Fuse phase: pulsing shrinking circle
+        ctx.globalAlpha = 0.5 + 0.35 * Math.sin(g.time * 14);
+        ctx.shadowBlur = 22; ctx.shadowColor = '#ff4444';
+        ctx.strokeStyle = '#ff6666'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.stroke();
+      } else if (dz.activeTimer > 0) {
+        ctx.globalAlpha = 0.28 + 0.2 * Math.sin(g.time * 8);
+        ctx.fillStyle = '#ff444433';
+        ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 24; ctx.shadowColor = '#ff4444';
+        ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.stroke();
+      }
+    } else if (dz.warnTimer > 0) {
       ctx.globalAlpha = 0.3 + 0.3 * Math.sin(g.time * 11);
       ctx.fillStyle = dz.color; ctx.fillRect(vdx, vdy, vdw, vdh);
       ctx.strokeStyle = dz.color; ctx.lineWidth = 2; ctx.strokeRect(vdx, vdy, vdw, vdh);
