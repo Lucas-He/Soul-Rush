@@ -1489,8 +1489,9 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   const atk = boss.attacks[g.atkIdx];
 
   // Store the current wave's debuffed config on g so sm()/st()/warnDur() can read it.
-  // This propagates all applyFairnessDebuffs changes into actual gameplay.
-  g.currentWaveConf = boss.waves?.find(w => w.execute === atk);
+  // Use the atkIdx index directly — boss.waves is a parallel array to boss.attacks,
+  // so boss.waves[g.atkIdx] is always the exact Wave for the current attack.
+  g.currentWaveConf = boss.waves?.[g.atkIdx];
 
   if (atk === 'crystalRain')        { doCrystalRain(g, dt, boss);        return; }
   if (atk === 'mirrorWalls')        { doMirrorWalls(g, dt, boss);         return; }
