@@ -938,11 +938,34 @@ const BOSSES: BossConf[] = [
 // actual measured values instead of indirect heuristics.
 // ================================================================
 (function applyFairnessDebuffs() {
-  // Warning duration (seconds) per warningType — how long players see the warning before hazard fires
+  // Warning duration (seconds) per warningType — how long players see the warning before hazard fires.
+  // Covers every warningType value used across all BOSSES waves (verified by grep).
   const WARN_SECS: Record<string, number> = {
-    none: 0, random: 0.30, trail: 0.40, pulse: 0.50, edge: 0.50, top: 0.50,
-    mirror: 0.60, target: 0.70, center: 0.80, ring: 0.80, area: 0.80, corner: 0.80,
-    column: 1.00, row: 1.00, multi: 1.00, grid: 1.20, all: 1.20,
+    none:   0,     // no warning at all
+    flash:  0.35,  // brief flash — very short
+    random: 0.35,  // unpredictable position
+    dot:    0.45,  // small dot indicator
+    trail:  0.45,  // follow-trail position hint
+    pulse:  0.55,  // pulsing center indicator
+    edge:   0.55,  // edge spawn markers
+    top:    0.55,  // top-of-screen drop indicators
+    glow:   0.65,  // build-up glow on boss/hazard
+    mirror: 0.65,  // mirror-soul position indicator
+    side:   0.70,  // side-of-screen indicators
+    arrow:  0.75,  // directional arrow overlays
+    target: 0.75,  // targeting reticle on player
+    center: 0.85,  // center-origin spread indicator
+    ring:   0.85,  // expanding ring warning
+    area:   0.85,  // danger-area floor markers
+    corner: 0.85,  // corner eruption markers
+    star:   0.85,  // star-burst position markers
+    cross:  0.90,  // cross/grid crosshair
+    line:   0.95,  // full-screen line sweep
+    row:    1.00,  // full-row laser warning
+    column: 1.00,  // full-column laser warning
+    multi:  1.00,  // multi-point simultaneous warning
+    grid:   1.25,  // full-grid laser warning
+    all:    1.25,  // all-hazard simultaneous warning
   };
 
   // Arena width used for safe-gap density formula (pixels)
@@ -1018,10 +1041,34 @@ const BOSSES: BossConf[] = [
       // Primary: upgrade warningType to meet the tier minimum warning duration.
       // Secondary: if upgrading is not enough, also reduce bulletSpeed proportionally.
       const minWarn = tierMinWarnSecs[tier];
-      // Upgrade ladder: each entry maps a warningType to the next longer-warning type
+      // Upgrade ladder: maps each warningType to the next that provides more warning time.
+      // Covers all 24 warningType values used across BOSSES waves (verified by grep).
+      // Each upgrade step increases warnDuration until the tier floor is met.
       const WARN_UPGRADE: Record<string, string> = {
-        none: 'pulse', pulse: 'edge', edge: 'area', random: 'area', trail: 'target',
-        top: 'area', target: 'corner', mirror: 'center',
+        none:   'flash',   // 0s    → 0.35s
+        flash:  'dot',     // 0.35s → 0.45s
+        random: 'dot',     // 0.35s → 0.45s
+        dot:    'pulse',   // 0.45s → 0.55s
+        trail:  'pulse',   // 0.45s → 0.55s
+        pulse:  'glow',    // 0.55s → 0.65s
+        edge:   'glow',    // 0.55s → 0.65s
+        top:    'glow',    // 0.55s → 0.65s
+        glow:   'side',    // 0.65s → 0.70s
+        mirror: 'side',    // 0.65s → 0.70s
+        side:   'arrow',   // 0.70s → 0.75s
+        arrow:  'target',  // 0.75s → 0.75s (same tier — continue ladder)
+        target: 'center',  // 0.75s → 0.85s
+        center: 'cross',   // 0.85s → 0.90s  ← critical: reaches tier-1 minimum
+        ring:   'cross',   // 0.85s → 0.90s
+        area:   'cross',   // 0.85s → 0.90s
+        corner: 'cross',   // 0.85s → 0.90s
+        star:   'cross',   // 0.85s → 0.90s
+        cross:  'line',    // 0.90s → 0.95s
+        line:   'row',     // 0.95s → 1.00s
+        row:    'column',  // 1.00s → 1.00s (peer — continue to multi)
+        column: 'multi',   // 1.00s → 1.00s (peer — continue to grid)
+        multi:  'grid',    // 1.00s → 1.25s
+        // grid and all are already at 1.25s — no further upgrade needed
       };
       if ((wave.warnDuration ?? 0) < minWarn && wave.bulletSpeed > 0) {
         // Walk upgrade ladder until warnDuration meets the floor or no upgrade available
