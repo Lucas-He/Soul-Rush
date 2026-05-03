@@ -4234,8 +4234,8 @@ function doSansBarrage(g: GameData, dt: number, boss: BossConf) {
       g.spawnCount = burstIdx + 1;
       const spd = sm(g);
       const baseAngle = Math.atan2(g.player.y - g.bossY, g.player.x - g.bossX);
-      // 4th burst (hard variant only) fires in the opposite direction
-      const fireAngle = (isHard && burstIdx === 3) ? baseAngle + Math.PI : baseAngle;
+      // Hard variant: 2nd burst (index 1) fires opposite direction mid-sequence
+      const fireAngle = (isHard && burstIdx === 1) ? baseAngle + Math.PI : baseAngle;
       for (let i = 0; i < BURST_SIZE; i++) {
         const spread = (i - Math.floor(BURST_SIZE / 2)) * 0.13;
         const a = fireAngle + spread;
@@ -4606,19 +4606,48 @@ function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
   for (const wm of g.warnMarkers) {
     const fade = wm.timer / wm.maxTimer;
     const pulse = 0.4 + 0.45 * Math.sin(g.time * 14);
-    const vr = wm.r * HAZARD_VISUAL_SCALE; // visual radius — hitbox wm.r unchanged
+    const vr = wm.r * HAZARD_VISUAL_SCALE;
     ctx.save();
     ctx.globalAlpha = pulse * fade;
     ctx.shadowBlur = 14; ctx.shadowColor = wm.color;
     ctx.fillStyle = wm.color;
     ctx.translate(wm.x, wm.y);
-    ctx.rotate(wm.angle + Math.PI / 2);
-    ctx.beginPath();
-    ctx.moveTo(0, -vr * 1.3);
-    ctx.lineTo(vr, vr * 0.8);
-    ctx.lineTo(-vr, vr * 0.8);
-    ctx.closePath();
-    ctx.fill();
+
+    if (wm.color === '#aaddff') {
+      // Gaster Blaster skull icon: circle head + diamond eye sockets + charge glow ring
+      ctx.rotate(wm.angle);
+      const r = vr * 1.0;
+      // Charge glow ring
+      ctx.save();
+      ctx.globalAlpha = (pulse * fade) * 0.45;
+      ctx.strokeStyle = '#aaddff'; ctx.lineWidth = 3; ctx.shadowBlur = 22; ctx.shadowColor = '#aaddff';
+      ctx.beginPath(); ctx.arc(0, 0, r * 1.55, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      // Skull head circle
+      ctx.beginPath(); ctx.arc(0, -r * 0.15, r * 0.82, 0, Math.PI * 2); ctx.fill();
+      // Eye sockets (dark diamonds)
+      ctx.fillStyle = '#001122';
+      ctx.save(); ctx.translate(-r * 0.3, -r * 0.22); ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-r * 0.18, -r * 0.18, r * 0.36, r * 0.36); ctx.restore();
+      ctx.save(); ctx.translate(r * 0.3, -r * 0.22); ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-r * 0.18, -r * 0.18, r * 0.36, r * 0.36); ctx.restore();
+      // Lower jaw teeth (3 rectangles)
+      ctx.fillStyle = wm.color;
+      const toothW = r * 0.22; const toothH = r * 0.32;
+      const jawY = r * 0.58;
+      for (let t = -1; t <= 1; t++) {
+        ctx.fillRect(t * r * 0.34 - toothW / 2, jawY, toothW, toothH);
+      }
+    } else {
+      // Generic triangular pointer
+      ctx.rotate(wm.angle + Math.PI / 2);
+      ctx.beginPath();
+      ctx.moveTo(0, -vr * 1.3);
+      ctx.lineTo(vr, vr * 0.8);
+      ctx.lineTo(-vr, vr * 0.8);
+      ctx.closePath();
+      ctx.fill();
+    }
     ctx.restore();
   }
 }
@@ -5335,13 +5364,39 @@ function drawCurrentArrows(ctx: CanvasRenderingContext2D, g: GameData, boss: Bos
 
 function drawPistonBlocks(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
   for (const pb of g.pistonBlocks) {
-    // Visual rect expanded from center; hitbox (pb.x/y/w/h) unchanged
     const vpx = pb.x - (pb.w * (HAZARD_VISUAL_SCALE - 1)) / 2;
     const vpy = pb.y - (pb.h * (HAZARD_VISUAL_SCALE - 1)) / 2;
     const vpw = pb.w * HAZARD_VISUAL_SCALE;
     const vph = pb.h * HAZARD_VISUAL_SCALE;
+    // Bone sweep bars are thin (hitbox w=15 or h=15) with no warnTimer
+    const isBoneSweep = pb.warnTimer === 0 && pb.active && (pb.w <= 15 || pb.h <= 15);
     ctx.save();
-    if (pb.warnTimer > 0) {
+    if (isBoneSweep) {
+      // Elongated bone bar with rounded caps — white/bone Sans-style
+      const r = Math.min(vpw, vph) / 2;
+      ctx.shadowBlur = 16; ctx.shadowColor = '#ffffff';
+      ctx.fillStyle = '#e8e8ff';
+      ctx.strokeStyle = '#aaddff'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (vpw >= vph) {
+        // Horizontal bar
+        ctx.moveTo(vpx + r, vpy);
+        ctx.lineTo(vpx + vpw - r, vpy);
+        ctx.arc(vpx + vpw - r, vpy + r, r, -Math.PI / 2, Math.PI / 2);
+        ctx.lineTo(vpx + r, vpy + vph);
+        ctx.arc(vpx + r, vpy + r, r, Math.PI / 2, -Math.PI / 2);
+      } else {
+        // Vertical bar
+        ctx.moveTo(vpx, vpy + r);
+        ctx.lineTo(vpx, vpy + vph - r);
+        ctx.arc(vpx + r, vpy + vph - r, r, Math.PI, 0);
+        ctx.lineTo(vpx + vpw, vpy + r);
+        ctx.arc(vpx + r, vpy + r, r, 0, Math.PI);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if (pb.warnTimer > 0) {
       const flash = 0.3 + 0.3 * Math.sin(g.time * 14);
       ctx.globalAlpha = flash;
       ctx.fillStyle = boss.color;
@@ -5352,7 +5407,6 @@ function drawPistonBlocks(ctx: CanvasRenderingContext2D, g: GameData, boss: Boss
       ctx.fillStyle = boss.color + 'cc'; ctx.strokeStyle = boss.color2; ctx.lineWidth = 3;
       ctx.fillRect(vpx, vpy, vpw, vph);
       ctx.strokeRect(vpx, vpy, vpw, vph);
-      // Striped warning pattern
       ctx.globalAlpha = 0.25;
       ctx.fillStyle = '#ffff00';
       for (let i = 0; i < 8; i++) {
