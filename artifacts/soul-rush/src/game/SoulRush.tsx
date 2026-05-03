@@ -1506,32 +1506,40 @@ const BOSS_MAX_Y = BOSS_BASE_Y + 24;
 type BossMoveCfg = {
   lerpRate: number;
   style: 'drift' | 'strafe' | 'chase' | 'erratic' | 'circle';
+  style2?: 'chase' | 'teleport'; // secondary style for bosses 19-20 to combine behaviors
   range: number;
   vertRange: number;
   repositionInterval: [number, number];
 };
 
+// Per-boss movement personality. Tiers per spec:
+//   Bosses  1–4 : gentle drift,  lerpRate ≤ 1.2
+//   Bosses  5–10: moderate strafe/chase, lerpRate 1.5–2.2
+//   Bosses 11–16: chase+retreat combos,  lerpRate 2.0–3.0
+//   Bosses 17–18: erratic, fast,          lerpRate 2.5–3.2
+//   Boss   19   : circle arc + chase blend (combines two styles)
+//   Boss   20   : erratic + teleport flash (combines two styles)
 const BOSS_MOVE: BossMoveCfg[] = [
-  { lerpRate: 1.2, style: 'drift',   range: 65,  vertRange: 14, repositionInterval: [3.0, 5.0] }, // 1  Mortivore
-  { lerpRate: 1.4, style: 'drift',   range: 60,  vertRange: 12, repositionInterval: [2.5, 4.5] }, // 2  Corrupted
-  { lerpRate: 1.3, style: 'drift',   range: 70,  vertRange: 14, repositionInterval: [3.0, 5.0] }, // 3  Vex
-  { lerpRate: 1.1, style: 'drift',   range: 55,  vertRange: 10, repositionInterval: [3.5, 5.5] }, // 4  Thalor
-  { lerpRate: 2.2, style: 'strafe',  range: 90,  vertRange: 18, repositionInterval: [1.8, 3.0] }, // 5  Malachar
-  { lerpRate: 2.5, style: 'chase',   range: 85,  vertRange: 20, repositionInterval: [1.5, 2.5] }, // 6  Nyxcoil
-  { lerpRate: 2.0, style: 'strafe',  range: 80,  vertRange: 16, repositionInterval: [2.0, 3.5] }, // 7  Marrow Saint
-  { lerpRate: 2.3, style: 'strafe',  range: 90,  vertRange: 18, repositionInterval: [1.8, 3.2] }, // 8  Luxora
-  { lerpRate: 1.8, style: 'strafe',  range: 75,  vertRange: 12, repositionInterval: [2.5, 4.0] }, // 9  Ruin Engine
-  { lerpRate: 3.5, style: 'erratic', range: 100, vertRange: 24, repositionInterval: [0.8, 1.8] }, // 10 Axiom
+  { lerpRate: 1.1, style: 'drift',   range: 60,  vertRange: 12, repositionInterval: [3.5, 5.5] }, // 1  Mortivore
+  { lerpRate: 1.2, style: 'drift',   range: 65,  vertRange: 13, repositionInterval: [3.0, 5.0] }, // 2  Corrupted
+  { lerpRate: 1.0, style: 'drift',   range: 55,  vertRange: 12, repositionInterval: [3.5, 5.5] }, // 3  Vex
+  { lerpRate: 1.1, style: 'drift',   range: 50,  vertRange: 10, repositionInterval: [4.0, 6.0] }, // 4  Thalor
+  { lerpRate: 1.7, style: 'strafe',  range: 80,  vertRange: 16, repositionInterval: [2.0, 3.5] }, // 5  Malachar
+  { lerpRate: 2.0, style: 'chase',   range: 85,  vertRange: 18, repositionInterval: [1.8, 3.0] }, // 6  Nyxcoil
+  { lerpRate: 1.6, style: 'strafe',  range: 75,  vertRange: 15, repositionInterval: [2.2, 3.8] }, // 7  Marrow Saint
+  { lerpRate: 1.9, style: 'strafe',  range: 85,  vertRange: 17, repositionInterval: [2.0, 3.5] }, // 8  Luxora
+  { lerpRate: 1.5, style: 'strafe',  range: 70,  vertRange: 12, repositionInterval: [2.5, 4.0] }, // 9  Ruin Engine
+  { lerpRate: 2.2, style: 'chase',   range: 90,  vertRange: 20, repositionInterval: [1.5, 2.5] }, // 10 Axiom (moderate chase, not erratic)
   { lerpRate: 2.4, style: 'chase',   range: 85,  vertRange: 18, repositionInterval: [1.5, 2.8] }, // 11 Vyrial
   { lerpRate: 2.6, style: 'strafe',  range: 88,  vertRange: 18, repositionInterval: [1.6, 2.8] }, // 12 Echora
   { lerpRate: 2.8, style: 'chase',   range: 95,  vertRange: 20, repositionInterval: [1.4, 2.5] }, // 13 Vantus
   { lerpRate: 2.0, style: 'drift',   range: 75,  vertRange: 14, repositionInterval: [2.5, 4.0] }, // 14 Caloric
   { lerpRate: 2.6, style: 'strafe',  range: 88,  vertRange: 18, repositionInterval: [1.8, 3.0] }, // 15 Zylvira
   { lerpRate: 3.0, style: 'chase',   range: 90,  vertRange: 20, repositionInterval: [1.4, 2.4] }, // 16 Atlas Minor
-  { lerpRate: 5.0, style: 'erratic', range: 100, vertRange: 22, repositionInterval: [0.6, 1.2] }, // 17 Xiu
-  { lerpRate: 5.5, style: 'erratic', range: 105, vertRange: 24, repositionInterval: [0.5, 1.0] }, // 18 Mnemovex
-  { lerpRate: 3.5, style: 'circle',  range: 90,  vertRange: 20, repositionInterval: [1.5, 2.5] }, // 19 Lunara
-  { lerpRate: 9.0, style: 'erratic', range: 110, vertRange: 26, repositionInterval: [0.4, 0.9] }, // 20 Soulvex
+  { lerpRate: 2.8, style: 'erratic', range: 95,  vertRange: 20, repositionInterval: [0.7, 1.2] }, // 17 Xiu
+  { lerpRate: 3.2, style: 'erratic', range: 100, vertRange: 22, repositionInterval: [0.6, 1.0] }, // 18 Mnemovex
+  { lerpRate: 3.5, style: 'circle',  style2: 'chase',    range: 90,  vertRange: 20, repositionInterval: [1.5, 2.5] }, // 19 Lunara: arc + player-tracking blend
+  { lerpRate: 5.0, style: 'erratic', style2: 'teleport', range: 110, vertRange: 26, repositionInterval: [0.4, 0.8] }, // 20 Soulvex: erratic + instant-snap flash
 ];
 
 function updateBossMovement(g: GameData, dt: number) {
@@ -1574,11 +1582,19 @@ function updateBossMovement(g: GameData, dt: number) {
 
   // ── ACTIVE ATTACK — timer-based repositioning ─────────────────────────────
 
-  // Circle style: continuous arc (overrides timer approach)
+  // Circle style: continuous arc. style2 === 'chase' blends in a player-tracking
+  // nudge so the arc tilts toward the player — combining two movement styles (boss 19).
   if (mv.style === 'circle') {
     const ca = g.time * 0.7;
-    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + Math.cos(ca) * mv.range * 0.55));
-    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, BOSS_BASE_Y + Math.sin(ca * 0.6) * mv.vertRange * 0.6));
+    let tx = BCX + Math.cos(ca) * mv.range * 0.55;
+    const ty = BOSS_BASE_Y + Math.sin(ca * 0.6) * mv.vertRange * 0.6;
+    if (mv.style2 === 'chase') {
+      // Blend factor oscillates 0–0.35, pulling the arc toward the player's X
+      const blend = 0.35 * Math.abs(Math.sin(g.time * 0.28));
+      tx = tx * (1 - blend) + g.player.x * blend;
+    }
+    g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, tx));
+    g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, ty));
   } else if (g.bossMoveTimer <= 0) {
     const [minI, maxI] = mv.repositionInterval;
     g.bossMoveTimer = (mv.style === 'erratic')
@@ -1607,8 +1623,8 @@ function updateBossMovement(g: GameData, dt: number) {
     g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, tx));
     g.bossTY = Math.max(BOSS_MIN_Y, Math.min(BOSS_MAX_Y, ty));
 
-    // Boss 20 (Soulvex): snap-teleport + fade-in flash
-    if (g.bossIdx === 19) {
+    // style2 === 'teleport': snap directly to target + fade-in flash (boss 20 Soulvex)
+    if (mv.style2 === 'teleport') {
       g.bossX = g.bossTX;
       g.bossY = g.bossTY;
       g.bossFlashTimer = 0.18;
