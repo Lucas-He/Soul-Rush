@@ -4900,8 +4900,9 @@ function drawCurrentArrows(ctx: CanvasRenderingContext2D, g: GameData, boss: Bos
   for (let i = 0; i < 5; i++) {
     const ax = BX + ((g.time * 60 * arrowDir + i * (BW / 5)) % BW + BW) % BW;
     const ay = BY + BH * (0.15 + i * 0.18);
+    const as = HAZARD_VISUAL_SCALE;
     ctx.save(); ctx.translate(ax, ay); ctx.rotate(arrowDir > 0 ? 0 : Math.PI);
-    ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(10, 0); ctx.lineTo(0, 6); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, -6 * as); ctx.lineTo(10 * as, 0); ctx.lineTo(0, 6 * as); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
   ctx.restore();
@@ -6541,7 +6542,7 @@ export default function SoulRush() {
                     >
                       Run Audit
                     </button>
-                    {fairnessOpen && (
+                    {fairnessResults.length > 0 && (
                       <button style={{ ...btnStyle('#444'), fontSize: 11, padding: '3px 10px' }} onClick={() => setFairnessOpen(v => !v)}>
                         {fairnessOpen ? 'Hide' : 'Show'}
                       </button>
