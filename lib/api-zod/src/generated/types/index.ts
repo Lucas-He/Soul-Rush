@@ -7,3 +7,5 @@
  */
 
 export * from "./healthStatus";
+export * from "./leaderboardEntry";
+export * from "./submitScoreBody";

@@ -14,3 +14,64 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * @summary Get top 20 leaderboard entries
+ */
+export const GetLeaderboardResponseItem = zod.object({
+  id: zod.number(),
+  playerName: zod.string(),
+  score: zod.number(),
+  wavesCleared: zod.number(),
+  bossReached: zod.number(),
+  isFullCompletion: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem);
+
+/**
+ * @summary Submit a score entry
+ */
+export const SubmitScoreBody = zod.object({
+  playerName: zod.string(),
+  score: zod.number(),
+  wavesCleared: zod.number(),
+  bossReached: zod.number(),
+  isFullCompletion: zod.boolean(),
+});
+
+/**
+ * @summary Clear all leaderboard entries (admin)
+ */
+export const ClearLeaderboardHeader = zod.object({
+  "x-admin-token": zod.string(),
+});
+
+/**
+ * @summary Get last 10 full-game completions (admin)
+ */
+export const GetCompletionsHeader = zod.object({
+  "x-admin-token": zod.string(),
+});
+
+export const GetCompletionsResponseItem = zod.object({
+  id: zod.number(),
+  playerName: zod.string(),
+  score: zod.number(),
+  wavesCleared: zod.number(),
+  bossReached: zod.number(),
+  isFullCompletion: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const GetCompletionsResponse = zod.array(GetCompletionsResponseItem);
+
+/**
+ * @summary Delete a specific leaderboard entry (admin)
+ */
+export const DeleteLeaderboardEntryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const DeleteLeaderboardEntryHeader = zod.object({
+  "x-admin-token": zod.string(),
+});

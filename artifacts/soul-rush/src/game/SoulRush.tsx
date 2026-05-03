@@ -1009,6 +1009,8 @@ interface GameData {
   diffMult: number;
   adminInvincible: boolean;
   debugSpeedMult: number;
+  runScore: number;
+  wavesCleared: number;
 }
 
 function createState(): GameData {
@@ -1044,6 +1046,7 @@ function createState(): GameData {
     keys: new Set(), nextId: 1,
     diffMult: 1.25,
     adminInvincible: false, debugSpeedMult: 1,
+    runScore: 0, wavesCleared: 0,
   };
 }
 
@@ -1056,6 +1059,7 @@ function resetForBoss(g: GameData, idx: number) {
   g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
   g.bossAngle = 0;
   g.hitsThisWave = 0; g.waveStartHp = P_MAX_HP;
+  g.runScore = 0; g.wavesCleared = 0;
   clearEntities(g);
   g.ctrlFlipped = false; g.ctrlFlipTimer = 12;
   g.timeDistorted = false; g.timeDistortTimer = 3;
@@ -3855,6 +3859,8 @@ function update(
       g.waveEndHits       = waveHits;
       g.waveEndBossIdx    = prevBoss;
       g.waveEndWaveIdx    = prevWave;
+      g.runScore += Math.round(waveHp * 10 - waveHits * 50 + 200);
+      g.wavesCleared++;
       if (g.atkIdx >= boss.attacks.length) {
         // Final wave: still show wave-end overlay so the item drop can appear;
         // continueWave() will then transition to bossWin.
@@ -5155,6 +5161,22 @@ export default function SoulRush() {
   const [waveEndVisible, setWaveEndVisible] = useState<boolean>(false);
   const [waveEndData,   setWaveEndData]   = useState<{ bossIdx: number; waveIdx: number; hp: number; hits: number } | null>(null);
 
+  type LbRow = { id: number; playerName: string; score: number; wavesCleared: number; bossReached: number; isFullCompletion: boolean; createdAt: string };
+  const [lbOpen,          setLbOpen]          = useState(false);
+  const [lbRows,          setLbRows]          = useState<LbRow[]>([]);
+  const [lbLoading,       setLbLoading]       = useState(false);
+  const [lbHighlightName, setLbHighlightName] = useState('');
+  const [congratsVisible, setCongratsVisible] = useState(false);
+  const [congratsData,    setCongratsData]    = useState<{ name: string; score: number; wavesCleared: number } | null>(null);
+  const finalVictoryShownRef  = useRef(false);
+  const gameOverLbShownRef    = useRef(false);
+  const [adminLbRows,      setAdminLbRows]      = useState<LbRow[]>([]);
+  const [adminLbLoading,   setAdminLbLoading]   = useState(false);
+  const [adminCompletions, setAdminCompletions] = useState<LbRow[]>([]);
+  const [adminCompLoading, setAdminCompLoading] = useState(false);
+  const [adminLbOpen,      setAdminLbOpen]      = useState(false);
+  const [adminCompOpen,    setAdminCompOpen]    = useState(false);
+
   type InvSlot = { id: string; stack: number };
   const [inventory,    setInventory]    = useState<InvSlot[]>([]);
   const [pendingItem,  setPendingItem]  = useState<Item | null>(null);
@@ -5314,6 +5336,45 @@ export default function SoulRush() {
     margin: 3,
   });
 
+  const ADMIN_TOKEN_VAL = 'Orcas@0112';
+
+  const submitScoreToApi = (pName: string, score: number, waved: number, bossReached: number, isFullCompletion: boolean): Promise<LbRow | null> => {
+    return fetch('/api/leaderboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerName: pName || 'PLAYER', score, wavesCleared: waved, bossReached, isFullCompletion }),
+    }).then(r => r.ok ? r.json() : null).catch(() => null);
+  };
+
+  const openLeaderboard = (highlightName = '') => {
+    setLbHighlightName(highlightName);
+    setLbLoading(true);
+    setLbOpen(true);
+    fetch('/api/leaderboard')
+      .then(r => r.json())
+      .then((data: LbRow[]) => setLbRows(data))
+      .catch(() => setLbRows([]))
+      .finally(() => setLbLoading(false));
+  };
+
+  const fetchAdminLb = () => {
+    setAdminLbLoading(true);
+    fetch('/api/leaderboard')
+      .then(r => r.json())
+      .then((data: LbRow[]) => setAdminLbRows(data))
+      .catch(() => setAdminLbRows([]))
+      .finally(() => setAdminLbLoading(false));
+  };
+
+  const fetchAdminCompletions = () => {
+    setAdminCompLoading(true);
+    fetch('/api/leaderboard/completions', { headers: { 'x-admin-token': ADMIN_TOKEN_VAL } })
+      .then(r => r.json())
+      .then((data: LbRow[]) => setAdminCompletions(data))
+      .catch(() => setAdminCompletions([]))
+      .finally(() => setAdminCompLoading(false));
+  };
+
   const continueWave = () => {
     const finalName = nameInput;
     try {
@@ -5328,6 +5389,15 @@ export default function SoulRush() {
       }
     } catch { /* ignore storage errors */ }
     setPlayerName(finalName);
+
+    // Submit run score to public leaderboard (fire-and-forget)
+    const g = gameRef.current;
+    const currentScore = g.runScore;
+    const currentWaves = g.wavesCleared;
+    const currentBoss  = g.waveEndBossIdx;
+    if (currentWaves > 0) {
+      submitScoreToApi(finalName || 'PLAYER', currentScore, currentWaves, currentBoss, false);
+    }
 
     // Apply pending item to inventory
     if (pendingItem) {
@@ -5402,6 +5472,23 @@ export default function SoulRush() {
         setInventory([]);
         setPendingItem(null);
       }
+
+      // finalVictory — show congratulations overlay and submit score once
+      if (g.state === 'finalVictory' && !finalVictoryShownRef.current) {
+        finalVictoryShownRef.current = true;
+        const pName = g.state === 'finalVictory' ? (localStorage.getItem('soulrush_name') ?? 'PLAYER') : 'PLAYER';
+        setCongratsData({ name: pName, score: g.runScore, wavesCleared: g.wavesCleared });
+        setCongratsVisible(true);
+        submitScoreToApi(pName, g.runScore, g.wavesCleared, BOSSES.length - 1, true);
+      }
+      if (g.state !== 'finalVictory') { finalVictoryShownRef.current = false; }
+
+      // gameOver — auto-open leaderboard after 1.5 s delay
+      if (g.state === 'gameOver' && g.gameOverTimer >= 1.5 && !gameOverLbShownRef.current) {
+        gameOverLbShownRef.current = true;
+        openLeaderboard(localStorage.getItem('soulrush_name') ?? '');
+      }
+      if (g.state !== 'gameOver') { gameOverLbShownRef.current = false; }
     }, 200);
     return () => clearInterval(id);
   }, []);
@@ -5452,6 +5539,11 @@ export default function SoulRush() {
                     <div style={{ fontSize: 28, fontWeight: 'bold', color: waveEndData.hits === 0 ? '#44ffaa' : '#ff8844' }}>
                       {waveEndData.hits}{waveEndData.hits === 0 ? ' ✦' : ''}
                     </div>
+                  </div>
+                  <div style={{ width: 1, background: '#ffffff0f' }} />
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: 10, color: '#555', marginBottom: 4, letterSpacing: 1 }}>RUN SCORE</div>
+                    <div style={{ fontSize: 24, fontWeight: 'bold', color: '#aaccff', textShadow: '0 0 10px #aaccff66' }}>{gameRef.current.runScore}</div>
                   </div>
                 </div>
 
@@ -5509,6 +5601,13 @@ export default function SoulRush() {
                 </div>
 
                 <button
+                  onClick={() => openLeaderboard(nameInput || playerName)}
+                  style={{ ...btnStyle('#aaccff'), width: '100%', fontSize: 13, padding: '7px 0', marginBottom: 8, letterSpacing: 1 }}
+                >
+                  VIEW GLOBAL LEADERBOARD
+                </button>
+
+                <button
                   onClick={continueWave}
                   style={{ ...btnStyle('#44ffaa'), width: '100%', fontSize: 15, padding: '10px 0', fontWeight: 'bold', letterSpacing: 2, background: '#44ffaa11', textShadow: '0 0 10px #44ffaa88' }}
                 >
@@ -5518,6 +5617,131 @@ export default function SoulRush() {
             </div>
           );
         })()}
+
+        {/* Title screen — LEADERBOARD button */}
+        {gameRef.current.state === 'title' && (
+          <div style={{ position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
+            <button
+              onClick={() => openLeaderboard()}
+              style={{ ...btnStyle('#ffcc00'), fontSize: 13, padding: '8px 22px', letterSpacing: 2, fontWeight: 'bold' }}
+            >
+              LEADERBOARD
+            </button>
+          </div>
+        )}
+
+        {/* Global Leaderboard overlay */}
+        {lbOpen && (
+          <div style={{ ...OVERLAY_STYLE, zIndex: 20 }}>
+            <div style={{ ...PANEL_STYLE, minWidth: 520, maxWidth: 640 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ color: '#ffcc00', fontSize: 18, fontWeight: 'bold', letterSpacing: 2, textShadow: '0 0 16px #ffcc0066' }}>
+                  GLOBAL LEADERBOARD
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {gameRef.current.state === 'gameOver' && (
+                    <button
+                      onClick={() => { setLbOpen(false); resetForBoss(gameRef.current, 0); gameRef.current.state = 'title'; }}
+                      style={{ ...btnStyle('#44ffaa'), fontSize: 13, padding: '5px 16px', fontWeight: 'bold' }}
+                    >
+                      Play Again
+                    </button>
+                  )}
+                  <button style={{ ...btnStyle('#555'), fontSize: 15, padding: '2px 10px' }} onClick={() => setLbOpen(false)}>✕</button>
+                </div>
+              </div>
+              {lbLoading ? (
+                <div style={{ textAlign: 'center', color: '#555', padding: 40, fontSize: 13 }}>Loading...</div>
+              ) : lbRows.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#444', padding: 40, fontSize: 13 }}>No entries yet. Be the first!</div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, fontFamily: '"Courier New", monospace' }}>
+                  <thead>
+                    <tr style={{ color: '#444', borderBottom: '1px solid #ffffff0f' }}>
+                      <th style={{ textAlign: 'left', padding: '4px 8px', fontWeight: 'normal' }}>#</th>
+                      <th style={{ textAlign: 'left', padding: '4px 8px', fontWeight: 'normal' }}>NAME</th>
+                      <th style={{ textAlign: 'right', padding: '4px 8px', fontWeight: 'normal' }}>SCORE</th>
+                      <th style={{ textAlign: 'right', padding: '4px 8px', fontWeight: 'normal' }}>WAVES</th>
+                      <th style={{ textAlign: 'right', padding: '4px 8px', fontWeight: 'normal' }}>DATE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lbRows.map((row, i) => {
+                      const isHighlight = lbHighlightName && row.playerName === lbHighlightName;
+                      return (
+                        <tr key={row.id} style={{
+                          color: isHighlight ? '#ffcc00' : i === 0 ? '#aaccff' : '#888',
+                          background: isHighlight ? '#ffcc0010' : 'transparent',
+                          borderTop: '1px solid #ffffff06',
+                        }}>
+                          <td style={{ padding: '4px 8px', fontWeight: i < 3 ? 'bold' : 'normal' }}>{i + 1}</td>
+                          <td style={{ padding: '4px 8px', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {row.isFullCompletion ? '★ ' : ''}{row.playerName}
+                          </td>
+                          <td style={{ padding: '4px 8px', textAlign: 'right', color: isHighlight ? '#ffcc00' : '#aaccff', fontWeight: 'bold' }}>{row.score.toLocaleString()}</td>
+                          <td style={{ padding: '4px 8px', textAlign: 'right' }}>{row.wavesCleared}</td>
+                          <td style={{ padding: '4px 8px', textAlign: 'right', color: '#555', fontSize: 11 }}>
+                            {new Date(row.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={() => openLeaderboard(lbHighlightName)} style={{ ...btnStyle('#444'), fontSize: 12, padding: '5px 18px' }}>
+                  ↻ Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Congratulations overlay — final victory */}
+        {congratsVisible && congratsData && (
+          <div style={{ ...OVERLAY_STYLE, zIndex: 30, background: 'rgba(0,0,0,0.97)', flexDirection: 'column', textAlign: 'center', fontFamily: '"Courier New", monospace' }}>
+            {/* Rainbow flash */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} style={{ position: 'absolute', inset: 0, background: `hsla(${i * 45},100%,55%,0.018)`, pointerEvents: 'none' }} />
+            ))}
+            <div style={{ position: 'relative', maxWidth: 560, padding: '0 24px' }}>
+              <div style={{ fontSize: 11, color: '#555', letterSpacing: 4, marginBottom: 14 }}>SOUL RUSH</div>
+              <div style={{ fontSize: 42, fontWeight: 'bold', color: '#ffcc00', letterSpacing: 4, textShadow: '0 0 40px #ffcc0088, 0 0 80px #ffcc0044', marginBottom: 8 }}>
+                CONGRATULATIONS
+              </div>
+              <div style={{ fontSize: 18, color: '#00ffcc', marginBottom: 6, textShadow: '0 0 20px #00ffcc66' }}>
+                {congratsData.name}
+              </div>
+              <div style={{ fontSize: 13, color: '#555', marginBottom: 28 }}>You are a Soul Rush legend.</div>
+              <div style={{ display: 'flex', gap: 20, justifyContent: 'center', marginBottom: 28 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, color: '#444', marginBottom: 4, letterSpacing: 1 }}>FINAL SCORE</div>
+                  <div style={{ fontSize: 34, fontWeight: 'bold', color: '#ffcc00', textShadow: '0 0 20px #ffcc0066' }}>{congratsData.score.toLocaleString()}</div>
+                </div>
+                <div style={{ width: 1, background: '#333' }} />
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, color: '#444', marginBottom: 4, letterSpacing: 1 }}>WAVES CLEARED</div>
+                  <div style={{ fontSize: 34, fontWeight: 'bold', color: '#00ffcc', textShadow: '0 0 20px #00ffcc44' }}>{congratsData.wavesCleared}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                <button
+                  onClick={() => { setCongratsVisible(false); resetForBoss(gameRef.current, 0); gameRef.current.state = 'title'; }}
+                  style={{ ...btnStyle('#44ffaa'), fontSize: 14, padding: '10px 28px', fontWeight: 'bold', letterSpacing: 2 }}
+                >
+                  Play Again
+                </button>
+                <button
+                  onClick={() => { setCongratsVisible(false); openLeaderboard(congratsData.name); }}
+                  style={{ ...btnStyle('#ffcc00'), fontSize: 14, padding: '10px 28px', fontWeight: 'bold', letterSpacing: 1 }}
+                >
+                  View Leaderboard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Item HUD — bottom-right of arena, visible during playing & waveEnd */}
         {(gameRef.current.state === 'playing' || gameRef.current.state === 'waveEnd') && inventory.length > 0 && (
@@ -5728,6 +5952,85 @@ export default function SoulRush() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Leaderboard management */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, color: '#555' }}>LEADERBOARD (TOP 20)</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button style={{ ...btnStyle('#aaccff'), fontSize: 11, padding: '3px 10px' }} onClick={() => { setAdminLbOpen(v => !v); if (!adminLbOpen) fetchAdminLb(); }}>
+                      {adminLbOpen ? 'Hide' : 'Show'}
+                    </button>
+                    {adminLbOpen && <button style={{ ...btnStyle('#444'), fontSize: 11, padding: '3px 10px' }} onClick={fetchAdminLb}>↻</button>}
+                    {adminLbOpen && (
+                      <button style={{ ...btnStyle('#ff4444'), fontSize: 11, padding: '3px 10px' }} onClick={() => {
+                        if (!confirm('Wipe entire leaderboard?')) return;
+                        fetch('/api/leaderboard', { method: 'DELETE', headers: { 'x-admin-token': ADMIN_TOKEN_VAL } })
+                          .then(() => fetchAdminLb()).catch(() => {});
+                      }}>Clear All</button>
+                    )}
+                  </div>
+                </div>
+                {adminLbOpen && (
+                  adminLbLoading ? <div style={{ color: '#555', fontSize: 12, padding: '8px 0' }}>Loading…</div> :
+                  adminLbRows.length === 0 ? <div style={{ color: '#444', fontSize: 12, padding: '8px 0' }}>No entries.</div> :
+                  <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, fontFamily: '"Courier New", monospace' }}>
+                      <thead>
+                        <tr style={{ color: '#444' }}>
+                          <th style={{ textAlign: 'left', padding: '2px 6px', fontWeight: 'normal' }}>#</th>
+                          <th style={{ textAlign: 'left', padding: '2px 6px', fontWeight: 'normal' }}>NAME</th>
+                          <th style={{ textAlign: 'right', padding: '2px 6px', fontWeight: 'normal' }}>SCORE</th>
+                          <th style={{ textAlign: 'right', padding: '2px 6px', fontWeight: 'normal' }}>W</th>
+                          <th style={{ padding: '2px 4px' }}></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {adminLbRows.map((row, i) => (
+                          <tr key={row.id} style={{ color: '#777', borderTop: '1px solid #ffffff06' }}>
+                            <td style={{ padding: '2px 6px' }}>{i + 1}</td>
+                            <td style={{ padding: '2px 6px', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.isFullCompletion ? '★ ' : ''}{row.playerName}</td>
+                            <td style={{ padding: '2px 6px', textAlign: 'right', color: '#aaccff' }}>{row.score.toLocaleString()}</td>
+                            <td style={{ padding: '2px 6px', textAlign: 'right' }}>{row.wavesCleared}</td>
+                            <td style={{ padding: '2px 4px' }}>
+                              <button style={{ ...btnStyle('#ff4444'), fontSize: 10, padding: '1px 6px' }} onClick={() => {
+                                fetch(`/api/leaderboard/${row.id}`, { method: 'DELETE', headers: { 'x-admin-token': ADMIN_TOKEN_VAL } })
+                                  .then(() => fetchAdminLb()).catch(() => {});
+                              }}>✕</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Recent completions */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, color: '#555' }}>RECENT FULL COMPLETIONS</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button style={{ ...btnStyle('#ffcc00'), fontSize: 11, padding: '3px 10px' }} onClick={() => { setAdminCompOpen(v => !v); if (!adminCompOpen) fetchAdminCompletions(); }}>
+                      {adminCompOpen ? 'Hide' : 'Show'}
+                    </button>
+                    {adminCompOpen && <button style={{ ...btnStyle('#444'), fontSize: 11, padding: '3px 10px' }} onClick={fetchAdminCompletions}>↻</button>}
+                  </div>
+                </div>
+                {adminCompOpen && (
+                  adminCompLoading ? <div style={{ color: '#555', fontSize: 12, padding: '8px 0' }}>Loading…</div> :
+                  adminCompletions.length === 0 ? <div style={{ color: '#444', fontSize: 12, padding: '8px 0' }}>No full completions yet.</div> :
+                  <div>
+                    {adminCompletions.map(row => (
+                      <div key={row.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 8px', borderBottom: '1px solid #ffffff06', fontSize: 11, fontFamily: 'monospace' }}>
+                        <span style={{ color: '#ffcc00', fontWeight: 'bold' }}>★ {row.playerName}</span>
+                        <span style={{ color: '#aaccff' }}>{row.score.toLocaleString()}</span>
+                        <span style={{ color: '#555' }}>{new Date(row.createdAt).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div style={{ fontSize: 11, color: '#444', borderTop: '1px solid #222', paddingTop: 12 }}>

@@ -5,19 +5,6 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
-
-export interface LeaderboardEntry {
-  id: number;
-  playerName: string;
-  score: number;
-  wavesCleared: number;
-  bossReached: number;
-  isFullCompletion: boolean;
-  createdAt: string;
-}
 
 export type SubmitScoreBody = {
   playerName: string;

@@ -5,18 +5,25 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  HealthStatus,
+  LeaderboardEntry,
+  SubmitScoreBody,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +106,404 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Get top 20 leaderboard entries
+ */
+export const getGetLeaderboardUrl = () => {
+  return `/api/leaderboard`;
+};
+
+export const getLeaderboard = async (
+  options?: RequestInit,
+): Promise<LeaderboardEntry[]> => {
+  return customFetch<LeaderboardEntry[]>(getGetLeaderboardUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLeaderboardQueryKey = () => {
+  return [`/api/leaderboard`] as const;
+};
+
+export const getGetLeaderboardQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLeaderboard>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLeaderboard>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLeaderboardQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getLeaderboard>>> = ({
+    signal,
+  }) => getLeaderboard({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLeaderboard>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLeaderboardQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLeaderboard>>
+>;
+export type GetLeaderboardQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get top 20 leaderboard entries
+ */
+
+export function useGetLeaderboard<
+  TData = Awaited<ReturnType<typeof getLeaderboard>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLeaderboard>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLeaderboardQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Submit a score entry
+ */
+export const getSubmitScoreUrl = () => {
+  return `/api/leaderboard`;
+};
+
+export const submitScore = async (
+  submitScoreBody: SubmitScoreBody,
+  options?: RequestInit,
+): Promise<LeaderboardEntry> => {
+  return customFetch<LeaderboardEntry>(getSubmitScoreUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(submitScoreBody),
+  });
+};
+
+export const getSubmitScoreMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitScore>>,
+    TError,
+    { data: BodyType<SubmitScoreBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitScore>>,
+  TError,
+  { data: BodyType<SubmitScoreBody> },
+  TContext
+> => {
+  const mutationKey = ["submitScore"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitScore>>,
+    { data: BodyType<SubmitScoreBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return submitScore(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitScoreMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitScore>>
+>;
+export type SubmitScoreMutationBody = BodyType<SubmitScoreBody>;
+export type SubmitScoreMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Submit a score entry
+ */
+export const useSubmitScore = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitScore>>,
+    TError,
+    { data: BodyType<SubmitScoreBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitScore>>,
+  TError,
+  { data: BodyType<SubmitScoreBody> },
+  TContext
+> => {
+  return useMutation(getSubmitScoreMutationOptions(options));
+};
+
+/**
+ * @summary Clear all leaderboard entries (admin)
+ */
+export const getClearLeaderboardUrl = () => {
+  return `/api/leaderboard`;
+};
+
+export const clearLeaderboard = async (
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getClearLeaderboardUrl(), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getClearLeaderboardMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof clearLeaderboard>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof clearLeaderboard>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["clearLeaderboard"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof clearLeaderboard>>,
+    void
+  > = () => {
+    return clearLeaderboard(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ClearLeaderboardMutationResult = NonNullable<
+  Awaited<ReturnType<typeof clearLeaderboard>>
+>;
+
+export type ClearLeaderboardMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Clear all leaderboard entries (admin)
+ */
+export const useClearLeaderboard = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof clearLeaderboard>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof clearLeaderboard>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getClearLeaderboardMutationOptions(options));
+};
+
+/**
+ * @summary Get last 10 full-game completions (admin)
+ */
+export const getGetCompletionsUrl = () => {
+  return `/api/leaderboard/completions`;
+};
+
+export const getCompletions = async (
+  options?: RequestInit,
+): Promise<LeaderboardEntry[]> => {
+  return customFetch<LeaderboardEntry[]>(getGetCompletionsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCompletionsQueryKey = () => {
+  return [`/api/leaderboard/completions`] as const;
+};
+
+export const getGetCompletionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCompletions>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCompletions>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCompletionsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCompletions>>> = ({
+    signal,
+  }) => getCompletions({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCompletions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCompletionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCompletions>>
+>;
+export type GetCompletionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get last 10 full-game completions (admin)
+ */
+
+export function useGetCompletions<
+  TData = Awaited<ReturnType<typeof getCompletions>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCompletions>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCompletionsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Delete a specific leaderboard entry (admin)
+ */
+export const getDeleteLeaderboardEntryUrl = (id: number) => {
+  return `/api/leaderboard/${id}`;
+};
+
+export const deleteLeaderboardEntry = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteLeaderboardEntryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteLeaderboardEntryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLeaderboardEntry>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteLeaderboardEntry>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteLeaderboardEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteLeaderboardEntry>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteLeaderboardEntry(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteLeaderboardEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteLeaderboardEntry>>
+>;
+
+export type DeleteLeaderboardEntryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a specific leaderboard entry (admin)
+ */
+export const useDeleteLeaderboardEntry = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteLeaderboardEntry>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteLeaderboardEntry>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteLeaderboardEntryMutationOptions(options));
+};

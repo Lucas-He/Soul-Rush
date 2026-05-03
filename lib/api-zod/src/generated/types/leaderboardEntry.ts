@@ -5,9 +5,6 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
 
 export interface LeaderboardEntry {
   id: number;
@@ -16,13 +13,5 @@ export interface LeaderboardEntry {
   wavesCleared: number;
   bossReached: number;
   isFullCompletion: boolean;
-  createdAt: string;
+  createdAt: Date;
 }
-
-export type SubmitScoreBody = {
-  playerName: string;
-  score: number;
-  wavesCleared: number;
-  bossReached: number;
-  isFullCompletion: boolean;
-};

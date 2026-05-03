@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: leaderboard
+    description: Leaderboard operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,110 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [leaderboard]
+      summary: Get top 20 leaderboard entries
+      responses:
+        "200":
+          description: Top 20 scores ordered by score descending
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+    post:
+      operationId: submitScore
+      tags: [leaderboard]
+      summary: Submit a score entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerName:
+                  type: string
+                score:
+                  type: integer
+                wavesCleared:
+                  type: integer
+                bossReached:
+                  type: integer
+                isFullCompletion:
+                  type: boolean
+              required:
+                - playerName
+                - score
+                - wavesCleared
+                - bossReached
+                - isFullCompletion
+      responses:
+        "201":
+          description: Score submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardEntry"
+    delete:
+      operationId: clearLeaderboard
+      tags: [leaderboard]
+      summary: Clear all leaderboard entries (admin)
+      parameters:
+        - in: header
+          name: x-admin-token
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: All entries cleared
+
+  /leaderboard/completions:
+    get:
+      operationId: getCompletions
+      tags: [leaderboard]
+      summary: Get last 10 full-game completions (admin)
+      parameters:
+        - in: header
+          name: x-admin-token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Last 10 full-game completions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /leaderboard/{id}:
+    delete:
+      operationId: deleteLeaderboardEntry
+      tags: [leaderboard]
+      summary: Delete a specific leaderboard entry (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: x-admin-token
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Entry deleted
+
 components:
   schemas:
     HealthStatus:
@@ -33,4 +139,31 @@ components:
           type: string
       required:
         - status
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerName:
+          type: string
+        score:
+          type: integer
+        wavesCleared:
+          type: integer
+        bossReached:
+          type: integer
+        isFullCompletion:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - playerName
+        - score
+        - wavesCleared
+        - bossReached
+        - isFullCompletion
+        - createdAt
 

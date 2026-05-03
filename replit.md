@@ -53,6 +53,35 @@ All 20 bosses have unique graphics, wave attacks, and color themes:
 - In-game admin HUD shows difficulty, keyboard cheat sheet, and current wave name/type
 - Keyboard shortcuts during gameplay (admin mode only): `1–9`, `0`, `Shift+1–0` (bosses), `E/F` (difficulty), `I/C/H/N/B` (live controls)
 
+### Public Leaderboard System
+Live leaderboard backed by PostgreSQL. Scores persist across all players.
+
+**API endpoints** (`artifacts/api-server/src/routes/leaderboard.ts`):
+- `GET /api/leaderboard` — top 20 by score (public)
+- `POST /api/leaderboard` — submit score entry (public)
+- `GET /api/leaderboard/completions` — last 10 full-game wins (admin token required)
+- `DELETE /api/leaderboard/:id` — delete one entry (admin token)
+- `DELETE /api/leaderboard` — wipe all entries (admin token)
+
+**DB schema** (`lib/db/src/schema/leaderboard.ts`): `leaderboard` table — id, player_name, score, waves_cleared, boss_reached, is_full_completion, created_at.
+
+**Admin token**: `Orcas@0112` (via `x-admin-token` header; defaults to this in dev).
+
+**Score formula**: `runScore += Math.round(waveHp * 10 - waveHits * 50 + 200)` per wave.
+
+**Game integration** (in `SoulRush.tsx`):
+- `runScore` and `wavesCleared` tracked in GameData, reset on `resetForBoss()`
+- Score submitted (fire-and-forget POST) at each wave completion in `continueWave()`
+- Final victory triggers POST with `isFullCompletion: true` + shows Congratulations React overlay
+- Game over auto-opens Global Leaderboard after 1.5 s
+- **LEADERBOARD** button on title screen opens the global overlay
+- Wave-end overlay shows RUN SCORE stat + VIEW GLOBAL LEADERBOARD button
+- Admin panel gets collapsible Leaderboard (top 20 + per-row delete + Clear All) and Recent Completions sections
+
+**OpenAPI codegen**: After adding/changing endpoints, run `pnpm --filter @workspace/api-spec run codegen`. The codegen script also overwrites `lib/api-zod/src/index.ts` to remove a duplicate type export conflict caused by orval's split mode.
+
 ### GameData fields (key additions)
 - `adminInvincible: boolean` — skip damage when true
 - `debugSpeedMult: number` — multiplied into all bullet velocity in `moveBullets`
+- `runScore: number` — cumulative run score, reset on restart
+- `wavesCleared: number` — waves cleared this run, reset on restart
