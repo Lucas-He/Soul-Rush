@@ -1538,9 +1538,16 @@ function updateBossMovement(g: GameData, dt: number) {
   const mv = BOSS_MOVE[g.bossIdx];
   g.bossMoveTimer -= dt;
 
+  // Always decay flash timer so boss 20 never stays invisible across phase boundaries
+  if (g.bossFlashTimer > 0) g.bossFlashTimer -= dt;
+
   // ── WINDUP (phase 0) ─────────────────────────────────────────────────────
   // Override every frame — no timer gate — so the boss reliably eases away
   // from the player the moment a new warning phase starts.
+  // Attack-matched behavior: each boss's style in BOSS_MOVE is tuned to its
+  // attack personality (drift = slow pattern bosses, chase = tracking bosses,
+  // erratic = chaotic-bullet bosses, circle = sweep bosses). The phase 0→1
+  // transition is the per-attack movement hook.
   if (g.phase === 0) {
     const awaySign = g.player.x < BCX ? 1 : -1;
     g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, BCX + awaySign * mv.range * 0.35));
@@ -1607,8 +1614,6 @@ function updateBossMovement(g: GameData, dt: number) {
       g.bossFlashTimer = 0.18;
     }
   }
-
-  if (g.bossFlashTimer > 0) g.bossFlashTimer -= dt;
 
   // Exponential lerp toward target — smooth regardless of frame rate
   const ef = 1 - Math.exp(-mv.lerpRate * dt);
