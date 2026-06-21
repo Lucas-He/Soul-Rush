@@ -255,6 +255,8 @@ interface DangerZone {
   activeTimer: number;
   color: string;
   dmg?: number;
+  // Optional visual style — only used by Warden segments in SINGLE_BOSS_MODE
+  style?: 'chevron-right' | 'chevron-left' | 'chevron-v' | 'safe';
 }
 
 interface Gear {
@@ -1847,7 +1849,9 @@ function doPhantomDash(g: GameData, dt: number, boss: BossConf) {
       const cycleCount = (g.spawnCount >> 8) & 0xFF;
       const warnRight = (cycleCount % 2 === 0);
       const warnX = warnRight ? BX + BW * 0.5 : BX;
-      g.dangerZones.push({ id: nid(g), x: warnX, y: BY, w: BW * 0.5, h: BH, warnTimer: 1.0, activeTimer: 0, color: '#ff2244', dmg: 0 });
+      // chevron-right = dash comes from left (warn right half); chevron-left = warn left half
+      const style: DangerZone['style'] = warnRight ? 'chevron-left' : 'chevron-right';
+      g.dangerZones.push({ id: nid(g), x: warnX, y: BY, w: BW * 0.5, h: BH, warnTimer: 1.0, activeTimer: 0, color: '#ff2244', dmg: 0, style });
     }
     g.phaseTimer += dt;
     g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0 || dz.activeTimer > 0; });
@@ -1928,7 +1932,7 @@ function doJudgmentRain(g: GameData, dt: number, boss: BossConf) {
       for (let i = 0; i < totalLanes; i++) {
         const lx = BX + BW * ((i + 1) / (totalLanes + 1)) - laneW * 0.45;
         const isSafe = (i === g.spawnCount);
-        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 1.3, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0 });
+        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 1.3, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0, style: isSafe ? 'safe' : 'chevron-v' });
       }
     }
     g.phaseTimer += dt;
@@ -1961,7 +1965,7 @@ function doJudgmentRain(g: GameData, dt: number, boss: BossConf) {
       for (let i = 0; i < 5; i++) {
         const isSafe = (i === newSafe);
         const lx = BX + BW * ((i + 1) / 6) - laneW * 0.45;
-        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 0.6, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0 });
+        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 0.6, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0, style: isSafe ? 'safe' : 'chevron-v' });
       }
     }
     return;
@@ -2291,20 +2295,19 @@ function doBoneCageSnap(g: GameData, dt: number, boss: BossConf) {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.0) {
       g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
-      // Snap cage walls as danger zones (dmg 14)
-      const inset = 60;
+      // Cage snaps around the PLAYER ZONE (arena center area, not full arena border)
+      // Cage center = BCX, BCY; half-extents are ~35% of arena dims
+      const cHW = Math.round(BW * 0.36); // cage half-width ≈ 130
+      const cHH = Math.round(BH * 0.36); // cage half-height ≈ 103
+      const wallT = 20; // cage wall thickness
+      const cx = BCX - cHW, cy = BCY - cHH;
+      const cw = cHW * 2, ch = cHH * 2;
       g.dangerZones = [
-        { id: nid(g), x: BX, y: BY, w: BW, h: inset, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 },
-        { id: nid(g), x: BX, y: BY + BH - inset, w: BW, h: inset, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 },
-        { id: nid(g), x: BX, y: BY + inset, w: inset, h: BH - inset * 2, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 },
-        { id: nid(g), x: BX + BW - inset, y: BY + inset, w: inset, h: BH - inset * 2, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 },
+        { id: nid(g), x: cx,           y: cy,           w: cw,   h: wallT, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // top wall
+        { id: nid(g), x: cx,           y: cy + ch - wallT, w: cw, h: wallT, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // bottom wall
+        { id: nid(g), x: cx,           y: cy + wallT,   w: wallT, h: ch - wallT * 2, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // left wall
+        { id: nid(g), x: cx + cw - wallT, y: cy + wallT, w: wallT, h: ch - wallT * 2, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // right wall
       ];
-      // 2–3 internal burst zones (dmg 20)
-      for (let b = 0; b < 3; b++) {
-        const bx = BX + inset + rand(0, BW - inset * 2 - 60);
-        const by2 = BY + inset + rand(0, BH - inset * 2 - 40);
-        g.dangerZones.push({ id: nid(g), x: bx, y: by2, w: 60, h: 40, warnTimer: 0.4, activeTimer: 0.5, color: '#ff2244', dmg: 20 });
-      }
     }
     return;
   }
@@ -2324,21 +2327,21 @@ function doBoneCageSnap(g: GameData, dt: number, boss: BossConf) {
       const angle = g.phaseTimer * 4.2;
       g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(angle) * 100 * sm(g), vy: Math.sin(angle) * 100 * sm(g), r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 2, frozen: false, dmg: 20 });
     }
-    // Beat 3: first internal burst zones — 3 zones in a fixed quadrant layout
+    // Beat 3: first internal burst zones — positioned INSIDE the cage (cage-relative coords)
+    // Cage inner area: center=BCX,BCY, inner half-extents≈110×83
     if (g.phaseTimer >= 0.45 && !(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      const inset = 60;
-      for (const [fx, fy] of [[0.25, 0.25], [0.65, 0.5], [0.25, 0.72]]) {
-        g.dangerZones.push({ id: nid(g), x: BX + inset + fx * (BW - inset * 2) - 28, y: BY + inset + fy * (BH - inset * 2) - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff2244', dmg: 20 });
+      const cIW = BW * 0.36 - 20, cIH = BH * 0.36 - 20; // cage inner half-extents
+      for (const [fx, fy] of [[-0.5, -0.5], [0.3, 0.0], [-0.5, 0.45]]) {
+        g.dangerZones.push({ id: nid(g), x: BCX + fx * cIW * 2 - 28, y: BCY + fy * cIH * 2 - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff2244', dmg: 20 });
       }
     }
-    // Beat 4 (safe-pocket SHIFTS): after first burst clears (~1.2s), second wave appears
-    //   in OPPOSITE quadrant to first — player must move across cage
+    // Beat 4 (safe-pocket SHIFTS): burst positions shift to OPPOSITE quadrant inside cage
     if (g.phaseTimer >= 1.2 && !(g.spawnCount & 2)) {
       g.spawnCount |= 2;
-      const inset = 60;
-      for (const [fx, fy] of [[0.65, 0.72], [0.25, 0.5], [0.65, 0.25]]) {
-        g.dangerZones.push({ id: nid(g), x: BX + inset + fx * (BW - inset * 2) - 28, y: BY + inset + fy * (BH - inset * 2) - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff4400', dmg: 20 });
+      const cIW = BW * 0.36 - 20, cIH = BH * 0.36 - 20;
+      for (const [fx, fy] of [[0.3, 0.45], [-0.5, 0.0], [0.3, -0.5]]) {
+        g.dangerZones.push({ id: nid(g), x: BCX + fx * cIW * 2 - 28, y: BCY + fy * cIH * 2 - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff4400', dmg: 20 });
       }
     }
     if (g.phaseTimer >= 2.3) {
@@ -6848,9 +6851,69 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
         ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.stroke();
       }
     } else if (dz.warnTimer > 0) {
-      ctx.globalAlpha = 0.3 + 0.3 * Math.sin(g.time * 11);
-      ctx.fillStyle = dz.color; ctx.fillRect(vdx, vdy, vdw, vdh);
-      ctx.strokeStyle = dz.color; ctx.lineWidth = 2; ctx.strokeRect(vdx, vdy, vdw, vdh);
+      const pulse = 0.3 + 0.3 * Math.sin(g.time * 11);
+      ctx.globalAlpha = pulse;
+
+      if (dz.style === 'chevron-right' || dz.style === 'chevron-left') {
+        // Phantom Dash telegraph: diagonal hatching + directional arrow
+        ctx.fillStyle = dz.color + '33'; ctx.fillRect(vdx, vdy, vdw, vdh);
+        ctx.save(); ctx.beginPath(); ctx.rect(vdx, vdy, vdw, vdh); ctx.clip();
+        ctx.strokeStyle = dz.color; ctx.lineWidth = 1.5; ctx.globalAlpha = pulse * 0.55;
+        const step = 18;
+        for (let i = -vdh; i < vdw + vdh; i += step) {
+          ctx.beginPath();
+          ctx.moveTo(vdx + i, vdy);
+          ctx.lineTo(vdx + i + vdh, vdy + vdh);
+          ctx.stroke();
+        }
+        ctx.restore();
+        // Directional arrow pointing toward dash direction
+        ctx.globalAlpha = pulse * 0.85;
+        ctx.fillStyle = dz.color;
+        ctx.shadowBlur = 16; ctx.shadowColor = dz.color;
+        const cx = vdx + vdw / 2, cy = vdy + vdh / 2;
+        const aw = 24, ah = 18;
+        const dir = dz.style === 'chevron-right' ? 1 : -1;
+        ctx.beginPath();
+        ctx.moveTo(cx + dir * aw, cy);
+        ctx.lineTo(cx - dir * aw * 0.5, cy - ah);
+        ctx.lineTo(cx - dir * aw * 0.5, cy + ah);
+        ctx.closePath(); ctx.fill();
+      } else if (dz.style === 'chevron-v') {
+        // Judgment Rain telegraph: vertical column with angled hatching + downward chevrons
+        ctx.fillStyle = dz.color + '28'; ctx.fillRect(vdx, vdy, vdw, vdh);
+        ctx.save(); ctx.beginPath(); ctx.rect(vdx, vdy, vdw, vdh); ctx.clip();
+        ctx.strokeStyle = dz.color; ctx.lineWidth = 1.5; ctx.globalAlpha = pulse * 0.5;
+        const step = 16;
+        for (let i = -vdw; i < vdh + vdw; i += step) {
+          ctx.beginPath(); ctx.moveTo(vdx, vdy + i); ctx.lineTo(vdx + vdw, vdy + i - vdw); ctx.stroke();
+        }
+        ctx.restore();
+        // Downward-pointing arrow inside column
+        ctx.globalAlpha = pulse * 0.75;
+        ctx.fillStyle = dz.color; ctx.shadowBlur = 12; ctx.shadowColor = dz.color;
+        const colCx = vdx + vdw / 2, colCy = vdy + vdh * 0.42;
+        const ca = 10, cb = 16;
+        ctx.beginPath();
+        ctx.moveTo(colCx, colCy + cb);
+        ctx.lineTo(colCx - ca, colCy - cb * 0.5);
+        ctx.lineTo(colCx + ca, colCy - cb * 0.5);
+        ctx.closePath(); ctx.fill();
+      } else if (dz.style === 'safe') {
+        // Judgment Rain safe lane: calm cool tint, no arrow, just border glow
+        ctx.fillStyle = '#2244ff22'; ctx.fillRect(vdx, vdy, vdw, vdh);
+        ctx.shadowBlur = 14; ctx.shadowColor = '#4466ff';
+        ctx.strokeStyle = '#4488ff'; ctx.lineWidth = 2;
+        ctx.strokeRect(vdx + 1, vdy + 1, vdw - 2, vdh - 2);
+        ctx.globalAlpha = pulse * 0.4;
+        ctx.fillStyle = '#4488ff';
+        ctx.font = 'bold 10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('SAFE', vdx + vdw / 2, vdy + vdh / 2 + 4);
+      } else {
+        ctx.fillStyle = dz.color; ctx.fillRect(vdx, vdy, vdw, vdh);
+        ctx.strokeStyle = dz.color; ctx.lineWidth = 2; ctx.strokeRect(vdx, vdy, vdw, vdh);
+      }
     } else if (dz.activeTimer > 0) {
       ctx.fillStyle = dz.color + '55'; ctx.fillRect(vdx, vdy, vdw, vdh);
       ctx.shadowBlur = 20; ctx.shadowColor = dz.color; ctx.strokeStyle = dz.color; ctx.lineWidth = 3; ctx.strokeRect(vdx, vdy, vdw, vdh);
