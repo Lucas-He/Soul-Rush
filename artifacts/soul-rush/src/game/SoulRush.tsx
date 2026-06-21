@@ -4957,7 +4957,9 @@ function update(
     // _hitRaw === -1 means "use default". In SINGLE_BOSS_MODE, per-hazard dmg takes priority.
     const segDefault = SINGLE_BOSS_MODE ? (SEGMENT_DAMAGE[g.atkIdx] ?? boss.dmg) : boss.dmg;
     const hitDmg = _hitRaw === -1 ? segDefault : _hitRaw;
-    g.player.hp -= hitDmg * g.diffMult;
+    // In SINGLE_BOSS_MODE damage values are exact — skip difficulty scaling
+    const scaledDmg = SINGLE_BOSS_MODE ? hitDmg : hitDmg * g.diffMult;
+    g.player.hp -= scaledDmg;
     g.player.invTimer = P_INV;
     shake(g);
     if (g.player.hp <= 0) {
@@ -5936,7 +5938,8 @@ const HP_X = 28, HP_Y = 458, HP_W = 220, HP_H = 14;
 // ================================================================
 function drawSingleBossHUD(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   const boss = BOSSES[g.bossIdx];
-  const segIdx = Math.min(g.atkIdx, SEGMENT_NAMES.length - 1);
+  // Guard: clamp to valid range so a post-segment-7 atkIdx never shows "SEGMENT 8/7"
+  const segIdx = Math.min(Math.max(0, g.atkIdx), SEGMENT_NAMES.length - 1);
   const segName = SEGMENT_NAMES[segIdx] ?? '';
 
   // ── Top-left: HP bar ───────────────────────────────────────────
@@ -6574,7 +6577,10 @@ function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, 
     case 'playing':  renderPlaying(ctx, g, adminMode, diffIdx);  break;
     case 'waveEnd':
       renderPlaying(ctx, g, adminMode, diffIdx); // frozen frame underneath
-      if (SINGLE_BOSS_MODE) { renderSegmentTransition(ctx, g, g.segTransTimer); }
+      // Only show segment transition when there IS a next segment (not on boss win)
+      if (SINGLE_BOSS_MODE && !g.waveEndIsBossWin && g.atkIdx < SEGMENT_NAMES.length) {
+        renderSegmentTransition(ctx, g, g.segTransTimer);
+      }
       break;
     case 'bossWin':  renderBossWin(ctx, g);                      break;
     case 'gameOver': renderGameOver(ctx, g);                     break;
