@@ -1,0 +1,1012 @@
+You are editing my existing game project.
+
+This is a full rebuild pass for the first boss fight.
+Use the uploaded reference images as the visual and structural target.
+
+The current version is failing in 4 ways:
+
+1. The boss looks broken and placeholder-like.
+2. The boss moves are still too simple.
+3. The arena is too plain and does not match the intended design.
+4. The game is too laggy.
+
+This pass must fix all 4 together.
+
+==================================================
+CORE GOAL
+=========
+
+Build one complete premium first boss fight with:
+
+* 1 boss only
+* 7 total segments
+* 1 signature attack pattern per segment
+* a premium looming boss above the arena
+* a premium dark neon execution-chamber arena
+* clean premium UI
+* smart, elite, multi-beat boss patterns
+* smooth performance
+* no score / leaderboard clutter
+* no debug/admin/help text visible to players
+
+This should feel like a premium action-game first boss, not a prototype.
+
+==================================================
+WHAT TO KEEP / REMOVE
+=====================
+
+KEEP ONLY
+
+* title screen
+* controls screen
+* arena
+* player movement
+* player HP
+* first boss
+* first boss fight UI
+
+REMOVE / DISABLE
+
+* all future bosses
+* all future phases beyond this first boss encounter
+* extra encounters
+* potion systems
+* regen systems
+* extra HP mechanics
+* score systems
+* leaderboard scores
+* best time
+* attempt count
+* rank / points / score labels
+* visible admin/debug/help text
+* placeholder VFX that do not serve gameplay
+
+If future bosses still exist in code, keep them behind one obvious restore flag, but disabled.
+
+==================================================
+BOSS IDENTITY
+=============
+
+Boss name:
+THE WARDEN
+
+Fantasy:
+A throne-bound ritual execution warden that controls the arena like a judge.
+The player is trapped inside a neon execution chamber and forced to survive the Warden’s tests.
+
+The boss should feel:
+
+* cold
+* elite
+* dominant
+* ritualistic
+* elegant
+* oppressive
+* mechanical-gothic
+* premium
+* not emotional
+* not messy
+* not abstract-placeholder
+
+==================================================
+SCREEN COMPOSITION
+==================
+
+Match the reference images.
+
+TOP AREA
+
+* boss occupies upper-center of screen
+* boss is above / outside the arena, looming over it
+* shoulders, chest, helmet/head, and gauntlets are visible
+* boss visually frames the arena
+
+CENTER AREA
+
+* arena is a horizontal rectangle dominating the middle of the screen
+* most telegraphs happen inside the arena
+
+LOWER CENTER
+
+* player is small and readable inside arena
+* player sits around lower-middle / middle-lower zone by default
+* player always contrasts clearly against attacks and floor
+
+HUD
+
+* HP top-left
+* boss name top-center if cleanly supported
+* segment label top-right
+* no clutter at bottom
+
+==================================================
+BOSS VISUAL DESIGN — MUST BE REBUILT
+====================================
+
+The current boss is unacceptable.
+It currently reads like:
+
+* a floating trapezoid
+* a glass wedge
+* an eye icon
+* a placeholder symbol
+* not a premium boss
+
+Do NOT render the boss as:
+
+* one trapezoid body
+* one eyeball symbol
+* a thin humanoid
+* a stick figure with glow
+* a small sprite pretending to be a major boss
+
+The boss must clearly have:
+
+* helmet / head
+* shoulders
+* chest
+* forearms / gauntlets
+* crown / horn / crest silhouette
+* strong focal point
+* wide upper-body mass
+* arena-framing presence
+
+BOSS SILHOUETTE
+Build a large upper-body silhouette with:
+
+* very broad shoulders
+* a strong central chest mass
+* a narrow aggressive helmet / head shape
+* crown / horn / crest structure
+* large gauntlets or hands near the top edge of the arena
+* layered collar / mantle around head and shoulders
+
+Silhouette read:
+This thing rules the arena.
+
+BOSS SHAPE LANGUAGE
+Primary shapes:
+
+* shoulders
+* chest
+* head
+* gauntlets
+
+Secondary shapes:
+
+* collar / mantle
+* crest / halo frame
+* chest core housing
+* helmet fins / horns
+
+Tertiary details:
+
+* small emissive seams
+* restrained rune lines
+* minor crack details
+
+Do NOT use all details at equal scale.
+Do NOT make the body visually flat.
+
+BOSS FACE / FOCAL POINT
+
+* masked / unreadable
+* narrow visor slit OR chest-aligned eye-line
+* no giant cartoon eye
+* no friendly face
+* no oversized symbolic iris
+
+BOSS COLORS / MATERIALS
+Use:
+
+* black
+* charcoal
+* gunmetal
+* deep crimson shadow tones
+* hot pink / magenta accents
+
+Do NOT make the boss mostly bright blue glass.
+Blue/cyan should stay mostly for:
+
+* player contrast
+* minor UI accents
+* tiny secondary support FX only
+
+The boss should feel darker and heavier than the arena.
+
+BOSS CONSTRUCTION IF THERE IS NO FINAL SPRITE
+If polished hand-drawn boss art is not available, build the boss from layered authored parts:
+
+Required layers:
+
+1. rear shadow mass
+2. ritual halo / crown / crest frame
+3. left shoulder armor
+4. right shoulder armor
+5. central chest plate / core housing
+6. helmet / head
+7. visor glow
+8. left gauntlet / forearm
+9. right gauntlet / forearm
+10. restrained accent glow
+11. subtle background smoke / heat haze behind the silhouette only
+
+This must read as one designed boss, not random polygons.
+
+BOSS IDLE
+Idle pose must already feel premium:
+
+* shoulders broad and slightly forward
+* head angled down toward arena
+* gauntlets near arena edge
+* faint chest/core pulse
+* subtle halo/crown energy
+* no floating menu-icon feel
+
+BOSS ATTACK STARTUP POSES
+Each segment must visibly change the boss pose.
+
+Phantom Dash:
+
+* shoulders compress inward
+* head lowers
+* one side ignites
+
+Judgment Rain:
+
+* one arm lifts OR chest channels upward
+* halo/core intensity rises vertically
+
+Soul Shatter Burst:
+
+* hands or chest gather power centrally
+* shoulders angle inward
+
+False Mercy:
+
+* very still, symmetrical, judgmental pose
+
+Rift Cleave:
+
+* torso twists
+* one shoulder / arm draws back diagonally
+
+Bone Cage Snap:
+
+* both gauntlets clamp inward
+* lock pose
+
+Final Spiral:
+
+* full expanded dominance pose
+* crown/halo strongest
+* shoulders widest
+* brightest core state
+
+==================================================
+ARENA VISUAL DESIGN
+===================
+
+The arena is closer than the boss, but still needs polish.
+
+ARENA IDENTITY
+A dark rectangular execution chamber suspended in a black smoky void.
+
+ARENA BASE
+
+* dark charcoal-black stone or metal floor
+* subtle engraved geometric panels
+* faint central patterning
+* premium clean surface
+* not noisy texture spam
+* not empty flat box
+
+ARENA BORDER
+
+* bright magenta / pink perimeter
+* slightly thick and premium
+* glowing corners
+* border intensifies during attacks
+
+ARENA INTERIOR
+Must support these telegraph languages:
+
+* huge warning panel
+* vertical lane telegraphs
+* radial burst geometry
+* deceptive safe lanes
+* diagonal rift tears
+* cage frame
+* rotating spiral traces
+
+The telegraphs should feel like part of the arena system, not pasted-on random effects.
+
+OUTSIDE THE ARENA
+
+* black smoky void
+* chain silhouettes
+* distant gothic-tech spires
+* ember glow
+* faint pink flame accents
+* background only
+
+PLAYER READABILITY
+Player should always stand out through:
+
+* small dark figure
+* white hair or white scarf / cape accent
+* cyan / blue aura or floor ring
+* exact position always visible
+
+==================================================
+UI DESIGN
+=========
+
+TOP-LEFT
+Show:
+
+* HP 100
+* long green HP bar
+* clean white text
+* optional white diamonds only if they represent a real mechanic
+* if diamonds mean nothing, remove them
+
+TOP-CENTER
+Optional if cleanly supported:
+
+* THE WARDEN nameplate
+* thin premium linework
+* optional clean boss bar
+* do not clutter the screen
+
+TOP-RIGHT
+Show:
+
+* current segment label only
+* format: SEGMENT X — ATTACK NAME
+* white main text
+* attack name in pink/magenta
+* no timer
+* no score
+* no attempts
+* no best time
+
+REMOVE FROM UI
+
+* score
+* leaderboard
+* best time
+* attempts
+* points
+* rank
+* admin/debug/help text
+* unnecessary bottom overlays
+
+==================================================
+PLAYER RULES
+============
+
+LOOK
+
+* small figure
+* dark clothing / silhouette
+* white hair or white scarf/cape accent
+* cyan aura / ring around feet
+* readable from far away
+
+HP
+
+* max HP = 100
+* invulnerability after damage = 0.60 sec
+* death at 0 HP immediately
+* no potions
+* no regen
+
+==================================================
+MOVE BUFF PASS — GLOBAL RULES
+=============================
+
+The current boss attacks are too simple.
+Each segment must feel like an elite authored boss pattern.
+
+Each segment attack must include:
+
+* a clear opening tell
+* a first commitment check
+* a second timing layer or correction check
+* a brief punishment for panic movement
+* a clean reset
+
+Allowed ways to buff patterns:
+
+* delayed follow-ups
+* mirrored second hits
+* staggered timing
+* safe-lane shifts
+* correction traps
+* fake tempo into real tempo
+* geometry rotation
+* narrowing safe zones
+* movement bait followed by punish
+* arena pressure that forces repositioning
+
+Not allowed:
+
+* unavoidable randomness
+* clutter spam
+* fake hitboxes
+* unreadable overlap
+* pure reaction checks with no tell
+* giant projectile floods
+
+Each segment may have 2 to 3 authored variants maximum.
+Not infinite randomness.
+
+==================================================
+SEGMENT 1 — PHANTOM DASH
+========================
+
+Reference target:
+huge warning panel on one side, violent horizontal burst, clean afterimages
+
+Purpose:
+teach immediately that the boss is fast, elegant, and punishing
+
+Pattern structure:
+Beat 1:
+
+* one side of arena ignites with a huge warning panel
+* panel uses chevrons / directional language
+
+Beat 2:
+
+* boss performs primary high-speed dash across arena
+
+Beat 3:
+
+* short delay, then phantom echo dash crosses a second line
+* second dash may be mirrored or slightly vertically offset
+* authored variants only, not random nonsense
+
+Beat 4:
+
+* lingering danger strip collapses after a short punish window
+* arena resets
+
+Damage:
+
+* direct dash = 22 HP
+* trail / afterimage touch = 14 HP
+
+Tests:
+
+* early read
+* reposition
+* correction timing
+
+Animation:
+
+* shoulders compress
+* head lowers
+* one gauntlet tenses
+* violent horizontal release
+
+==================================================
+SEGMENT 2 — JUDGMENT RAIN
+=========================
+
+Reference target:
+vertical punishment lanes with heavy impact columns
+
+Purpose:
+make the arena feel condemned
+
+Pattern structure:
+Beat 1:
+
+* broad lane telegraphs appear
+* 5 to 7 lanes
+* at least one real safe path
+
+Beat 2:
+
+* first strike set lands
+
+Beat 3:
+
+* safe route shifts by one lane or pattern offset
+* second staggered set lands
+
+Beat 4:
+
+* delayed final strike punishes players who stayed frozen
+* clear reposition route remains
+
+Damage:
+
+* each strike = 18 HP
+
+Tests:
+
+* reading lane rhythm
+* calm movement
+* not overcommitting
+
+Animation:
+
+* upward channel pose
+* halo/core brightens vertically
+* raised arm or lifted chest intensity
+
+==================================================
+SEGMENT 3 — SOUL SHATTER BURST
+==============================
+
+Reference target:
+boss core releases radial shard geometry
+
+Purpose:
+precision dodge through elite geometry
+
+Pattern structure:
+Beat 1:
+
+* boss gathers bright core between hands / chest
+
+Beat 2:
+
+* first shard burst fires outward in radial form
+* one true gap exists
+
+Beat 3:
+
+* second rotated burst fires half a beat later
+* forces correction movement
+
+Beat 4:
+
+* light inward return shards or angled closure punish lazy drift
+
+Beat 5:
+
+* full reset
+
+Damage:
+
+* each shard hit = 12 HP
+
+Tests:
+
+* precision
+* route planning
+* second-step movement
+
+Animation:
+
+* hands pull inward
+* core brightens
+* release snap
+* recoil recovery
+
+==================================================
+SEGMENT 4 — FALSE MERCY
+=======================
+
+Reference target:
+multiple safe-looking lanes, one is true
+
+Purpose:
+boss as judge / manipulator / liar
+
+Pattern structure:
+Beat 1:
+
+* several long vertical zones appear
+* more than one looks safe
+
+Beat 2:
+
+* bait lane pulses first and attracts panic movement
+
+Beat 3:
+
+* true safe lane is shown by delayed pulse / brightness / subtle boss cue
+
+Beat 4:
+
+* false lanes collapse
+
+Beat 5:
+
+* short follow-up punish catches panic correction into the wrong lane
+
+Damage:
+
+* primary hit = 24 HP
+
+Tests:
+
+* perception
+* composure
+* resisting bait
+
+Animation:
+
+* boss becomes very still
+* chest light narrows
+* deliberate symmetrical pose
+
+==================================================
+SEGMENT 5 — RIFT CLEAVE
+=======================
+
+Reference target:
+huge diagonal energy tears across arena
+
+Purpose:
+make arena itself feel breakable
+
+Pattern structure:
+Beat 1:
+
+* first diagonal fracture telegraph draws across arena
+
+Beat 2:
+
+* first cleave opens violently
+
+Beat 3:
+
+* safe wedge appears
+
+Beat 4:
+
+* crossing or offset second cleave threatens lazy correction path
+
+Beat 5:
+
+* final edge rupture lightly punishes staying too near the fracture line
+
+Damage:
+
+* primary cleave = 22 HP
+* crossing cleave = 30 HP
+
+Tests:
+
+* diagonal read
+* wedge positioning
+* second-step correction
+
+Animation:
+
+* torso twists
+* one shoulder pulls back
+* decisive heavy cleave release
+
+==================================================
+SEGMENT 6 — BONE CAGE SNAP
+==========================
+
+Reference target:
+rectangular inner cage with internal hazards
+
+Purpose:
+tight-space execution pressure
+
+Pattern structure:
+Beat 1:
+
+* cage frame begins forming around player zone
+
+Beat 2:
+
+* cage snaps shut with sharp lock flash
+
+Beat 3:
+
+* first internal bloom or burst hazard detonates
+
+Beat 4:
+
+* internal safe pocket shifts
+
+Beat 5:
+
+* second internal pressure hit or sweep forces micro-movement
+
+Beat 6:
+
+* cage dissolves cleanly
+
+Damage:
+
+* cage wall = 14 HP
+* internal burst = 20 HP
+
+Tests:
+
+* micro-spacing
+* composure in tight space
+* exact movement
+
+Animation:
+
+* gauntlets clamp inward
+* halo contracts
+* lock gesture reads clearly
+
+==================================================
+SEGMENT 7 — FINAL SPIRAL
+========================
+
+Reference target:
+large rotating spiral consuming arena
+
+Purpose:
+final exam of movement skill
+
+Pattern structure:
+Beat 1:
+
+* boss channels maximum energy
+* arena border intensifies
+
+Beat 2:
+
+* spiral traces appear
+
+Beat 3:
+
+* rotating kill pattern activates with moving safe lane
+
+Beat 4:
+
+* spiral tightens or shifts speed
+
+Beat 5:
+
+* one controlled direction change or compression phase
+
+Beat 6:
+
+* final collapse burst resolves with a clear tell
+
+Beat 7:
+
+* full reset
+
+Damage:
+
+* spiral touch = 18 HP
+* collapse burst = 28 HP
+
+Tests:
+
+* tracking
+* flow movement
+* recovery under pressure
+
+Animation:
+
+* full dominance pose
+* crest / halo fully lit
+* shoulders widen
+* brightest core state
+
+==================================================
+SEGMENT TRANSITIONS
+===================
+
+Between segments:
+
+* 0.8 to 1.2 sec
+* brief arena pulse
+* boss pose change
+* segment label appears
+* no score popups
+* no clutter
+
+==================================================
+VFX RULES
+=========
+
+Use VFX like the references:
+
+* clean
+* sharp
+* geometric
+* premium
+* magenta-heavy
+* controlled cyan for player
+
+Allowed:
+
+* strong warning panels
+* impact columns
+* shard bursts
+* rift glow
+* cage lines
+* spiral trails
+* subtle chain shake
+* border pulse
+* restrained smoke
+* small afterimages
+
+Not allowed:
+
+* particle soup
+* bloom overload
+* heavy blur
+* giant transparency stacks
+* messy trails hiding hitboxes
+
+==================================================
+ANTI-LAG / PERFORMANCE FIX PASS
+===============================
+
+Mandatory:
+The fight must look premium and run smoothly.
+
+Performance target:
+
+* smooth and responsive gameplay
+* no obvious frame drops during attacks
+* no stutter during transitions
+* no heavy lag from boss rendering, arena rendering, or VFX
+
+Required optimizations:
+
+1. object pooling for:
+
+* projectiles
+* warning markers
+* dash echoes
+* lane indicators
+* cage segments
+* impact effects
+* shard bursts
+* spiral hazards if reused
+
+2. reuse nodes/materials:
+
+* do not spawn too many temporary nodes every attack
+* reuse sprites, meshes, particles, line renderers, shaders
+* avoid duplicate UI creation
+* avoid repeated allocations inside attack loops
+
+3. limit particles:
+
+* use fewer stronger particles
+* short lifetimes
+* hard cap emission counts
+* remove decorative emitters that do not aid readability
+
+4. limit transparency stacking:
+
+* fewer overlapping glow layers
+* no large lingering transparent panels
+* afterimages few and short-lived
+* no blur+bloom+glow+particles stacking excessively
+
+5. simplify collision:
+
+* clean rectangles, lanes, lines, arcs, wedges
+* no overly complex collision for purely visual FX
+* hitboxes simple and honest
+
+6. reduce full-screen effects:
+
+* no constant distortion
+* no heavy blur
+* restrained bloom
+* minimal post-process usage
+
+7. avoid wasteful per-frame logic:
+
+* cache pattern data
+* precompute telegraph geometry where possible
+* no unnecessary string/UI updates every frame
+
+8. clean up fast:
+
+* return pooled objects immediately
+* remove old warnings / glows / trails quickly
+* clear segment effects cleanly
+
+SEGMENT-SPECIFIC PERFORMANCE RULES
+
+Phantom Dash:
+
+* 2 to 4 strong afterimages max
+* one strong dash smear, not many stacked streaks
+
+Judgment Rain:
+
+* reuse lane telegraphs and impact columns
+* floor cracks short-lived
+
+Soul Shatter Burst:
+
+* controlled projectile count
+* pooled shard projectiles
+
+False Mercy:
+
+* lane pulses lightweight
+* deception from timing/brightness, not extra overlays
+
+Rift Cleave:
+
+* one strong rupture effect per line
+* minimal debris
+
+Bone Cage Snap:
+
+* simple strong cage lines
+* limited internal blooms
+
+Final Spiral:
+
+* elegant rotating geometry
+* no giant particle storm
+
+BOSS RENDER PERFORMANCE
+
+* premium via silhouette, layering, and lighting first
+* not via particle spam
+* animate key parts only: head glow, chest/core, shoulders, gauntlets, halo accents
+
+ARENA PERFORMANCE
+
+* mostly static floor detail
+* light border pulse
+* subtle animated accents only
+* background mostly static
+
+UI PERFORMANCE
+
+* HP updates only when needed
+* segment label updates on transition only
+* remove all unused score/leaderboard logic and rendering
+
+If performance and style conflict, choose:
+
+1. gameplay clarity
+2. stable performance
+3. boss silhouette / arena silhouette
+4. premium VFX polish
+
+==================================================
+ACCEPTANCE TEST
+===============
+
+Do not claim success unless all are true:
+
+1. Boss no longer reads as a trapezoid or eye icon placeholder.
+2. Boss clearly has head, shoulders, chest, and gauntlets.
+3. Boss clearly matches the uploaded reference direction.
+4. Arena clearly matches the uploaded reference direction.
+5. Arena is not a plain test box.
+6. Player stays readable.
+7. Segment attacks feel authored and multi-beat.
+8. UI matches the clean premium direction.
+9. No score / leaderboard clutter remains.
+10. Performance is smooth.
+
+==================================================
+DELIVERABLES
+============
+
+When done, report:
+
+1. what was kept
+2. what was removed / disabled
+3. exactly how the boss visual was rebuilt
+4. exactly how the arena visual was rebuilt
+5. exact UI elements implemented
+6. exact segment behaviors implemented
+7. exact damage values
+8. exact performance optimizations made
+9. files changed
+10. how to restore future bosses later
