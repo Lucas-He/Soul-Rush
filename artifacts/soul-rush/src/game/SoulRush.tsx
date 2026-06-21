@@ -7196,20 +7196,13 @@ function renderSegmentTransition(ctx: CanvasRenderingContext2D, g: GameData, ela
   ctx.fillStyle = '#ffffff22'; ctx.font = `bold 110px "Courier New", monospace`; ctx.textAlign = 'center';
   ctx.fillText(`${segNum}`, W / 2, H / 2 + 48);
 
-  ctx.shadowBlur = 24; ctx.shadowColor = '#ff88cc'; ctx.fillStyle = '#ff88cc';
-  ctx.font = `bold 11px "Courier New", monospace`;
-  ctx.fillText(`SEGMENT ${segNum} / ${segTotal}`, W / 2, H / 2 - 58);
-
   ctx.save();
-  ctx.translate(W / 2, H / 2 - 22);
+  ctx.translate(W / 2, H / 2 - 10);
   ctx.scale(pulse, pulse);
   ctx.shadowBlur = 32; ctx.shadowColor = boss.color; ctx.fillStyle = boss.color;
   ctx.font = `bold 28px "Courier New", monospace`;
   ctx.fillText(segName, 0, 0);
   ctx.restore();
-
-  ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff44'; ctx.font = '11px "Courier New", monospace';
-  ctx.fillText(boss.waves?.[nextIdx]?.description ?? '', W / 2, H / 2 + 18);
 
   ctx.restore();
 }
@@ -8490,15 +8483,15 @@ export default function SoulRush() {
           </div>
         )}
 
-        {/* Admin confirmation toast */}
-        {adminMsg && (
+        {/* Admin confirmation toast — hidden in SINGLE_BOSS_MODE */}
+        {!SINGLE_BOSS_MODE && adminMsg && (
           <div style={{ position: 'absolute', bottom: 60, right: 12, background: '#002a22', border: '1px solid #00ffcc', color: '#00ffcc', fontFamily: '"Courier New", monospace', fontSize: 12, padding: '6px 12px', borderRadius: 4 }}>
             {adminMsg}
           </div>
         )}
 
-        {/* Admin command input */}
-        {showAdminInput && (
+        {/* Admin command input — hidden in SINGLE_BOSS_MODE */}
+        {!SINGLE_BOSS_MODE && showAdminInput && (
           <div style={{ position: 'absolute', bottom: 18, right: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
             <div style={{ fontSize: 10, color: '#444', fontFamily: '"Courier New", monospace', letterSpacing: 1 }}>
               ADMIN COMMAND
@@ -8513,9 +8506,6 @@ export default function SoulRush() {
               onBlur={() => { inputFocusedRef.current = false; }}
               style={{ width: 220, background: '#0a0a14', border: '1px solid #333', borderRadius: 5, color: '#aaaacc', fontFamily: '"Courier New", monospace', fontSize: 13, padding: '8px 12px', outline: 'none', boxShadow: 'inset 0 0 8px #00000088' }}
             />
-            <div style={{ fontSize: 9, color: '#333', fontFamily: 'monospace' }}>
-              Orcas@0112 · solution0112
-            </div>
           </div>
         )}
       </div>
