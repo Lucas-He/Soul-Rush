@@ -66,16 +66,18 @@ const DIFF_LEVELS = [
 // ================================================================
 const SINGLE_BOSS_MODE = true;
 const SEGMENT_NAMES = [
-  'Phantom Dash',
-  'Judgment Rain',
-  'Soul Shatter Burst',
-  'False Mercy',
-  'Rift Cleave',
-  'Bone Cage Snap',
-  'Final Spiral',
+  'Sever Line',
+  'Cathedral Drop',
+  'Crown Bloom',
+  'Trial Corridor',
+  'Judicator Cross',
+  'Prison Seal',
+  'Rosette Spiral',
 ];
-const SEGMENT_DAMAGE  = [22, 18, 12, 24, 22, 14, 18];
-const SEGMENT_ATK_DURS = [9, 10, 9, 10, 10, 10, 13];
+const SEGMENT_DAMAGE  = [22, 18, 14, 20, 22, 16, 18];
+const SEGMENT_ATK_DURS = [8, 9, 9, 9, 9, 10, 12];
+
+const CHAR_NAMES = ['The Wanderer', 'The Exile', 'The Keeper', 'The Harbinger', 'The Veil'];
 
 // ================================================================
 // BOSS GUIDE TIPS
@@ -168,7 +170,7 @@ const BOSS_TIPS = [
 // TYPES
 // ================================================================
 
-type State = 'title' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory' | 'finalVictory' | 'waveEnd';
+type State = 'title' | 'charSelect' | 'intro' | 'playing' | 'bossWin' | 'gameOver' | 'victory' | 'finalVictory' | 'waveEnd';
 
 interface WarnMarker {
   id: number;
@@ -349,19 +351,19 @@ const BOSSES: BossConf[] = [
       'Precision is eternal. Let us begin.'
     ],
     attacks: SINGLE_BOSS_MODE
-      ? ['phantomDash', 'judgmentRain', 'soulShatterBurst', 'falseMercy', 'riftCleave', 'boneCageSnap', 'finalSpiral']
+      ? ['severLine', 'cathedralDrop', 'crownBloom', 'trialCorridor', 'judicatorCross', 'prisonSeal', 'rosetteSpiral']
       : ['crystalRain', 'mirrorWalls', 'shatterPulse', 'constellationLines', 'haloCurse'],
     dmg: 16,
     atkDur: 9,
     rewardItemPool: ['candle_ash', 'echo_fragment'],
     waves: SINGLE_BOSS_MODE ? [
-      { id: 'seg1', name: 'Phantom Dash', description: 'The warden tears across the arena leaving spectral afterimages and aimed bursts.', duration: 9, attackType: 'aimed', warningType: 'target', bulletSpeed: 200, spawnRate: 10, damage: 22, arenaEffect: 'none', patternTags: ['aimed'], execute: 'phantomDash' },
-      { id: 'seg2', name: 'Judgment Rain', description: 'Crystal columns rain from above in shifting lanes of destruction.', duration: 10, attackType: 'rain', warningType: 'top', bulletSpeed: 220, spawnRate: 14, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'judgmentRain' },
-      { id: 'seg3', name: 'Soul Shatter Burst', description: 'Expanding soul-rings erupt from the center, each bearing deadly gaps.', duration: 9, attackType: 'ring', warningType: 'ring', bulletSpeed: 110, spawnRate: 2, damage: 12, arenaEffect: 'none', patternTags: ['ring'], execute: 'soulShatterBurst' },
-      { id: 'seg4', name: 'False Mercy', description: 'A deceptive calm before an overwhelming void eruption.', duration: 10, attackType: 'aimed', warningType: 'ring', bulletSpeed: 175, spawnRate: 6, damage: 24, arenaEffect: 'none', patternTags: ['aimed', 'fake'], execute: 'falseMercy' },
-      { id: 'seg5', name: 'Rift Cleave', description: 'Diagonal void rifts slice through the arena in rapid succession.', duration: 10, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 4, damage: 22, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'riftCleave' },
-      { id: 'seg6', name: 'Bone Cage Snap', description: 'Crystal walls close from all sides — find the shrinking center.', duration: 10, attackType: 'sweep', warningType: 'side', bulletSpeed: 120, spawnRate: 6, damage: 14, arenaEffect: 'none', patternTags: ['sweep'], execute: 'boneCageSnap' },
-      { id: 'seg7', name: 'Final Spiral', description: 'The Glass Warden unleashes a relentless soul-spiral — survive to the end.', duration: 13, attackType: 'spiral', warningType: 'ring', bulletSpeed: 155, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['spiral'], execute: 'finalSpiral' },
+      { id: 'seg1', name: 'Sever Line', description: 'The Warden drags a spectral blade across the arena in three sweeping passes.', duration: 8, attackType: 'sweep', warningType: 'side', bulletSpeed: 0, spawnRate: 4, damage: 22, arenaEffect: 'none', patternTags: ['sweep'], execute: 'severLine' },
+      { id: 'seg2', name: 'Cathedral Drop', description: 'Shards rain from above in a moving cascade — follow the drifting gap.', duration: 9, attackType: 'rain', warningType: 'top', bulletSpeed: 210, spawnRate: 14, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'cathedralDrop' },
+      { id: 'seg3', name: 'Crown Bloom', description: 'Soul-rings bloom outward from the Warden — pass through the rotating gap.', duration: 9, attackType: 'ring', warningType: 'ring', bulletSpeed: 120, spawnRate: 3, damage: 14, arenaEffect: 'none', patternTags: ['ring'], execute: 'crownBloom' },
+      { id: 'seg4', name: 'Trial Corridor', description: 'The arena fractures into lethal columns — hold the open lane.', duration: 9, attackType: 'rain', warningType: 'side', bulletSpeed: 195, spawnRate: 12, damage: 20, arenaEffect: 'none', patternTags: ['rain', 'lane'], execute: 'trialCorridor' },
+      { id: 'seg5', name: 'Judicator Cross', description: 'Diagonal judgment beams lock in from opposite corners — clear the crossing.', duration: 9, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 4, damage: 22, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'judicatorCross' },
+      { id: 'seg6', name: 'Prison Seal', description: 'A contracting ring of soul-shards closes inward — thread the gap before it locks.', duration: 10, attackType: 'aimed', warningType: 'ring', bulletSpeed: 140, spawnRate: 8, damage: 16, arenaEffect: 'none', patternTags: ['ring', 'aimed'], execute: 'prisonSeal' },
+      { id: 'seg7', name: 'Rosette Spiral', description: 'Five rotating arms of darkness spiral outward — weave between the arms.', duration: 12, attackType: 'spiral', warningType: 'ring', bulletSpeed: 155, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['spiral'], execute: 'rosetteSpiral' },
     ] : [
       { id: 'vr1', name: 'Crystal Rain', description: 'Crystal shards fall from the top in staggered lanes.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 185, spawnRate: 11, damage: 16, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
       { id: 'vr2', name: 'Mirror Walls', description: 'Horizontal and vertical laser walls appear after warning lines.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'mirrorWalls' },
@@ -1286,6 +1288,8 @@ interface GameData {
   // Segment transition state (SINGLE_BOSS_MODE)
   segTransTimer: number;   // counts up from 0 when in waveEnd; auto-advances at 1.5s
   segTransName: string;    // name to display during transition
+  selectedChar: number;    // 0–4: which playable character the player chose
+  charSelectIdx: number;   // cursor index on the character select screen
 
   // Set by updateAttack() before each dispatch so sm()/st() can read wave debuff data
   currentWaveConf?: Wave;
@@ -1328,6 +1332,7 @@ function createState(): GameData {
     runScore: 0, wavesCleared: 0,
     bossChargeTimer: 0,
     segTransTimer: 0, segTransName: '',
+    selectedChar: 0, charSelectIdx: 0,
   };
 }
 
@@ -1805,13 +1810,13 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   if (atk === 'karmaField')        { doKarmaField(g, dt, boss);          return; }
 
   // ── SINGLE BOSS MODE segment attacks ────────────────────────────
-  if (atk === 'phantomDash')       { doPhantomDash(g, dt, boss);         return; }
-  if (atk === 'judgmentRain')      { doJudgmentRain(g, dt, boss);        return; }
-  if (atk === 'soulShatterBurst')  { doSoulShatterBurst(g, dt, boss);    return; }
-  if (atk === 'falseMercy')        { doFalseMercy(g, dt, boss);          return; }
-  if (atk === 'riftCleave')        { doRiftCleave(g, dt, boss);          return; }
-  if (atk === 'boneCageSnap')      { doBoneCageSnap(g, dt, boss);        return; }
-  if (atk === 'finalSpiral')       { doFinalSpiral(g, dt, boss);         return; }
+  if (atk === 'severLine')         { doSeverLine(g, dt, boss);           return; }
+  if (atk === 'cathedralDrop')     { doCathedralDrop(g, dt, boss);       return; }
+  if (atk === 'crownBloom')        { doCrownBloom(g, dt, boss);          return; }
+  if (atk === 'trialCorridor')     { doTrialCorridor(g, dt, boss);       return; }
+  if (atk === 'judicatorCross')    { doJudicatorCross(g, dt, boss);      return; }
+  if (atk === 'prisonSeal')        { doPrisonSeal(g, dt, boss);          return; }
+  if (atk === 'rosetteSpiral')     { doRosetteSpiral(g, dt, boss);       return; }
 }
 
 // --- BOSS SPECIALS applied every frame ---
@@ -1835,632 +1840,471 @@ function applyBossSpecials(g: GameData, dt: number, boss: BossConf) {
 }
 
 // ================================================================
-// SINGLE BOSS MODE — 7 Segment Attacks
+// SINGLE BOSS MODE — 7 Segment Attacks (V2)
+// All attacks communicate purely through geometry/animation — no warning text.
+// Each attack's phase 0 is a 0.10s startup "inhale" before any hitbox activates.
 // ================================================================
 
-// Segment 1: Phantom Dash — boss compresses, half-arena flashes warning,
-//   then erupts horizontally leaving fast-fading afterimage ghosts.
-//   Direct dash bullet = dmg 22, afterimage = dmg 14.
-function doPhantomDash(g: GameData, dt: number, boss: BossConf) {
-  if (g.phase === 0) {
-    // Beat 1: half-arena warning panel with pink chevron fill (warnTimer only, no dmg)
-    if (g.dangerZones.length === 0) {
-      // Cycle count lives in upper byte — use it to alternate which half is warned
-      const cycleCount = (g.spawnCount >> 8) & 0xFF;
-      const warnRight = (cycleCount % 2 === 0);
-      const warnX = warnRight ? BX + BW * 0.5 : BX;
-      // chevron-right = dash comes from left (warn right half); chevron-left = warn left half
-      const style: DangerZone['style'] = warnRight ? 'chevron-left' : 'chevron-right';
-      g.dangerZones.push({ id: nid(g), x: warnX, y: BY, w: BW * 0.5, h: BH, warnTimer: 1.0, activeTimer: 0, color: '#ff2244', dmg: 0, style });
-    }
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0 || dz.activeTimer > 0; });
-    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.dangerZones = []; }
-    return;
-  }
+// ─── Helper: spawn a full-width floor crack DangerZone (no hitbox) ───────────
+function spawnFloorCrack(g: GameData, y: number, h: number, color: string, warnT: number) {
+  g.dangerZones.push({ id: nid(g), x: BX, y: y - h / 2, w: BW, h, warnTimer: warnT, activeTimer: 0, color, dmg: 0 });
+}
 
-  if (g.phase === 1) {
-    // Beat 2: primary high-speed dash — 3 large fast bullets cross arena horizontally (dmg 22)
-    // cycleCount stored in g.spawnCount upper byte (bits 8+); lower byte used as "spawned" flag
-    if (!(g.spawnCount & 1)) {
-      g.spawnCount |= 1; // mark spawned
-      const cycleCount = (g.spawnCount >> 8) & 0xFF;
-      const dashRight = (cycleCount % 2 === 0);
-      const startX = dashRight ? BX - 14 : BX + BW + 14;
-      const vx = dashRight ? 700 * sm(g) : -700 * sm(g);
-      for (let i = -1; i <= 1; i++) {
-        g.bullets.push({ id: nid(g), x: startX, y: BCY + i * 22, vx, vy: 0, r: 14, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 22 });
-      }
-    }
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.28) { g.phase = 2; g.phaseTimer = 0; g.spawnCount &= ~1; }
-    return;
-  }
-
-  if (g.phase === 2) {
-    // Brief pause (0.35s) before echo dash
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.35) { g.phase = 3; g.phaseTimer = 0; }
-    return;
-  }
-
-  if (g.phase === 3) {
-    // Beat 3: phantom echo dash — 2 smaller bullets offset vertically, 0.35s after primary (dmg 14)
-    if (!(g.spawnCount & 1)) {
-      g.spawnCount |= 1;
-      const cycleCount = (g.spawnCount >> 8) & 0xFF;
-      const dashRight = (cycleCount % 2 === 0);
-      const startX = dashRight ? BX - 14 : BX + BW + 14;
-      const vx = dashRight ? 620 * sm(g) : -620 * sm(g);
-      for (const yo of [-34, 34]) {
-        g.bullets.push({ id: nid(g), x: startX, y: BCY + yo, vx, vy: 0, r: 10, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 14 });
-      }
-    }
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.3) {
-      g.phase = 4; g.phaseTimer = 0; g.spawnCount &= ~1;
-      // Beat 4 setup: lingering horizontal danger strip at arena midpoint (punish window)
-      g.dangerZones.push({ id: nid(g), x: BX, y: BCY - 24, w: BW, h: 48, warnTimer: 0.25, activeTimer: 0.6, color: '#ff2244', dmg: 22 });
-    }
-    return;
-  }
-
-  // Beat 4: danger strip active — punish window then reset
-  g.phaseTimer += dt;
+// ─── Helper: tick and prune DangerZones ──────────────────────────────────────
+function tickDZ(g: GameData, dt: number) {
   g.dangerZones = g.dangerZones.filter(dz => {
     if (dz.warnTimer > 0) { dz.warnTimer -= dt; return true; }
-    dz.activeTimer -= dt;
-    return dz.activeTimer > 0;
+    dz.activeTimer -= dt; return dz.activeTimer > 0;
   });
-  if (g.phaseTimer >= 1.1) {
-    // Increment cycle count in upper byte
-    const newCycle = (((g.spawnCount >> 8) & 0xFF) + 1) & 0xFF;
-    g.phase = 0; g.phaseTimer = 0; g.spawnCount = newCycle << 8;
-    g.warnMarkers = []; g.dangerZones = [];
-  }
 }
 
-// Segment 2: Judgment Rain — 5 vertical column lanes, 1 safe (blue), rest danger (red);
-//   full column danger-zone panels warn, then bullets slam down. Each strike = 18.
-function doJudgmentRain(g: GameData, dt: number, boss: BossConf) {
+// ================================================================
+// Segment 1: SEVER LINE
+// The Warden draws a spectral blade across the arena in 3 passes at varying heights.
+// Each pass: 0.10s floor glow → 0.70s lethal strip + flanking bullets → 0.22s pause.
+// No warning text — geometry alone communicates the danger line.
+function doSeverLine(g: GameData, dt: number, boss: BossConf) {
+  // slashY positions spread across the arena (top/mid/low/very-low)
+  const slashYs = [BY + BH * 0.22, BY + BH * 0.54, BY + BH * 0.74];
+  const pass = g.spawnCount & 3; // 0-2
+
   if (g.phase === 0) {
-    // Warn: full-column danger zone panels (one blue safe lane, four red danger lanes)
+    // 0.10s startup: floor crack glow — boss leans, light blooms from slash point
     if (g.dangerZones.length === 0) {
-      const totalLanes = 5;
-      g.spawnCount = Math.floor(Math.random() * totalLanes); // safe lane index
-      const laneW = BW / (totalLanes + 1);
-      for (let i = 0; i < totalLanes; i++) {
-        const lx = BX + BW * ((i + 1) / (totalLanes + 1)) - laneW * 0.45;
-        const isSafe = (i === g.spawnCount);
-        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 1.3, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0, style: isSafe ? 'safe' : 'chevron-v' });
-      }
+      spawnFloorCrack(g, slashYs[pass], 24, '#ff1133', 0.10);
     }
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0 || dz.activeTimer > 0; });
-    if (g.phaseTimer >= 1.3) {
-      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.dangerZones = [];
-    }
+    g.phaseTimer += dt; tickDZ(g, dt);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.dangerZones = []; }
     return;
   }
 
   if (g.phase === 1) {
-    // Beat 2: first volley from 4 danger lanes (1.5s)
-    g.phaseTimer += dt;
-    g.spawnTimer -= dt;
-    const safeIdx1 = g.spawnCount & 0xFF; // lower byte = first safe lane
-    if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.09, g);
-      for (let i = 0; i < 5; i++) {
-        if (i === safeIdx1) continue;
-        const lx = BX + BW * ((i + 1) / 6);
-        g.bullets.push({ id: nid(g), x: lx + rand(-4, 4), y: BY - 10, vx: 0, vy: 230 * sm(g), r: 7, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
-      }
-    }
-    if (g.phaseTimer >= 1.5) {
-      g.phase = 2; g.phaseTimer = 0; g.dangerZones = [];
-      // Safe lane shifts by 1 position (wraps); brief re-warn (0.6s)
-      const newSafe = (safeIdx1 + 1) % 5;
-      g.spawnCount = (g.spawnCount & 0xFF00) | newSafe; // store new safe in lower byte
-      const laneW = BW / 6;
-      for (let i = 0; i < 5; i++) {
-        const isSafe = (i === newSafe);
-        const lx = BX + BW * ((i + 1) / 6) - laneW * 0.45;
-        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 0.6, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0, style: isSafe ? 'safe' : 'chevron-v' });
-      }
-    }
-    return;
-  }
-
-  if (g.phase === 2) {
-    // Beat 3: safe-lane-shift warn (0.6s)
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0 || dz.activeTimer > 0; });
-    if (g.phaseTimer >= 0.6) { g.phase = 3; g.phaseTimer = 0; g.dangerZones = []; g.spawnTimer = 0; }
-    return;
-  }
-
-  if (g.phase === 3) {
-    // Beat 4: second volley from shifted lanes + all-lane punish burst at end
-    g.phaseTimer += dt;
-    g.spawnTimer -= dt;
-    const safeIdx2 = g.spawnCount & 0xFF;
-    if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.09, g);
-      for (let i = 0; i < 5; i++) {
-        if (i === safeIdx2) continue;
-        const lx = BX + BW * ((i + 1) / 6);
-        g.bullets.push({ id: nid(g), x: lx + rand(-4, 4), y: BY - 10, vx: 0, vy: 235 * sm(g), r: 7, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
-      }
-    }
-    // Final punish: brief all-5-lane simultaneous burst
-    if (g.phaseTimer >= 1.4 && !((g.spawnCount >> 8) & 1)) {
-      g.spawnCount |= (1 << 8);
-      for (let i = 0; i < 5; i++) {
-        const lx = BX + BW * ((i + 1) / 6);
-        g.bullets.push({ id: nid(g), x: lx, y: BY - 10, vx: 0, vy: 280 * sm(g), r: 8, color: boss.color, shape: 'diamond', rot: 0, rotSpd: 5, frozen: false, dmg: 18 });
-      }
-    }
-    if (g.phaseTimer >= 1.9) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; g.warnMarkers = []; g.dangerZones = []; }
-    return;
-  }
-}
-
-// Segment 3: Soul Shatter Burst — boss charges a glowing core then fires
-//   16–20 sharp shard projectiles with 2–3 intentional gap corridors. Each shard = 12.
-function doSoulShatterBurst(g: GameData, dt: number, boss: BossConf) {
-  if (g.phase === 0) {
-    // Charge: bright pulsing core at boss center
-    if (g.warnMarkers.length === 0) {
-      for (let i = 0; i < 16; i++) {
-        const a = (i / 16) * Math.PI * 2;
-        const r = 14 + (i % 3) * 5;
-        g.warnMarkers.push({ id: nid(g), x: g.bossX + Math.cos(a) * r, y: g.bossY + Math.sin(a) * r, angle: a, r: 5, color: i % 2 === 0 ? boss.color : '#ffffff', timer: 1.2, maxTimer: 1.2 });
-      }
-    }
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
-    return;
-  }
-
-  if (g.phase === 1) {
-    // Beat 2: primary radial shard burst — 20 shards, ONE wide gap corridor (readable safe lane)
-    // Gap rotates each cycle so player can't memorise a fixed angle
-    const gapBase = g.spawnCount * (Math.PI * 0.7); // single gap center; rotates by ~40deg each cycle
-    const gapWidth = Math.PI * 0.48; // ~86deg arc — wide enough to clearly dodge through
-    for (let i = 0; i < 20; i++) {
-      const a = (i / 20) * Math.PI * 2;
-      let diff = Math.abs(a - gapBase) % (Math.PI * 2);
-      if (diff > Math.PI) diff = Math.PI * 2 - diff;
-      if (diff < gapWidth) continue;
-      const spd = (140 + (i % 3) * 20) * sm(g);
-      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 5, color: i % 2 === 0 ? boss.color : '#ffffff88', shape: 'diamond', rot: a, rotSpd: 6, frozen: false, dmg: 12 });
-    }
-    g.phase = 2; g.phaseTimer = 0;
-    return;
-  }
-
-  if (g.phase === 2) {
-    // Beat 3: pause (0.55s) — let primary shards travel before echo correction
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.55) { g.phase = 3; g.phaseTimer = 0; }
-    return;
-  }
-
-  if (g.phase === 3) {
-    // Beat 4: echo burst — ONE rotated gap (π opposite the primary) forces player correction
-    const echoGapBase = g.spawnCount * (Math.PI * 0.7) + Math.PI; // exact opposite of primary gap
-    const echoGapW = Math.PI * 0.44;
-    for (let i = 0; i < 16; i++) {
-      const a = (i / 16) * Math.PI * 2;
-      let diff = Math.abs(a - echoGapBase) % (Math.PI * 2);
-      if (diff > Math.PI) diff = Math.PI * 2 - diff;
-      if (diff < echoGapW) continue;
-      const spd = (110 + (i % 2) * 18) * sm(g);
-      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 12 });
-    }
-    g.phase = 4; g.phaseTimer = 0; g.spawnCount++;
-    return;
-  }
-
-  if (g.phase === 4) {
-    // Beat 5: light inward return shards — one-shot volley from 8 arena edge/corner points (dmg 12)
-    //   Punishes lazy drift away from center after dodging the outward bursts
-    //   One-shot flag: bit 8 of g.spawnCount (lower byte = cycle counter, bit 8 = phase-4 fired)
+    // Active slash: lethal strip + flanking projectiles erupt from both sides
     if (!(g.spawnCount & 0x100)) {
-      g.spawnCount |= 0x100; // mark fired; will be cleared in recovery
-      // 4 arena corners converging inward
-      for (const [cx, cy] of [[BX, BY], [BX + BW, BY], [BX, BY + BH], [BX + BW, BY + BH]] as [number, number][]) {
-        const a = Math.atan2(BCY - cy, BCX - cx) + rand(-0.25, 0.25);
-        g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 90 * sm(g), vy: Math.sin(a) * 90 * sm(g), r: 4, color: boss.color, shape: 'diamond', rot: a, rotSpd: 3, frozen: false, dmg: 12 });
-      }
-      // 4 edge mid-points converging inward
-      for (const [ex, ey] of [[BX, BCY], [BX + BW, BCY], [BCX, BY], [BCX, BY + BH]] as [number, number][]) {
-        const a = Math.atan2(BCY - ey, BCX - ex) + rand(-0.15, 0.15);
-        g.bullets.push({ id: nid(g), x: ex, y: ey, vx: Math.cos(a) * 80 * sm(g), vy: Math.sin(a) * 80 * sm(g), r: 3, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 12 });
-      }
-    }
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.phase = 5; g.phaseTimer = 0; }
-    return;
-  }
-
-  // Phase 5: recovery (0.9s) then repeat
-  g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.9) {
-    g.phase = 0; g.phaseTimer = 0; g.warnMarkers = [];
-    g.spawnCount &= 0xFF; // clear bit-8 flag; keep lower-byte cycle counter
-  }
-}
-
-// Segment 4: False Mercy — 5 vertical lane zones appear; multiple look safe.
-//   Beat 2: bait lane pulses bright hot pink (deceptive tell). Beat 3: true safe lane
-//   shown with delayed slower/dimmer blue pulse. Beat 4: all false lanes collapse (dmg 24).
-//   Beat 5: short follow-up punish (panic correction punish).
-function doFalseMercy(g: GameData, dt: number, boss: BossConf) {
-  const laneW = BW / 6;
-  const laneZones = (baitIdx: number, safeIdx: number, warnT: number) => {
-    const zones = [];
-    for (let i = 0; i < 5; i++) {
-      const lx = BX + BW * ((i + 1) / 6) - laneW * 0.45;
-      const col = i === baitIdx ? '#ff2244' : i === safeIdx ? '#224488' : '#ffaa22';
-      zones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: warnT, activeTimer: 0, color: col, dmg: 0 });
-    }
-    return zones;
-  };
-
-  if (g.phase === 0) {
-    // Beat 1 (0–0.8s): all 5 lanes neutral orange — no tell yet
-    if (g.dangerZones.length === 0) {
-      const baitIdx = Math.floor(Math.random() * 5);
-      let safeIdx = Math.floor(Math.random() * 5);
-      while (safeIdx === baitIdx) safeIdx = Math.floor(Math.random() * 5);
-      // store bait in low byte, safe in next byte
-      g.spawnCount = baitIdx | (safeIdx << 8);
-      for (let i = 0; i < 5; i++) {
-        const lx = BX + BW * ((i + 1) / 6) - laneW * 0.45;
-        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 2.0, activeTimer: 0, color: '#ffaa22', dmg: 0 });
+      g.spawnCount |= 0x100;
+      const sy = slashYs[pass];
+      g.dangerZones.push({ id: nid(g), x: BX, y: sy - 16, w: BW, h: 32, warnTimer: 0, activeTimer: 0.70, color: '#ff1133', dmg: 22 });
+      // 5 flanking bullets from each side at staggered Y offsets
+      for (let k = 0; k < 5; k++) {
+        const yo = (k - 2) * 11;
+        const spd = (300 + k * 18) * sm(g);
+        g.bullets.push({ id: nid(g), x: BX - 10, y: sy + yo, vx: spd, vy: rand(-12, 12), r: 7, color: boss.color, shape: 'diamond', rot: 0, rotSpd: 5, frozen: false, dmg: 22 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 10, y: sy + yo, vx: -spd, vy: rand(-12, 12), r: 7, color: boss.color, shape: 'diamond', rot: 0, rotSpd: -5, frozen: false, dmg: 22 });
       }
     }
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0; });
-    if (g.phaseTimer >= 0.8) {
-      // Beat 2 start: bait lane goes hot pink, rest stay neutral
-      g.phase = 1; g.phaseTimer = 0; g.dangerZones = [];
-      const baitIdx = g.spawnCount & 0xFF;
-      const safeIdx = (g.spawnCount >> 8) & 0xFF;
-      g.dangerZones = laneZones(baitIdx, -1, 2.0); // safeIdx=-1 means no blue yet
-      void safeIdx;
-    }
-    return;
-  }
-
-  if (g.phase === 1) {
-    // Beat 2 (0.6s): bait = bright hot pink, rest = neutral orange — looks deceptively safe
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0; });
-    if (g.phaseTimer >= 0.6) {
-      // Beat 3: true safe lane reveals with delayed dim blue pulse
+    g.phaseTimer += dt; tickDZ(g, dt);
+    if (g.phaseTimer >= 0.88) {
       g.phase = 2; g.phaseTimer = 0; g.dangerZones = [];
-      const baitIdx = g.spawnCount & 0xFF;
-      const safeIdx = (g.spawnCount >> 8) & 0xFF;
-      g.dangerZones = laneZones(baitIdx, safeIdx, 2.0);
+      g.spawnCount = (g.spawnCount & ~0x100) & ~3; // clear spawned flag & pass bits
+      g.spawnCount |= pass; // preserve pass number before increment
     }
     return;
   }
 
   if (g.phase === 2) {
-    // Beat 3 (0.8s): bait = hot pink, safe = dim blue, rest = neutral — true tell visible
+    // 0.22s inter-pass pause — bullets clear naturally
     g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0; });
-    if (g.phaseTimer >= 0.8) {
-      // Beat 4: false lanes collapse simultaneously (dmg 24)
-      g.phase = 3; g.phaseTimer = 0; g.dangerZones = [];
-      const safeIdx = (g.spawnCount >> 8) & 0xFF;
-      for (let i = 0; i < 5; i++) {
-        if (i === safeIdx) continue;
-        const lx = BX + BW * ((i + 1) / 6) - laneW * 0.45;
-        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: -1, activeTimer: 0.75, color: '#ff2244', dmg: 24 });
+    if (g.phaseTimer >= 0.22) {
+      const nextPass = (pass + 1);
+      if (nextPass >= 3) {
+        // All 3 passes done; reset for next full cycle
+        g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0;
+      } else {
+        g.spawnCount = (g.spawnCount & ~3) | nextPass;
+        g.phase = 0; g.phaseTimer = 0;
       }
     }
     return;
   }
-
-  if (g.phase === 3) {
-    // Beat 4: false lanes active (0.75s)
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.activeTimer -= dt; return dz.activeTimer > 0; });
-    if (g.phaseTimer >= 0.9) {
-      // Beat 5: short follow-up punish (3 aimed bullets — panic correction punish)
-      g.phase = 4; g.phaseTimer = 0; g.dangerZones = [];
-      const a = Math.atan2(g.player.y - g.bossY, g.player.x - g.bossX);
-      for (let i = -1; i <= 1; i++) {
-        g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a + i * 0.22) * 190 * sm(g), vy: Math.sin(a + i * 0.22) * 190 * sm(g), r: 6, color: boss.color, shape: 'diamond', rot: 0, rotSpd: 5, frozen: false, dmg: 18 });
-      }
-    }
-    return;
-  }
-
-  // Beat 5: recovery (0.8s) then loop
-  g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.8) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; g.dangerZones = []; }
-  void boss;
 }
 
-// Segment 5: Rift Cleave — 6-beat authored sequence: primary diagonal warn, primary fires,
-//   crossing diagonal warn (separate phase), crossing fires, intersection mini-burst, recovery.
-//   Primary cleave = dmg 22, crossing = dmg 30, intersection burst = dmg 14.
-function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
-  // g.spawnCount encoding: lower byte (0xFF) = cycle index; bit 8 (0x100) = phase-3 rupture spawned flag
-  const angles = [Math.PI / 4, -Math.PI / 4, Math.PI * 3 / 4, -Math.PI * 3 / 4];
-  const cycleIdx = g.spawnCount & 0xFF;
+// ================================================================
+// Segment 2: CATHEDRAL DROP
+// A cascade of shards rains from above. A ~90px wide safe gap drifts
+// horizontally across the arena — player must follow the moving gap.
+// Gap direction reverses every ~2.5s; no warning text.
+function doCathedralDrop(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // 0.10s startup: brief dim glow at top of arena (no bullets yet)
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.10) {
+      g.phase = 1; g.phaseTimer = 0;
+      g.spawnCount = 0; g.spawnTimer = 0;
+      // gap position stored as (gapX * 10) in bits 0-13, direction in bit 14
+      const startGapX = BCX;
+      g.spawnCount = (Math.round(startGapX) & 0x3FFF) | 0; // bit14=0 → moving right
+    }
+    return;
+  }
+
+  g.phaseTimer += dt;
+  g.spawnTimer -= dt;
+
+  // Decode gap state
+  const gapX  = (g.spawnCount & 0x3FFF);
+  const goRight = !((g.spawnCount >> 14) & 1);
+  const GAP_W = 88;
+  const GAP_SPD = 52; // px/s
+
+  // Move gap
+  let newGapX = gapX + (goRight ? 1 : -1) * GAP_SPD * dt;
+  let newDir = goRight;
+  if (newGapX < BX + GAP_W * 0.6) { newGapX = BX + GAP_W * 0.6; newDir = true; }
+  if (newGapX > BX + BW - GAP_W * 0.6) { newGapX = BX + BW - GAP_W * 0.6; newDir = false; }
+  g.spawnCount = (Math.round(newGapX) & 0x3FFF) | (newDir ? 0 : 0x4000);
+
+  // Spawn bullets — skip the gap column
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = st(0.075, g);
+    const colW = 26;
+    for (let cx = BX + colW / 2; cx < BX + BW; cx += colW) {
+      // Check if this column is inside the safe gap
+      if (Math.abs(cx - newGapX) < GAP_W / 2) continue;
+      const spd = (195 + rand(-15, 15)) * sm(g);
+      g.bullets.push({ id: nid(g), x: cx + rand(-4, 4), y: BY - 10, vx: rand(-10, 10), vy: spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+    }
+  }
+
+  // Every 2.5s a burst-shift: 16 wide bullets from top to punish staying still
+  if (g.phaseTimer >= 2.5 && !((g.spawnCount >> 15) & 1)) {
+    g.spawnCount |= 0x8000;
+    for (let i = 0; i < 8; i++) {
+      const bx = BX + (i / 7) * BW;
+      if (Math.abs(bx - newGapX) < GAP_W * 0.7) continue;
+      g.bullets.push({ id: nid(g), x: bx, y: BY - 10, vx: 0, vy: 280 * sm(g), r: 9, color: boss.color2, shape: 'square', rot: 0, rotSpd: 3, frozen: false, dmg: 18 });
+    }
+  }
+  if (g.phaseTimer >= 3.0) {
+    g.phaseTimer = 0;
+    g.spawnCount &= ~0x8000; // clear burst-shift flag, keep gap state
+  }
+}
+
+// ================================================================
+// Segment 3: CROWN BLOOM
+// Soul-rings expand from the Warden. Each ring has one gap arc.
+// Rings fire in bursts of 3; gap angle rotates each burst so player
+// must continuously reposition. No text — gap is a visible arc break.
+function doCrownBloom(g: GameData, dt: number, boss: BossConf) {
+  const WX = BCX, WY = BY - 50; // Warden anchor
 
   if (g.phase === 0) {
-    // Beat 1: primary diagonal warn (1.1s)
-    if (g.diagWarns.length === 0) {
-      const primaryAngle = angles[cycleIdx % angles.length];
-      const cx = BCX + rand(-35, 35), cy = BCY + rand(-20, 20);
-      const L = Math.max(BW, BH) * 1.35;
-      g.diagWarns.push({ id: nid(g), x1: cx - Math.cos(primaryAngle) * L, y1: cy - Math.sin(primaryAngle) * L, x2: cx + Math.cos(primaryAngle) * L, y2: cy + Math.sin(primaryAngle) * L, width: 22, timer: 1.1, color: '#ff4400', fake: false });
+    // 0.10s charge pulse — warnMarkers orbit boss
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: WX + Math.cos(a) * 22, y: WY + Math.sin(a) * 22, angle: a, r: 4, color: boss.color, timer: 0.10, maxTimer: 0.10 });
+      }
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.1) {
-      for (const dw of g.diagWarns) {
-        g.diagLasers.push({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 0.55, color: '#ff6600', dmg: 22 });
-      }
-      g.diagWarns = [];
-      g.phase = 1; g.phaseTimer = 0;
-    }
+    g.warnMarkers.forEach(wm => { wm.timer -= dt; });
+    g.warnMarkers = g.warnMarkers.filter(wm => wm.timer > 0);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
     return;
   }
 
   if (g.phase === 1) {
-    // Beat 2: primary cleave active (0.55s)
+    // Burst of 3 rings; each ring has one gap arc that shifts per burst
+    if (!(g.spawnCount & 1)) {
+      g.spawnCount |= 1;
+      const burst = (g.spawnCount >> 4) & 0xF; // burst counter 0,1,2…
+      // Fire 3 staggered rings
+      for (let ri = 0; ri < 3; ri++) {
+        const gapAngle = ((burst * Math.PI * 0.62) + ri * Math.PI * 0.18) % (Math.PI * 2);
+        const spd = (90 + ri * 22) * sm(g);
+        g.rings.push({ id: nid(g), cx: WX, cy: WY, r: 10 + ri * 8, speed: spd, thick: 9, gaps: [gapAngle], gapSz: 0.55, color: ri === 0 ? boss.color : ri === 1 ? boss.color2 : '#ff2244' });
+      }
+    }
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.55) {
-      g.diagLasers = [];
-      const crossAngle = angles[(cycleIdx + 2) % angles.length];
-      const cx2 = BCX + rand(-30, 30), cy2 = BCY + rand(-18, 18);
-      const L2 = Math.max(BW, BH) * 1.35;
-      g.diagWarns.push({ id: nid(g), x1: cx2 - Math.cos(crossAngle) * L2, y1: cy2 - Math.sin(crossAngle) * L2, x2: cx2 + Math.cos(crossAngle) * L2, y2: cy2 + Math.sin(crossAngle) * L2, width: 20, timer: 0.5, color: '#ff2200', fake: false });
+      g.phase = 2; g.phaseTimer = 0; g.spawnCount = (g.spawnCount & ~1) | ((((g.spawnCount >> 4) & 0xF) + 1) << 4);
+    }
+    return;
+  }
+
+  if (g.phase === 2) {
+    // 0.40s pause between bursts — let rings travel, pick up gaps visually
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.40) { g.phase = 0; g.phaseTimer = 0; }
+    return;
+  }
+}
+
+// ================================================================
+// Segment 4: TRIAL CORRIDOR
+// The arena fractures: 2 red danger columns + 1 wide open gap lane.
+// Bullets rain inside the danger columns. The open lane shifts after
+// each volley. Pure geometry — gap = safe, red column = lethal rain.
+function doTrialCorridor(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // 0.10s startup: danger columns flash once (no bullets yet)
+    if (g.dangerZones.length === 0) {
+      const safeIdx = g.spawnCount & 3; // 0=left, 1=center, 2=right
+      spawnDangerColumns(g, safeIdx, 0.10, boss);
+    }
+    g.phaseTimer += dt; tickDZ(g, dt);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.dangerZones = []; g.spawnTimer = 0; }
+    return;
+  }
+
+  if (g.phase === 1) {
+    // 1.6s rain phase: bullets fall in the two danger columns
+    g.phaseTimer += dt; g.spawnTimer -= dt;
+    const safeIdx = g.spawnCount & 3;
+    const laneW = BW / 3;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.065, g);
+      for (let col = 0; col < 3; col++) {
+        if (col === safeIdx) continue;
+        const cx = BX + laneW * col + laneW / 2;
+        g.bullets.push({ id: nid(g), x: cx + rand(-14, 14), y: BY - 10, vx: rand(-8, 8), vy: (185 + rand(-20, 20)) * sm(g), r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+      }
+    }
+    if (g.phaseTimer >= 1.6) {
+      // Shift safe lane cyclically
+      const nextSafe = ((safeIdx + 1) % 3);
+      g.spawnCount = (g.spawnCount & ~3) | nextSafe;
       g.phase = 2; g.phaseTimer = 0;
     }
     return;
   }
 
   if (g.phase === 2) {
-    // Beat 3: crossing warn (0.5s)
+    // 0.22s inter-shift pause then show new columns for 0.10s
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.5) {
-      for (const dw of g.diagWarns) {
-        g.diagLasers.push({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 0.55, color: '#ff2200', dmg: 30 });
-      }
-      g.diagWarns = [];
-      g.phase = 3; g.phaseTimer = 0;
-    }
+    if (g.phaseTimer >= 0.22) { g.phase = 0; g.phaseTimer = 0; g.dangerZones = []; }
     return;
-  }
-
-  if (g.phase === 3) {
-    // Beat 4: crossing cleave active (0.55s) — warn edge rupture zones using bit-8 flag
-    g.phaseTimer += dt;
-    if (!(g.spawnCount & 0x100)) {
-      // First frame of phase 3: spawn edge rupture warnings (bit 8 = "rupture spawned" flag)
-      g.spawnCount |= 0x100;
-      const rupW = BW * 0.3, rupH = 18;
-      g.dangerZones.push({ id: nid(g), x: BX + BW * 0.1, y: BY,           w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
-      g.dangerZones.push({ id: nid(g), x: BX + BW * 0.6, y: BY + BH - rupH, w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
-    }
-    if (g.phaseTimer >= 0.55) {
-      g.diagLasers = [];
-      for (const dz of g.dangerZones) { dz.warnTimer = -1; dz.activeTimer = 0.5; dz.dmg = 18; }
-      g.phase = 4; g.phaseTimer = 0;
-      // Clear bit-8 flag; preserve cycle index in lower byte
-      g.spawnCount &= 0xFF;
-    }
-    return;
-  }
-
-  if (g.phase === 4) {
-    // Beat 5: edge rupture active (0.5s)
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => { dz.activeTimer -= dt; return dz.activeTimer > 0; });
-    if (g.phaseTimer >= 0.7) { g.phase = 5; g.phaseTimer = 0; g.dangerZones = []; }
-    return;
-  }
-
-  // Beat 6: recovery (0.7s) — increment cycle index in lower byte only
-  g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.7) {
-    g.phase = 0; g.phaseTimer = 0;
-    g.spawnCount = ((cycleIdx + 1) & 0xFF); // increment cycle; bit-8 flag already cleared
-    g.diagWarns = []; g.diagLasers = []; g.dangerZones = [];
   }
 }
 
-// Segment 6: Bone Cage Snap — inner cage of walls snaps into place;
-//   2–3 internal burst zones detonate within. Wall = dmg 14, burst = dmg 20.
-function doBoneCageSnap(g: GameData, dt: number, boss: BossConf) {
+function spawnDangerColumns(g: GameData, safeIdx: number, warnT: number, boss: BossConf) {
+  const laneW = BW / 3;
+  for (let col = 0; col < 3; col++) {
+    if (col === safeIdx) continue;
+    const lx = BX + laneW * col;
+    g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW, h: BH, warnTimer: warnT, activeTimer: 0, color: boss.color, dmg: 0 });
+  }
+}
+
+// ================================================================
+// Segment 5: JUDICATOR CROSS
+// Two diagonal lasers lock in from opposite corners, forming an X.
+// Boss posture telegraphs which pair fires. 3–4 crosses per cycle.
+// DiagWarn (glow) → DiagLaser (active) — no text.
+function doJudicatorCross(g: GameData, dt: number, boss: BossConf) {
+  const CROSS_VARIANTS: [number, number, number, number][] = [
+    // [x1,y1, x2,y2] for first diag; second diag is mirrored
+    [BX,     BY,     BX+BW, BY+BH],
+    [BX+BW,  BY,     BX,    BY+BH],
+    [BX,     BCY,    BX+BW, BCY],
+    [BCX,    BY,     BCX,   BY+BH],
+  ];
+
   if (g.phase === 0) {
-    // Warn: edge markers show cage forming
-    if (g.warnMarkers.length === 0) {
-      for (let x = BX; x <= BX + BW; x += 28) {
-        g.warnMarkers.push({ id: nid(g), x, y: BY, angle: 0, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 });
-        g.warnMarkers.push({ id: nid(g), x, y: BY + BH, angle: 0, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 });
-      }
-      for (let y = BY; y <= BY + BH; y += 28) {
-        g.warnMarkers.push({ id: nid(g), x: BX, y, angle: 0, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 });
-        g.warnMarkers.push({ id: nid(g), x: BX + BW, y, angle: 0, r: 5, color: boss.color, timer: 1.0, maxTimer: 1.0 });
-      }
+    // 0.10s: diagonal warn lines appear (faint glow — no hitbox)
+    if (g.diagWarns.length === 0) {
+      const vi = (g.spawnCount >> 4) & 3;
+      const v  = CROSS_VARIANTS[vi % 2]; // use first two variants for clean diagonals
+      g.diagWarns.push({ id: nid(g), x1: BX, y1: BY, x2: BX+BW, y2: BY+BH, width: 6, timer: 0.10, color: boss.color, fake: false });
+      g.diagWarns.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX, y2: BY+BH, width: 6, timer: 0.10, color: boss.color2, fake: false });
+      void v;
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) {
-      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
-      // Cage snaps around the PLAYER ZONE (arena center area, not full arena border)
-      // Cage center = BCX, BCY; half-extents are ~35% of arena dims
-      const cHW = Math.round(BW * 0.36); // cage half-width ≈ 130
-      const cHH = Math.round(BH * 0.36); // cage half-height ≈ 103
-      const wallT = 20; // cage wall thickness
-      const cx = BCX - cHW, cy = BCY - cHH;
-      const cw = cHW * 2, ch = cHH * 2;
-      g.dangerZones = [
-        { id: nid(g), x: cx,           y: cy,           w: cw,   h: wallT, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // top wall
-        { id: nid(g), x: cx,           y: cy + ch - wallT, w: cw, h: wallT, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // bottom wall
-        { id: nid(g), x: cx,           y: cy + wallT,   w: wallT, h: ch - wallT * 2, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // left wall
-        { id: nid(g), x: cx + cw - wallT, y: cy + wallT, w: wallT, h: ch - wallT * 2, warnTimer: -1, activeTimer: 1.8, color: boss.color, dmg: 14 }, // right wall
-      ];
-    }
+    g.diagWarns.forEach(dw => { dw.timer -= dt; });
+    g.diagWarns = g.diagWarns.filter(dw => dw.timer > 0);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.diagWarns = []; }
     return;
   }
 
   if (g.phase === 1) {
-    // Beat 2: cage walls snap shut (warnTimer=0.35 flash, then activeTimer=1.8 dmg)
-    //         + spiral bullets during cage lock
-    g.phaseTimer += dt;
-    g.dangerZones = g.dangerZones.filter(dz => {
-      if (dz.warnTimer > 0) { dz.warnTimer -= dt; return true; }
-      dz.activeTimer -= dt;
-      return dz.activeTimer > 0;
-    });
-    g.spawnTimer -= dt;
-    if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.13, g);
-      const angle = g.phaseTimer * 4.2;
-      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(angle) * 100 * sm(g), vy: Math.sin(angle) * 100 * sm(g), r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 2, frozen: false, dmg: 20 });
-    }
-    // Beat 3: first internal burst zones — positioned INSIDE the cage (cage-relative coords)
-    // Cage inner area: center=BCX,BCY, inner half-extents≈110×83
-    if (g.phaseTimer >= 0.45 && !(g.spawnCount & 1)) {
+    // Active cross: two diagonal lasers fire (0.75s)
+    if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      const cIW = BW * 0.36 - 20, cIH = BH * 0.36 - 20; // cage inner half-extents
-      for (const [fx, fy] of [[-0.5, -0.5], [0.3, 0.0], [-0.5, 0.45]]) {
-        g.dangerZones.push({ id: nid(g), x: BCX + fx * cIW * 2 - 28, y: BCY + fy * cIH * 2 - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff2244', dmg: 20 });
-      }
-    }
-    // Beat 4 (safe-pocket SHIFTS): burst positions shift to OPPOSITE quadrant inside cage
-    if (g.phaseTimer >= 1.2 && !(g.spawnCount & 2)) {
-      g.spawnCount |= 2;
-      const cIW = BW * 0.36 - 20, cIH = BH * 0.36 - 20;
-      for (const [fx, fy] of [[0.3, 0.45], [-0.5, 0.0], [0.3, -0.5]]) {
-        g.dangerZones.push({ id: nid(g), x: BCX + fx * cIW * 2 - 28, y: BCY + fy * cIH * 2 - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff4400', dmg: 20 });
-      }
-    }
-    if (g.phaseTimer >= 2.3) {
-      g.phase = 2; g.phaseTimer = 0; g.dangerZones = []; g.spawnCount = 0;
-    }
-    return;
-  }
-
-  // Beat 5: cage dissolves — brief safety window then recovery
-  g.phaseTimer += dt;
-  if (g.phaseTimer >= 1.0) { g.phase = 0; g.phaseTimer = 0; }
-}
-
-// Segment 7: Final Spiral — 3–4 rotating arms sweep arena with visible gap corridor;
-//   after spiral section, a collapse burst fires from center.
-//   Body = dmg 18, collapse burst = dmg 28.
-function doFinalSpiral(g: GameData, dt: number, boss: BossConf) {
-  if (g.phase === 0) {
-    // Charge warn: expanding rings of markers
-    if (g.warnMarkers.length === 0) {
-      for (let ring = 0; ring < 3; ring++) {
-        for (let i = 0; i < 12; i++) {
-          const a = (i / 12) * Math.PI * 2;
-          const r = 18 + ring * 14;
-          g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * r, y: BCY + Math.sin(a) * r, angle: a, r: 5, color: ring === 0 ? boss.color : ring === 1 ? boss.color2 : '#ff2244', timer: 1.2, maxTimer: 1.2 });
-        }
-      }
+      g.diagLasers.push({ id: nid(g), x1: BX, y1: BY, x2: BX+BW, y2: BY+BH, width: 8, timer: 0.75, color: boss.color, dmg: 22 });
+      g.diagLasers.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX, y2: BY+BH, width: 8, timer: 0.75, color: boss.color2, dmg: 22 });
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; g.spawnCount = 0; }
-    return;
-  }
-
-  if (g.phase === 1) {
-    // Spiral phase structured as 4 sub-beats via phaseTimer:
-    //   Beat 2 (0–4s): 3 arms, slow rotation (gap = 1 arm width, moves clockwise)
-    //   Beat 3 (4s):   warn ring signals upcoming speed/arm change
-    //   Beat 4 (4–7s): 5 arms, faster rotation (gap narrows)
-    //   Beat 5 (7s):   warn flash signals DIRECTION REVERSAL (compression)
-    //   Beat 5b(7–9s): 5 arms, REVERSED rotation (counter-clockwise) + faster
-    //   → exit to collapse at 9s
-    g.phaseTimer += dt;
-    g.spawnTimer -= dt;
-
-    const t = g.phaseTimer;
-    const isMidShift    = t >= 4.0;
-    const isDirectionRev = t >= 7.0;
-
-    // Beat 3 signal: arm-count shift warn (once at t=4s)
-    if (isMidShift && !(g.spawnCount & 0x4000)) {
-      g.spawnCount |= 0x4000;
-      for (let i = 0; i < 16; i++) {
-        const a = (i / 16) * Math.PI * 2;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 28, y: BCY + Math.sin(a) * 28, angle: a, r: 5, color: '#ffaa00', timer: 0.45, maxTimer: 0.45 });
-      }
-    }
-    // Beat 5 signal: direction-reversal warn (once at t=7s)
-    if (isDirectionRev && !(g.spawnCount & 0x8000)) {
-      g.spawnCount |= 0x8000;
-      for (let i = 0; i < 20; i++) {
-        const a = (i / 20) * Math.PI * 2;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 38, y: BCY + Math.sin(a) * 38, angle: a, r: 6, color: '#ff2244', timer: 0.4, maxTimer: 0.4 });
-      }
-    }
-    g.warnMarkers = g.warnMarkers.filter(wm => { wm.timer -= dt; return wm.timer > 0; });
-
-    const armCount  = isMidShift ? 5 : 3;
-    const rampup    = Math.min(t / 9.0, 1.0);
-    const interval  = st(Math.max(0.05, isMidShift ? 0.065 - rampup * 0.015 : 0.1 - rampup * 0.02), g);
-    const spiralSpd = (125 + rampup * 60) * sm(g);
-    // Rotation speed — reverses direction at t≥7s (negative = counter-clockwise)
-    const rotDir    = isDirectionRev ? -1 : 1;
-    const rotSpeed  = rotDir * ((isMidShift ? 3.6 : 2.4) + rampup * 0.9);
-    // Gap: skip 1 arm index; gap corridor angle offset shifts at direction reversal
-    const gapOffset = isDirectionRev ? Math.PI * 0.6 : 0;
-
-    if (g.spawnTimer <= 0) {
-      g.spawnTimer = interval;
-      const frameCount = (g.spawnCount & 0x3FFF);
-      const baseAngle  = t * rotSpeed + gapOffset;
-      for (let arm = 0; arm < armCount; arm++) {
-        if (arm === armCount - 1 && frameCount % 4 !== 0) continue; // visible gap every 4th frame
-        const a = baseAngle + (arm / armCount) * Math.PI * 2;
-        const col = arm === 0 ? boss.color : arm === 1 ? boss.color2 : arm === 2 ? '#ff2244' : arm === 3 ? '#ffffff66' : boss.color;
-        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spiralSpd, vy: Math.sin(a) * spiralSpd, r: 5, color: col, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
-      }
-      g.spawnCount = (g.spawnCount & 0xC000) | ((frameCount + 1) & 0x3FFF);
-    }
-
-    // Beat 6: wind-up collapse warn at t=9s
-    if (t >= 9.0) {
-      g.phase = 2; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0;
-      for (let i = 0; i < 24; i++) {
-        const a = (i / 24) * Math.PI * 2;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 28, y: BCY + Math.sin(a) * 28, angle: a, r: 8, color: '#ff2244', timer: 0.8, maxTimer: 0.8 });
-      }
+    g.diagLasers = g.diagLasers.filter(dl => { dl.timer -= dt; return dl.timer > 0; });
+    if (g.phaseTimer >= 0.92) {
+      g.phase = 2; g.phaseTimer = 0; g.diagLasers = [];
+      g.spawnCount = (g.spawnCount & ~1) | (((( g.spawnCount >> 4) & 0xF) + 1) << 4);
     }
     return;
   }
 
   if (g.phase === 2) {
-    // Collapse burst wind-up
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.8) {
-      g.warnMarkers = [];
-      // 32-way collapse burst (dmg 28)
-      for (let i = 0; i < 32; i++) {
-        const a = (i / 32) * Math.PI * 2;
-        const spd = (165 + (i % 4) * 18) * sm(g);
-        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 7, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 28 });
+    // 0.28s recovery — boss adjusts posture for next cross
+    // Also fire 8 radial shards from boss to punish staying near center
+    if (!(g.spawnCount & 2)) {
+      g.spawnCount |= 2;
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 130 * sm(g), vy: Math.sin(a) * 130 * sm(g), r: 5, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 22 });
       }
-      g.phase = 3; g.phaseTimer = 0;
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.28) { g.phase = 0; g.phaseTimer = 0; g.spawnCount &= ~2; }
+    return;
+  }
+}
+
+// ================================================================
+// Segment 6: PRISON SEAL
+// A ring of 20 soul-shards spawns at the arena perimeter and contracts
+// inward. The ring has 2 deliberate arc-gaps (~60° each) — player must
+// position inside a gap as the ring closes. Ring repeats 3–4x per wave.
+function doPrisonSeal(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // 0.10s: boss raises both gauntlets — ring pulse appear at arena edge
+    if (g.warnMarkers.length === 0) {
+      const GAP_ANG_1 = Math.PI * 0.4;
+      const GAP_ANG_2 = Math.PI * 1.4;
+      for (let i = 0; i < 20; i++) {
+        const a = (i / 20) * Math.PI * 2;
+        const nearGap = Math.abs(angleDiff(a, GAP_ANG_1)) < 0.55 || Math.abs(angleDiff(a, GAP_ANG_2)) < 0.55;
+        if (nearGap) continue;
+        const px = BCX + Math.cos(a) * 130;
+        const py = BCY + Math.sin(a) * 90;
+        g.warnMarkers.push({ id: nid(g), x: px, y: py, angle: a, r: 5, color: boss.color, timer: 0.10, maxTimer: 0.10 });
+      }
+    }
+    g.phaseTimer += dt;
+    g.warnMarkers.forEach(wm => { wm.timer -= dt; });
+    g.warnMarkers = g.warnMarkers.filter(wm => wm.timer > 0);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; }
+    return;
+  }
+
+  if (g.phase === 1) {
+    // Contracting ring: spawn perimeter bullets that move inward
+    if (!(g.spawnCount & 0x100)) {
+      g.spawnCount |= 0x100;
+      const ringCount = g.spawnCount & 3; // 0-3 rings fired so far
+      // Rotate gap angles each ring so player can't stay static
+      const gapRot = ringCount * Math.PI * 0.38;
+      const GAP_ANG_1 = (Math.PI * 0.4 + gapRot) % (Math.PI * 2);
+      const GAP_ANG_2 = (Math.PI * 1.4 + gapRot) % (Math.PI * 2);
+      for (let i = 0; i < 22; i++) {
+        const a = (i / 22) * Math.PI * 2;
+        if (Math.abs(angleDiff(a, GAP_ANG_1)) < 0.52 || Math.abs(angleDiff(a, GAP_ANG_2)) < 0.52) continue;
+        const startR = 145 + rand(-8, 8);
+        const startX = BCX + Math.cos(a) * startR;
+        const startY = BCY + Math.sin(a) * startR * 0.72;
+        // Inward velocity
+        const spd = (115 + rand(-15, 15)) * sm(g);
+        const vx = (BCX - startX) / startR * spd;
+        const vy = (BCY - startY) / (startR * 0.72) * spd;
+        g.bullets.push({ id: nid(g), x: startX, y: startY, vx, vy, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 16 });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.1) {
+      // Advance ring count, clear spawned flag
+      const rc = (g.spawnCount & 3) + 1;
+      g.spawnCount = (g.spawnCount & ~0x1FF) | (rc & 3);
+      g.phase = 2; g.phaseTimer = 0;
     }
     return;
   }
 
-  // Phase 3: brief pause then repeat spiral
-  g.phaseTimer += dt;
-  if (g.phaseTimer >= 1.5) { g.phase = 0; g.phaseTimer = 0; g.warnMarkers = []; }
+  if (g.phase === 2) {
+    // 0.30s inter-ring pause
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.30) { g.phase = 0; g.phaseTimer = 0; }
+    return;
+  }
+}
+
+// ================================================================
+// Segment 7: ROSETTE SPIRAL
+// Five rotating arms of soul-fire spiral outward from the Warden.
+// Arms gradually accelerate. Player weaves between arm edges.
+// Arm count steps: 3 arms (0-4s) → 5 arms (4-8s) → 5 arms faster + reversed (8-12s).
+function doRosetteSpiral(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // 0.10s startup: expanding ring of markers signals spiral onset
+    if (g.warnMarkers.length === 0) {
+      for (let ring = 0; ring < 3; ring++) {
+        for (let i = 0; i < 10; i++) {
+          const a = (i / 10) * Math.PI * 2;
+          const r = 14 + ring * 12;
+          g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * r, y: BCY + Math.sin(a) * r, angle: a, r: 4, color: ring % 2 === 0 ? boss.color : boss.color2, timer: 0.10, maxTimer: 0.10 });
+        }
+      }
+    }
+    g.phaseTimer += dt;
+    g.warnMarkers.forEach(wm => { wm.timer -= dt; });
+    g.warnMarkers = g.warnMarkers.filter(wm => wm.timer > 0);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; g.spawnCount = 0; }
+    return;
+  }
+
+  if (g.phase === 1) {
+    g.phaseTimer += dt;
+    g.spawnTimer -= dt;
+
+    const t = g.phaseTimer;
+    const isMidShift    = t >= 4.0;
+    const isSpeedPhase  = t >= 8.0;
+
+    // Mid-shift signal at t=4s
+    if (isMidShift && !(g.spawnCount & 0x4000)) {
+      g.spawnCount |= 0x4000;
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 26, y: BCY + Math.sin(a) * 26, angle: a, r: 5, color: '#ffaa00', timer: 0.38, maxTimer: 0.38 });
+      }
+    }
+    // Speed reversal signal at t=8s
+    if (isSpeedPhase && !(g.spawnCount & 0x8000)) {
+      g.spawnCount |= 0x8000;
+      for (let i = 0; i < 18; i++) {
+        const a = (i / 18) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 34, y: BCY + Math.sin(a) * 34, angle: a, r: 5, color: '#ff2244', timer: 0.36, maxTimer: 0.36 });
+      }
+    }
+    g.warnMarkers = g.warnMarkers.filter(wm => { wm.timer -= dt; return wm.timer > 0; });
+
+    const armCount   = isMidShift ? 5 : 3;
+    const rampup     = Math.min(t / 12.0, 1.0);
+    const rotDir     = isSpeedPhase ? -1 : 1;
+    const rotSpeed   = rotDir * ((isMidShift ? 3.8 : 2.5) + rampup * 1.1);
+    const spiralSpd  = (118 + rampup * 58) * sm(g);
+    const interval   = st(Math.max(0.055, isMidShift ? 0.068 - rampup * 0.012 : 0.095 - rampup * 0.018), g);
+
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = interval;
+      const frameCount = (g.spawnCount & 0x3FFF);
+      const baseAngle  = t * rotSpeed;
+      for (let arm = 0; arm < armCount; arm++) {
+        // Skip gap arm every 3 frames to keep a visible gap
+        if (arm === armCount - 1 && frameCount % 3 !== 0) continue;
+        const a = baseAngle + (arm / armCount) * Math.PI * 2;
+        const col = arm === 0 ? boss.color : arm === 1 ? boss.color2 : arm === 2 ? '#ff2244' : arm === 3 ? '#ffaa0099' : boss.color;
+        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spiralSpd, vy: Math.sin(a) * spiralSpd, r: 5, color: col, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+      }
+      g.spawnCount = (g.spawnCount & 0xC000) | ((frameCount + 1) & 0x3FFF);
+    }
+
+    // End spiral at t=12s, fire collapse burst
+    if (t >= 11.5 && !(g.spawnCount & 0x2000)) {
+      g.spawnCount |= 0x2000;
+      for (let i = 0; i < 28; i++) {
+        const a = (i / 28) * Math.PI * 2;
+        const spd = (155 + (i % 4) * 16) * sm(g);
+        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 6, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 18 });
+      }
+      g.phase = 2; g.phaseTimer = 0; g.warnMarkers = [];
+    }
+    return;
+  }
+
+  if (g.phase === 2) {
+    // 1.2s reset pause before repeating
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.2) { g.phase = 0; g.phaseTimer = 0; g.spawnCount = 0; }
+    return;
+  }
 }
 
 // ================================================================
@@ -5029,6 +4873,27 @@ function update(
 
   if (g.state === 'title') {
     if (g.keys.has('Enter') || g.keys.has(' ')) {
+      if (SINGLE_BOSS_MODE) {
+        g.state = 'charSelect'; g.charSelectIdx = g.selectedChar;
+      } else {
+        g.state = 'intro'; g.introTimer = 0; g.introLine = 0;
+        resetForBoss(g, 0);
+      }
+    }
+    return;
+  }
+  if (g.state === 'charSelect') {
+    if (g.keys.has('ArrowLeft') || g.keys.has('a')) {
+      g.charSelectIdx = Math.max(0, g.charSelectIdx - 1);
+      g.keys.delete('ArrowLeft'); g.keys.delete('a');
+    }
+    if (g.keys.has('ArrowRight') || g.keys.has('d')) {
+      g.charSelectIdx = Math.min(CHAR_NAMES.length - 1, g.charSelectIdx + 1);
+      g.keys.delete('ArrowRight'); g.keys.delete('d');
+    }
+    if (g.keys.has('r') || g.keys.has('R')) { g.state = 'title'; return; }
+    if (g.keys.has('Enter') || g.keys.has(' ')) {
+      g.selectedChar = g.charSelectIdx;
       g.state = 'intro'; g.introTimer = 0; g.introLine = 0;
       resetForBoss(g, 0);
     }
@@ -5075,8 +4940,9 @@ function update(
   // ---- WAVE END ----
   if (g.state === 'waveEnd') {
     if (SINGLE_BOSS_MODE) {
+      // Immediate handoff — ≤0.10s micro-gap so the transition is seamless
       g.segTransTimer += cap;
-      if (g.segTransTimer >= 1.0) {
+      if (g.segTransTimer >= 0.08) {
         g.segTransTimer = 0;
         const isBossWin = g.waveEndIsBossWin;
         g.waveEndIsBossWin = false;
@@ -5612,9 +5478,8 @@ function drawWardenBoss(ctx: CanvasRenderingContext2D, g: GameData) {
 // ================================================================
 // WARDEN PLAYER — Dark cloaked figure with white scarf + cyan aura
 // ================================================================
-function drawWardenPlayer(ctx: CanvasRenderingContext2D, g: GameData) {
-  const px = g.player.x, py = g.player.y, t = g.time;
-  // Cyan aura ring
+// ─── Character 0: The Wanderer (original design) ─────────────────────────────
+function drawCharWanderer(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
   ctx.save();
   ctx.shadowBlur = 16; ctx.shadowColor = '#00ccff'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 1.5;
   ctx.globalAlpha = 0.5 + 0.3 * Math.sin(t * 3.5);
@@ -5623,25 +5488,191 @@ function drawWardenPlayer(ctx: CanvasRenderingContext2D, g: GameData) {
   ctx.beginPath(); ctx.ellipse(px, py + 5, 9, 3.5, 0, 0, Math.PI * 2); ctx.stroke();
   ctx.globalAlpha = 1;
   ctx.restore();
-  // Dark cloak body
   ctx.save();
   ctx.shadowBlur = 8; ctx.shadowColor = '#00aacc';
   ctx.fillStyle = '#0a0008'; ctx.strokeStyle = '#1a1020'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.ellipse(px, py - 2, 7, 11, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // Head
   ctx.fillStyle = '#111018'; ctx.shadowBlur = 0;
   ctx.beginPath(); ctx.arc(px, py - 14, 6, 0, Math.PI * 2); ctx.fill();
-  // White scarf / cape
   ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff88'; ctx.fillStyle = '#e0e0ff';
   ctx.beginPath();
   ctx.moveTo(px - 3, py - 12);
   ctx.quadraticCurveTo(px - 16, py - 6 + Math.sin(t * 3.5) * 4, px - 18, py + 4 + Math.sin(t * 2.8) * 3);
   ctx.quadraticCurveTo(px - 12, py + 2, px - 2, py - 10);
   ctx.closePath(); ctx.fill();
-  // White hair streak
   ctx.shadowBlur = 4; ctx.fillStyle = '#f0f0ff';
   ctx.beginPath(); ctx.ellipse(px - 2, py - 17, 2, 3, -0.4, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
+}
+
+// ─── Character 1: The Exile — fractured armor, amber flame ───────────────────
+function drawCharExile(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
+  ctx.save();
+  // Ember ground glow
+  ctx.shadowBlur = 18; ctx.shadowColor = '#ff8800'; ctx.strokeStyle = '#ff6600'; ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.45 + 0.25 * Math.sin(t * 4.2);
+  ctx.beginPath(); ctx.ellipse(px, py + 5, 13, 4, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1;
+  // Fractured armor body — slightly angled quadrilateral
+  ctx.shadowBlur = 10; ctx.shadowColor = '#cc5500';
+  ctx.fillStyle = '#1a0e00'; ctx.strokeStyle = '#cc5500'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(px - 7, py - 14);
+  ctx.lineTo(px + 8, py - 12);
+  ctx.lineTo(px + 6, py + 10);
+  ctx.lineTo(px - 8, py + 10);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Crack lines on armor
+  ctx.shadowBlur = 6; ctx.strokeStyle = '#ff8800cc'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(px - 3, py - 13); ctx.lineTo(px + 1, py - 4); ctx.lineTo(px - 2, py + 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px + 4, py - 8); ctx.lineTo(px + 2, py + 6); ctx.stroke();
+  // Head — helmet visor
+  ctx.shadowBlur = 8; ctx.fillStyle = '#110800';
+  ctx.beginPath(); ctx.arc(px + 1, py - 18, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ff8800'; ctx.shadowColor = '#ff8800';
+  ctx.beginPath(); ctx.ellipse(px + 2, py - 18, 3.5, 2, 0.2, 0, Math.PI * 2); ctx.fill();
+  // Amber shoulder flame
+  const flameY = py - 16 + Math.sin(t * 6) * 2;
+  ctx.shadowBlur = 14; ctx.shadowColor = '#ffaa00'; ctx.fillStyle = '#ff8800aa';
+  ctx.beginPath();
+  ctx.moveTo(px - 9, flameY);
+  ctx.quadraticCurveTo(px - 14 + Math.sin(t * 5) * 2, flameY - 8, px - 10, flameY - 14 + Math.sin(t * 7) * 2);
+  ctx.quadraticCurveTo(px - 7, flameY - 6, px - 5, flameY);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// ─── Character 2: The Keeper — spectral robe, teal sigil ─────────────────────
+function drawCharKeeper(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
+  ctx.save();
+  // Robe base — wide bell shape
+  ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc';
+  ctx.fillStyle = '#040e14'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(px - 10, py + 12);
+  ctx.quadraticCurveTo(px - 12, py - 2, px - 5, py - 14);
+  ctx.quadraticCurveTo(px, py - 16, px + 5, py - 14);
+  ctx.quadraticCurveTo(px + 12, py - 2, px + 10, py + 12);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Robe hem shimmer
+  ctx.strokeStyle = '#00ffcc55'; ctx.lineWidth = 1;
+  for (let si = 0; si < 3; si++) {
+    const oy = si * 4;
+    ctx.globalAlpha = 0.5 - si * 0.12 + 0.1 * Math.sin(t * 3 + si);
+    ctx.beginPath(); ctx.moveTo(px - 10 + si, py + 12 - oy); ctx.lineTo(px + 10 - si, py + 12 - oy); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // Hood
+  ctx.shadowBlur = 6; ctx.fillStyle = '#050e14';
+  ctx.beginPath(); ctx.arc(px, py - 18, 7, 0, Math.PI * 2); ctx.fill();
+  // Glowing eyes
+  ctx.shadowBlur = 10; ctx.shadowColor = '#00ffaa'; ctx.fillStyle = '#00ffcc';
+  ctx.beginPath(); ctx.ellipse(px - 3, py - 19, 2, 1.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(px + 3, py - 19, 2, 1.5, 0, 0, Math.PI * 2); ctx.fill();
+  // Orbiting sigil diamond
+  const sigA = t * 2.4;
+  const sx = px + Math.cos(sigA) * 13, sy = py - 6 + Math.sin(sigA) * 6;
+  ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc'; ctx.fillStyle = '#00ffaa';
+  ctx.beginPath(); ctx.save(); ctx.translate(sx, sy); ctx.rotate(sigA);
+  ctx.moveTo(0, -4); ctx.lineTo(3, 0); ctx.lineTo(0, 4); ctx.lineTo(-3, 0); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  ctx.restore();
+}
+
+// ─── Character 3: The Harbinger — void wings, deep purple ────────────────────
+function drawCharHarbinger(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
+  ctx.save();
+  // Void wings (two sweep curves)
+  const wFlap = Math.sin(t * 4.5) * 0.14;
+  ctx.shadowBlur = 22; ctx.shadowColor = '#8800ff';
+  for (const side of [-1, 1] as const) {
+    ctx.save();
+    ctx.fillStyle = '#22006688';
+    ctx.beginPath();
+    ctx.moveTo(px + side * 5, py - 8);
+    ctx.quadraticCurveTo(px + side * 28, py - 20 + wFlap * side * 12, px + side * 34, py - 2);
+    ctx.quadraticCurveTo(px + side * 22, py + 10, px + side * 8, py + 6);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#aa22ff'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px + side * 5, py - 8);
+    ctx.quadraticCurveTo(px + side * 28, py - 20 + wFlap * side * 12, px + side * 34, py - 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // Body — narrow dark silhouette
+  ctx.shadowBlur = 10; ctx.shadowColor = '#8800ff';
+  ctx.fillStyle = '#100018'; ctx.strokeStyle = '#7700ee'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 2, 6, 10, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // Head
+  ctx.fillStyle = '#0e0016';
+  ctx.beginPath(); ctx.arc(px, py - 14, 6, 0, Math.PI * 2); ctx.fill();
+  // Purple eye slit
+  ctx.shadowBlur = 14; ctx.shadowColor = '#cc00ff'; ctx.fillStyle = '#cc44ff';
+  ctx.beginPath(); ctx.ellipse(px, py - 14, 5, 1.5, 0, 0, Math.PI * 2); ctx.fill();
+  // Crown particles
+  for (let ci = 0; ci < 4; ci++) {
+    const ca = t * 3 + ci * Math.PI * 0.5;
+    const cr = 10 + Math.sin(t * 2 + ci) * 2;
+    ctx.globalAlpha = 0.6 + 0.4 * Math.sin(t * 4 + ci);
+    ctx.shadowBlur = 8; ctx.fillStyle = '#aa44ff';
+    ctx.beginPath(); ctx.arc(px + Math.cos(ca) * cr, py - 22 + Math.sin(ca) * 3, 2, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── Character 4: The Veil — translucent ghost-shroud, silver-white ───────────
+function drawCharVeil(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
+  ctx.save();
+  // Phase-shift shimmer ground ring
+  ctx.shadowBlur = 14; ctx.shadowColor = '#ffffff'; ctx.strokeStyle = '#ddddff'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.3 + 0.2 * Math.sin(t * 5);
+  ctx.beginPath(); ctx.ellipse(px, py + 5, 12, 4, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1;
+  // Veil body — translucent bell with inner shimmer
+  const pulse = 0.55 + 0.15 * Math.sin(t * 3);
+  ctx.shadowBlur = 12; ctx.shadowColor = '#aaaaff';
+  ctx.fillStyle = `rgba(180,180,255,${pulse * 0.22})`;
+  ctx.strokeStyle = `rgba(220,220,255,${pulse})`;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(px - 9, py + 12);
+  ctx.quadraticCurveTo(px - 11, py - 2, px - 4, py - 14);
+  ctx.quadraticCurveTo(px, py - 17, px + 4, py - 14);
+  ctx.quadraticCurveTo(px + 11, py - 2, px + 9, py + 12);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Inner glow core
+  const coreAlpha = 0.4 + 0.3 * Math.sin(t * 4.5);
+  ctx.fillStyle = `rgba(210,210,255,${coreAlpha})`;
+  ctx.shadowBlur = 20; ctx.shadowColor = '#8888ff';
+  ctx.beginPath(); ctx.ellipse(px, py - 4, 3.5, 7, 0, 0, Math.PI * 2); ctx.fill();
+  // Floating face — barely visible eyes
+  ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff'; ctx.fillStyle = '#ffffff';
+  ctx.globalAlpha = 0.55 + 0.25 * Math.sin(t * 3.5);
+  ctx.beginPath(); ctx.ellipse(px - 3, py - 15, 2, 1.2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(px + 3, py - 15, 2, 1.2, 0, 0, Math.PI * 2); ctx.fill();
+  // Trailing afterimage wisps
+  for (let wi = 0; wi < 3; wi++) {
+    const wo = (wi + 1) * 5;
+    ctx.globalAlpha = 0.12 - wi * 0.03;
+    ctx.fillStyle = '#aaaaff';
+    ctx.beginPath(); ctx.ellipse(px, py - 2 + wo * 0.5, 5 - wi, 8 + wi, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ─── Dispatcher ──────────────────────────────────────────────────────────────
+function drawWardenPlayer(ctx: CanvasRenderingContext2D, g: GameData) {
+  const px = g.player.x, py = g.player.y, t = g.time;
+  switch (g.selectedChar) {
+    case 1: drawCharExile(ctx, px, py, t);     break;
+    case 2: drawCharKeeper(ctx, px, py, t);    break;
+    case 3: drawCharHarbinger(ctx, px, py, t); break;
+    case 4: drawCharVeil(ctx, px, py, t);      break;
+    default: drawCharWanderer(ctx, px, py, t); break;
+  }
 }
 
 function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
@@ -6401,7 +6432,6 @@ function drawDevourLanes(ctx: CanvasRenderingContext2D, g: GameData) {
       ctx.strokeStyle = '#00ff55'; ctx.lineWidth = edgeSW; ctx.shadowBlur = glowBlur; ctx.shadowColor = '#00ff55'; ctx.setLineDash([7, 5]);
       ctx.strokeRect(BX + 1, ly, BW - 2, lH); ctx.setLineDash([]);
       ctx.fillStyle = '#00ff55'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
-      ctx.fillText('SAFE', BX + BW / 2, ly + lH / 2 + 4);
     } else if (g.devourActive) {
       ctx.shadowBlur = dangerBlur; ctx.shadowColor = '#ff0000';
       ctx.fillStyle = '#ff000055'; ctx.fillRect(BX + 1, ly, BW - 2, lH);
@@ -6913,9 +6943,6 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
         ctx.strokeRect(vdx + 1, vdy + 1, vdw - 2, vdh - 2);
         ctx.globalAlpha = pulse * 0.4;
         ctx.fillStyle = '#4488ff';
-        ctx.font = 'bold 10px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('SAFE', vdx + vdw / 2, vdy + vdh / 2 + 4);
       } else {
         ctx.fillStyle = dz.color; ctx.fillRect(vdx, vdy, vdw, vdh);
         ctx.strokeStyle = dz.color; ctx.lineWidth = 2; ctx.strokeRect(vdx, vdy, vdw, vdh);
@@ -7179,6 +7206,118 @@ function renderFinalVictory(ctx: CanvasRenderingContext2D, time: number) {
   ctx.globalAlpha = 1;
 }
 
+// ─── Character Select Screen (SINGLE_BOSS_MODE) ──────────────────────────────
+function renderCharSelect(ctx: CanvasRenderingContext2D, g: GameData) {
+  const t = g.time;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#06000e';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid pattern
+  ctx.save();
+  ctx.strokeStyle = '#1a0d2a';
+  ctx.lineWidth = 0.5;
+  for (let gx = 0; gx < W; gx += 32) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+  for (let gy = 0; gy < H; gy += 32) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+  ctx.restore();
+
+  // Title line
+  ctx.save();
+  ctx.shadowBlur = 28; ctx.shadowColor = '#cc44ff';
+  ctx.fillStyle = '#cc44ff'; ctx.font = 'bold 18px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText('CHOOSE YOUR FORM', W / 2, 64);
+  ctx.shadowBlur = 0; ctx.fillStyle = '#554466'; ctx.font = '11px "Courier New", monospace';
+  ctx.fillText('← / → to browse   ENTER to begin   R to return', W / 2, 84);
+  ctx.restore();
+
+  const CARD_W = 110, CARD_H = 165, CARD_GAP = 16;
+  const totalW = CHAR_NAMES.length * CARD_W + (CHAR_NAMES.length - 1) * CARD_GAP;
+  const startX = (W - totalW) / 2;
+  const cardY = H / 2 - CARD_H / 2 + 10;
+
+  // Sprite Y offset within the card
+  const previewOffsetY = 68;
+
+  for (let ci = 0; ci < CHAR_NAMES.length; ci++) {
+    const cx = startX + ci * (CARD_W + CARD_GAP);
+    const selected = ci === g.charSelectIdx;
+    const pulse = selected ? (1 + 0.04 * Math.sin(t * 5)) : 1;
+
+    ctx.save();
+    ctx.translate(cx + CARD_W / 2, cardY + CARD_H / 2);
+    ctx.scale(pulse, pulse);
+    ctx.translate(-(CARD_W / 2), -(CARD_H / 2));
+
+    // Card background
+    ctx.shadowBlur = selected ? 24 : 6;
+    ctx.shadowColor = selected ? '#cc44ff' : '#330044';
+    ctx.fillStyle = selected ? '#1a0030' : '#0d000e';
+    roundRect(ctx, 0, 0, CARD_W, CARD_H, 8); ctx.fill();
+
+    // Card border
+    ctx.shadowBlur = selected ? 16 : 4;
+    ctx.strokeStyle = selected ? '#cc44ff' : '#440055';
+    ctx.lineWidth = selected ? 2 : 1;
+    roundRect(ctx, 0, 0, CARD_W, CARD_H, 8); ctx.stroke();
+
+    // Draw character sprite in card preview area
+    ctx.save();
+    const spriteCX = CARD_W / 2;
+    const spriteCY = previewOffsetY;
+    switch (ci) {
+      case 1: drawCharExile(ctx,     spriteCX, spriteCY, t); break;
+      case 2: drawCharKeeper(ctx,    spriteCX, spriteCY, t); break;
+      case 3: drawCharHarbinger(ctx, spriteCX, spriteCY, t); break;
+      case 4: drawCharVeil(ctx,      spriteCX, spriteCY, t); break;
+      default: drawCharWanderer(ctx, spriteCX, spriteCY, t); break;
+    }
+    ctx.restore();
+
+    // Character name
+    ctx.fillStyle = selected ? '#cc44ff' : '#776688';
+    ctx.shadowBlur = selected ? 10 : 0; ctx.shadowColor = '#cc44ff';
+    ctx.font = `bold 10px "Courier New", monospace`; ctx.textAlign = 'center';
+    ctx.fillText(CHAR_NAMES[ci], CARD_W / 2, CARD_H - 36);
+
+    // Cosmetic tag
+    ctx.shadowBlur = 0; ctx.fillStyle = selected ? '#996699' : '#443355';
+    ctx.font = '9px "Courier New", monospace';
+    ctx.fillText('COSMETIC', CARD_W / 2, CARD_H - 22);
+
+    // Selection indicator
+    if (selected) {
+      ctx.shadowBlur = 12; ctx.shadowColor = '#cc44ff';
+      ctx.fillStyle = '#cc44ff';
+      ctx.font = 'bold 10px "Courier New", monospace';
+      ctx.fillText('▲', CARD_W / 2, CARD_H - 8);
+    }
+
+    ctx.restore();
+  }
+
+  // Selector arrow brackets outside selected card
+  const selCX = startX + g.charSelectIdx * (CARD_W + CARD_GAP);
+  ctx.save();
+  ctx.shadowBlur = 20; ctx.shadowColor = '#cc44ff'; ctx.fillStyle = '#cc44ff';
+  ctx.font = 'bold 22px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.globalAlpha = 0.75 + 0.25 * Math.sin(t * 5);
+  ctx.fillText('◄', selCX - 18, cardY + CARD_H / 2 + 7);
+  ctx.fillText('►', selCX + CARD_W + 18, cardY + CARD_H / 2 + 7);
+  ctx.restore();
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
 // Segment transition overlay (SINGLE_BOSS_MODE) — drawn on top of frozen playing frame
 function renderSegmentTransition(ctx: CanvasRenderingContext2D, g: GameData, elapsed: number) {
   const nextIdx = g.atkIdx;
@@ -7216,7 +7355,8 @@ function renderSegmentTransition(ctx: CanvasRenderingContext2D, g: GameData, ela
 function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   ctx.clearRect(0, 0, W, H);
   switch (g.state) {
-    case 'title':    renderTitle(ctx, g.time);                   break;
+    case 'title':      renderTitle(ctx, g.time);                   break;
+    case 'charSelect': renderCharSelect(ctx, g);                   break;
     case 'intro':    renderIntro(ctx, g);                        break;
     case 'playing':  renderPlaying(ctx, g, adminMode, diffIdx);  break;
     case 'waveEnd':
