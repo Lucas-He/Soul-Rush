@@ -5186,6 +5186,12 @@ function update(
   g.glitchTimer += cap;
 
   updateBossMovement(g, cap);
+  // In SINGLE_BOSS_MODE the Warden is drawn at a fixed anchor (BCX, BY-50).
+  // Pin logical position so all attack spawn origins match the visible model.
+  if (SINGLE_BOSS_MODE) {
+    g.bossX = BCX; g.bossY = BY - 50;
+    g.bossTX = BCX; g.bossTY = BY - 50;
+  }
   applyBossSpecials(g, cap, boss);
   updateAttack(g, cap, boss);
   updateWarnMarkers(g, cap);
