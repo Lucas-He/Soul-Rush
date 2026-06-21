@@ -2194,19 +2194,20 @@ function doFalseMercy(g: GameData, dt: number, boss: BossConf) {
 //   crossing diagonal warn (separate phase), crossing fires, intersection mini-burst, recovery.
 //   Primary cleave = dmg 22, crossing = dmg 30, intersection burst = dmg 14.
 function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
+  // g.spawnCount encoding: lower byte (0xFF) = cycle index; bit 8 (0x100) = phase-3 rupture spawned flag
   const angles = [Math.PI / 4, -Math.PI / 4, Math.PI * 3 / 4, -Math.PI * 3 / 4];
+  const cycleIdx = g.spawnCount & 0xFF;
 
   if (g.phase === 0) {
     // Beat 1: primary diagonal warn (1.1s)
     if (g.diagWarns.length === 0) {
-      const primaryAngle = angles[g.spawnCount % angles.length];
+      const primaryAngle = angles[cycleIdx % angles.length];
       const cx = BCX + rand(-35, 35), cy = BCY + rand(-20, 20);
       const L = Math.max(BW, BH) * 1.35;
       g.diagWarns.push({ id: nid(g), x1: cx - Math.cos(primaryAngle) * L, y1: cy - Math.sin(primaryAngle) * L, x2: cx + Math.cos(primaryAngle) * L, y2: cy + Math.sin(primaryAngle) * L, width: 22, timer: 1.1, color: '#ff4400', fake: false });
     }
     g.phaseTimer += dt;
     if (g.phaseTimer >= 1.1) {
-      // Beat 2: primary cleave fires (dmg 22)
       for (const dw of g.diagWarns) {
         g.diagLasers.push({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 0.55, color: '#ff6600', dmg: 22 });
       }
@@ -2221,8 +2222,7 @@ function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.55) {
       g.diagLasers = [];
-      // Beat 3: crossing diagonal warn (0.5s) — always fires, not conditional
-      const crossAngle = angles[(g.spawnCount + 2) % angles.length];
+      const crossAngle = angles[(cycleIdx + 2) % angles.length];
       const cx2 = BCX + rand(-30, 30), cy2 = BCY + rand(-18, 18);
       const L2 = Math.max(BW, BH) * 1.35;
       g.diagWarns.push({ id: nid(g), x1: cx2 - Math.cos(crossAngle) * L2, y1: cy2 - Math.sin(crossAngle) * L2, x2: cx2 + Math.cos(crossAngle) * L2, y2: cy2 + Math.sin(crossAngle) * L2, width: 20, timer: 0.5, color: '#ff2200', fake: false });
@@ -2235,7 +2235,6 @@ function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
     // Beat 3: crossing warn (0.5s)
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.5) {
-      // Beat 4: crossing cleave fires (dmg 30)
       for (const dw of g.diagWarns) {
         g.diagLasers.push({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 0.55, color: '#ff2200', dmg: 30 });
       }
@@ -2246,20 +2245,21 @@ function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 3) {
-    // Beat 4: crossing cleave active (0.55s) — also warn edge rupture zones
+    // Beat 4: crossing cleave active (0.55s) — warn edge rupture zones using bit-8 flag
     g.phaseTimer += dt;
-    if (!g.spawnCount) {
-      g.spawnCount = 1;
-      // Warn: edge rupture zones along the arena border near the primary fracture line
+    if (!(g.spawnCount & 0x100)) {
+      // First frame of phase 3: spawn edge rupture warnings (bit 8 = "rupture spawned" flag)
+      g.spawnCount |= 0x100;
       const rupW = BW * 0.3, rupH = 18;
-      g.dangerZones.push({ id: nid(g), x: BX + BW * 0.1, y: BY, w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
+      g.dangerZones.push({ id: nid(g), x: BX + BW * 0.1, y: BY,           w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
       g.dangerZones.push({ id: nid(g), x: BX + BW * 0.6, y: BY + BH - rupH, w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
     }
     if (g.phaseTimer >= 0.55) {
       g.diagLasers = [];
-      // Beat 5: edge rupture fires — activate the pre-warned wall strips (dmg 18)
       for (const dz of g.dangerZones) { dz.warnTimer = -1; dz.activeTimer = 0.5; dz.dmg = 18; }
-      g.phase = 4; g.phaseTimer = 0; g.spawnCount = 0;
+      g.phase = 4; g.phaseTimer = 0;
+      // Clear bit-8 flag; preserve cycle index in lower byte
+      g.spawnCount &= 0xFF;
     }
     return;
   }
@@ -2272,9 +2272,13 @@ function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
     return;
   }
 
-  // Beat 6: recovery (0.7s) then loop
+  // Beat 6: recovery (0.7s) — increment cycle index in lower byte only
   g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; g.spawnCount++; g.diagWarns = []; g.diagLasers = []; g.dangerZones = []; }
+  if (g.phaseTimer >= 0.7) {
+    g.phase = 0; g.phaseTimer = 0;
+    g.spawnCount = ((cycleIdx + 1) & 0xFF); // increment cycle; bit-8 flag already cleared
+    g.diagWarns = []; g.diagLasers = []; g.dangerZones = [];
+  }
 }
 
 // Segment 6: Bone Cage Snap — inner cage of walls snaps into place;
