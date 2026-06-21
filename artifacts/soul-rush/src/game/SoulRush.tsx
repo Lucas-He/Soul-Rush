@@ -2063,37 +2063,33 @@ function doSoulShatterBurst(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 4) {
-    // Beat 4: light inward return shards — 8 bullets aimed from arena edges toward center (dmg 12)
-    //   Punishes lazy drift away from center after dodging the outward burst
-    if (!g.warnMarkers.length) {
-      // Spawn from 4 arena corners converging inward
-      const corners = [
-        { x: BX, y: BY }, { x: BX + BW, y: BY },
-        { x: BX, y: BY + BH }, { x: BX + BW, y: BY + BH }
-      ];
-      for (const { x: cx, y: cy } of corners) {
+    // Beat 5: light inward return shards — one-shot volley from 8 arena edge/corner points (dmg 12)
+    //   Punishes lazy drift away from center after dodging the outward bursts
+    //   One-shot flag: bit 8 of g.spawnCount (lower byte = cycle counter, bit 8 = phase-4 fired)
+    if (!(g.spawnCount & 0x100)) {
+      g.spawnCount |= 0x100; // mark fired; will be cleared in recovery
+      // 4 arena corners converging inward
+      for (const [cx, cy] of [[BX, BY], [BX + BW, BY], [BX, BY + BH], [BX + BW, BY + BH]] as [number, number][]) {
         const a = Math.atan2(BCY - cy, BCX - cx) + rand(-0.25, 0.25);
-        const spd = 90 * sm(g);
-        g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 4, color: boss.color, shape: 'diamond', rot: a, rotSpd: 3, frozen: false, dmg: 12 });
+        g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * 90 * sm(g), vy: Math.sin(a) * 90 * sm(g), r: 4, color: boss.color, shape: 'diamond', rot: a, rotSpd: 3, frozen: false, dmg: 12 });
       }
-      // Also 4 edge mid-points
-      for (const [ex, ey] of [[BX, BCY], [BX + BW, BCY], [BCX, BY], [BCX, BY + BH]]) {
+      // 4 edge mid-points converging inward
+      for (const [ex, ey] of [[BX, BCY], [BX + BW, BCY], [BCX, BY], [BCX, BY + BH]] as [number, number][]) {
         const a = Math.atan2(BCY - ey, BCX - ex) + rand(-0.15, 0.15);
-        const spd = 80 * sm(g);
-        g.bullets.push({ id: nid(g), x: ex, y: ey, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 3, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 12 });
+        g.bullets.push({ id: nid(g), x: ex, y: ey, vx: Math.cos(a) * 80 * sm(g), vy: Math.sin(a) * 80 * sm(g), r: 3, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 12 });
       }
-      // Reuse warnMarkers length as "spawned" sentinel — push a dummy
-      g.warnMarkers.push({ id: nid(g), x: -999, y: -999, angle: 0, r: 0, color: '#0000', timer: 0.01, maxTimer: 0.01 });
     }
     g.phaseTimer += dt;
-    g.warnMarkers = g.warnMarkers.filter(wm => { wm.timer -= dt; return wm.timer > 0; });
     if (g.phaseTimer >= 1.0) { g.phase = 5; g.phaseTimer = 0; }
     return;
   }
 
   // Phase 5: recovery (0.9s) then repeat
   g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.9) { g.phase = 0; g.phaseTimer = 0; g.warnMarkers = []; }
+  if (g.phaseTimer >= 0.9) {
+    g.phase = 0; g.phaseTimer = 0; g.warnMarkers = [];
+    g.spawnCount &= 0xFF; // clear bit-8 flag; keep lower-byte cycle counter
+  }
 }
 
 // Segment 4: False Mercy — 5 vertical lane zones appear; multiple look safe.
