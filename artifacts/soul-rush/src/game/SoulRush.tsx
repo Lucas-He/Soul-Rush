@@ -35,7 +35,7 @@ const BCY = BY + BH / 2;
 
 const P_SPEED  = 195;
 const P_MAX_HP = 100;
-const P_INV    = 1.5;
+const P_INV    = 0.60;
 const P_HIT_R  = 4;
 
 const SHAKE_AMT = 8;
@@ -60,6 +60,22 @@ const DIFF_LEVELS = [
   { label: 'Extreme',   mult: 1.5  },
   { label: 'Nightmare', mult: 2.0  },
 ];
+
+// ================================================================
+// SINGLE BOSS MODE — Set to true to lock to boss 0 (7 segments)
+// ================================================================
+const SINGLE_BOSS_MODE = true;
+const SEGMENT_NAMES = [
+  'Phantom Dash',
+  'Judgment Rain',
+  'Soul Shatter Burst',
+  'False Mercy',
+  'Rift Cleave',
+  'Bone Cage Snap',
+  'Final Spiral',
+];
+const SEGMENT_DAMAGE  = [22, 18, 12, 24, 22, 14, 18];
+const SEGMENT_ATK_DURS = [9, 10, 9, 10, 10, 10, 13];
 
 // ================================================================
 // BOSS GUIDE TIPS
@@ -327,11 +343,21 @@ const BOSSES: BossConf[] = [
       '...Your soul is transparent to me.',
       'Precision is eternal. Let us begin.'
     ],
-    attacks: ['crystalRain', 'mirrorWalls', 'shatterPulse', 'constellationLines', 'haloCurse'],
+    attacks: SINGLE_BOSS_MODE
+      ? ['phantomDash', 'judgmentRain', 'soulShatterBurst', 'falseMercy', 'riftCleave', 'boneCageSnap', 'finalSpiral']
+      : ['crystalRain', 'mirrorWalls', 'shatterPulse', 'constellationLines', 'haloCurse'],
     dmg: 16,
-    atkDur: 5,
+    atkDur: 9,
     rewardItemPool: ['candle_ash', 'echo_fragment'],
-    waves: [
+    waves: SINGLE_BOSS_MODE ? [
+      { id: 'seg1', name: 'Phantom Dash', description: 'The warden tears across the arena leaving spectral afterimages and aimed bursts.', duration: 9, attackType: 'aimed', warningType: 'target', bulletSpeed: 200, spawnRate: 10, damage: 22, arenaEffect: 'none', patternTags: ['aimed'], execute: 'phantomDash' },
+      { id: 'seg2', name: 'Judgment Rain', description: 'Crystal columns rain from above in shifting lanes of destruction.', duration: 10, attackType: 'rain', warningType: 'top', bulletSpeed: 220, spawnRate: 14, damage: 18, arenaEffect: 'none', patternTags: ['rain'], execute: 'judgmentRain' },
+      { id: 'seg3', name: 'Soul Shatter Burst', description: 'Expanding soul-rings erupt from the center, each bearing deadly gaps.', duration: 9, attackType: 'ring', warningType: 'ring', bulletSpeed: 110, spawnRate: 2, damage: 12, arenaEffect: 'none', patternTags: ['ring'], execute: 'soulShatterBurst' },
+      { id: 'seg4', name: 'False Mercy', description: 'A deceptive calm before an overwhelming void eruption.', duration: 10, attackType: 'aimed', warningType: 'ring', bulletSpeed: 175, spawnRate: 6, damage: 24, arenaEffect: 'none', patternTags: ['aimed', 'fake'], execute: 'falseMercy' },
+      { id: 'seg5', name: 'Rift Cleave', description: 'Diagonal void rifts slice through the arena in rapid succession.', duration: 10, attackType: 'laser', warningType: 'dot', bulletSpeed: 0, spawnRate: 4, damage: 22, arenaEffect: 'none', patternTags: ['laser', 'diag'], execute: 'riftCleave' },
+      { id: 'seg6', name: 'Bone Cage Snap', description: 'Crystal walls close from all sides — find the shrinking center.', duration: 10, attackType: 'sweep', warningType: 'side', bulletSpeed: 120, spawnRate: 6, damage: 14, arenaEffect: 'none', patternTags: ['sweep'], execute: 'boneCageSnap' },
+      { id: 'seg7', name: 'Final Spiral', description: 'The Glass Warden unleashes a relentless soul-spiral — survive to the end.', duration: 13, attackType: 'spiral', warningType: 'ring', bulletSpeed: 155, spawnRate: 12, damage: 18, arenaEffect: 'none', patternTags: ['spiral'], execute: 'finalSpiral' },
+    ] : [
       { id: 'vr1', name: 'Crystal Rain', description: 'Crystal shards fall from the top in staggered lanes.', duration: 5, attackType: 'rain', warningType: 'top', bulletSpeed: 185, spawnRate: 11, damage: 16, arenaEffect: 'none', patternTags: ['rain'], execute: 'crystalRain' },
       { id: 'vr2', name: 'Mirror Walls', description: 'Horizontal and vertical laser walls appear after warning lines.', duration: 5, attackType: 'laser', warningType: 'side', bulletSpeed: 0, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['laser', 'wall'], execute: 'mirrorWalls' },
       { id: 'vr3', name: 'Shatter Pulse', description: 'Expanding crystal rings grow from center with rotating gaps.', duration: 5, attackType: 'ring', warningType: 'ring', bulletSpeed: 115, spawnRate: 2, damage: 16, arenaEffect: 'none', patternTags: ['ring', 'multi'], execute: 'shatterPulse' },
@@ -1252,6 +1278,10 @@ interface GameData {
   // Charge animation progress (0–1, normalized to phaseTimer / warnDur); 0 when not in warn phase
   bossChargeTimer: number;
 
+  // Segment transition state (SINGLE_BOSS_MODE)
+  segTransTimer: number;   // counts up from 0 when in waveEnd; auto-advances at 1.5s
+  segTransName: string;    // name to display during transition
+
   // Set by updateAttack() before each dispatch so sm()/st() can read wave debuff data
   currentWaveConf?: Wave;
 }
@@ -1292,6 +1322,7 @@ function createState(): GameData {
     adminInvincible: false, debugSpeedMult: 1,
     runScore: 0, wavesCleared: 0,
     bossChargeTimer: 0,
+    segTransTimer: 0, segTransName: '',
   };
 }
 
@@ -1299,8 +1330,9 @@ function resetForBoss(g: GameData, idx: number) {
   g.player = { x: BCX, y: BCY, hp: P_MAX_HP, invTimer: 0, flicker: false };
   g.bossIdx = idx;
   g.atkIdx = 0;
-  g.atkTimer = BOSSES[idx].atkDur;
+  g.atkTimer = BOSSES[idx].waves?.[0]?.duration ?? BOSSES[idx].atkDur;
   g.atkFinishTimer = -1;
+  g.segTransTimer = 0; g.segTransName = '';
   g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
   g.bossAngle = 0;
   g.bossX = BCX; g.bossY = BY - 80; g.bossTX = BCX; g.bossTY = BY - 80; g.bossMoveTimer = 0; g.bossFlashTimer = 0;
@@ -1762,6 +1794,15 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
   if (atk === 'boneColumns')       { doBoneColumns(g, dt, boss);         return; }
   if (atk === 'sansBarrage')       { doSansBarrage(g, dt, boss);         return; }
   if (atk === 'karmaField')        { doKarmaField(g, dt, boss);          return; }
+
+  // ── SINGLE BOSS MODE segment attacks ────────────────────────────
+  if (atk === 'phantomDash')       { doPhantomDash(g, dt, boss);         return; }
+  if (atk === 'judgmentRain')      { doJudgmentRain(g, dt, boss);        return; }
+  if (atk === 'soulShatterBurst')  { doSoulShatterBurst(g, dt, boss);    return; }
+  if (atk === 'falseMercy')        { doFalseMercy(g, dt, boss);          return; }
+  if (atk === 'riftCleave')        { doRiftCleave(g, dt, boss);          return; }
+  if (atk === 'boneCageSnap')      { doBoneCageSnap(g, dt, boss);        return; }
+  if (atk === 'finalSpiral')       { doFinalSpiral(g, dt, boss);         return; }
 }
 
 // --- BOSS SPECIALS applied every frame ---
@@ -1781,6 +1822,298 @@ function applyBossSpecials(g: GameData, dt: number, boss: BossConf) {
     }
   } else if (g.bossIdx !== 3) {
     g.timeDistorted = false;
+  }
+}
+
+// ================================================================
+// SINGLE BOSS MODE — 7 Segment Attacks
+// ================================================================
+
+// Segment 1: Phantom Dash — boss repositions rapidly, fires aimed bursts
+function doPhantomDash(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // Warn: pulsing warn markers fan out from boss
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: g.bossX + Math.cos(a) * 28, y: g.bossY + Math.sin(a) * 28, angle: a, r: 7, color: boss.color, timer: 1.0, maxTimer: 1.0 });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    return;
+  }
+
+  // Phase 1: burst aimed bullets from boss every 0.22s; move boss side-to-side
+  g.phaseTimer += dt;
+  const dashCycle = 2.2;
+  const halfCycle = dashCycle / 2;
+  const cyclePos = g.phaseTimer % dashCycle;
+  // Target alternates left/right edge
+  const targetX = cyclePos < halfCycle ? BX + 40 : BX + BW - 40;
+  const targetY = BY + BH * 0.35 + Math.sin(g.phaseTimer * 1.8) * 25;
+  g.bossTX = targetX; g.bossTY = targetY;
+
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = 0.22;
+    // Aimed burst of 5 bullets at player + spread
+    const px = g.player.x, py = g.player.y;
+    const baseAngle = Math.atan2(py - g.bossY, px - g.bossX);
+    const spread = 0.28;
+    for (let i = -2; i <= 2; i++) {
+      const a = baseAngle + i * spread;
+      const spd = 175 * sm(g);
+      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 5, color: boss.color, shape: 'diamond', rot: a, rotSpd: 4, frozen: false });
+    }
+    // Ghost afterimage bullet at offset position for "dash" feel
+    const ghostX = g.bossX + Math.cos(baseAngle + Math.PI) * 22;
+    const ghostY = g.bossY + Math.sin(baseAngle + Math.PI) * 22;
+    const ghostAngle = Math.atan2(py - ghostY, px - ghostX);
+    g.bullets.push({ id: nid(g), x: ghostX, y: ghostY, vx: Math.cos(ghostAngle) * 145 * sm(g), vy: Math.sin(ghostAngle) * 145 * sm(g), r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+  }
+}
+
+// Segment 2: Judgment Rain — columns of bullets fall from top in shifting lanes
+function doJudgmentRain(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      const lanes = [BX + BW * 0.15, BX + BW * 0.35, BX + BW * 0.6, BX + BW * 0.82];
+      for (const lx of lanes) {
+        for (let y = BY; y <= BY + BH; y += 26) {
+          g.warnMarkers.push({ id: nid(g), x: lx, y, angle: Math.PI / 2, r: 5, color: boss.color, timer: 1.2, maxTimer: 1.2 });
+        }
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0; }
+    return;
+  }
+
+  g.phaseTimer += dt;
+  g.spawnTimer -= dt;
+
+  // Shift lanes every 2.8s
+  const laneSet = Math.floor(g.phaseTimer / 2.8) % 2;
+  const lanes = laneSet === 0
+    ? [BX + BW * 0.15, BX + BW * 0.38, BX + BW * 0.62, BX + BW * 0.85]
+    : [BX + BW * 0.08, BX + BW * 0.28, BX + BW * 0.52, BX + BW * 0.72, BX + BW * 0.92];
+
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = st(0.065, g);
+    const lx = lanes[g.spawnCount % lanes.length];
+    g.spawnCount++;
+    const spd = 215 * sm(g);
+    g.bullets.push({ id: nid(g), x: lx + rand(-8, 8), y: BY - 8, vx: 0, vy: spd, r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+  }
+}
+
+// Segment 3: Soul Shatter Burst — expanding rings from center with rotating gaps
+function doSoulShatterBurst(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 18, y: BCY + Math.sin(a) * 18, angle: a, r: 6, color: boss.color2, timer: 1.0, maxTimer: 1.0 });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; }
+    return;
+  }
+
+  g.phaseTimer += dt;
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = 1.6;
+    // 2 rings per burst: one from center, one slightly offset
+    const gapAngle = Math.random() * Math.PI * 2;
+    const gapAngle2 = gapAngle + Math.PI + rand(-0.4, 0.4);
+    const spd = 105 * sm(g);
+    g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 12, speed: spd, thick: 11, gaps: [gapAngle, gapAngle + 0.55], gapSz: 0.75, color: boss.color });
+    g.rings.push({ id: nid(g), cx: BCX + rand(-20, 20), cy: BCY + rand(-12, 12), r: 8, speed: spd * 0.78, thick: 9, gaps: [gapAngle2, gapAngle2 + 0.55], gapSz: 0.65, color: boss.color2 });
+  }
+}
+
+// Segment 4: False Mercy — slow sparse phase, then massive eruption
+function doFalseMercy(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // "Mercy" phase — slow random bullets to lull player
+    g.phaseTimer += dt;
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = 0.55;
+      const a = Math.random() * Math.PI * 2;
+      const x = BCX + Math.cos(a) * rand(60, 120);
+      const y = BCY + Math.sin(a) * rand(40, 90);
+      if (x > BX && x < BX + BW && y > BY && y < BY + BH) {
+        const ta = Math.atan2(BCY - y, BCX - x) + rand(-0.3, 0.3);
+        g.bullets.push({ id: nid(g), x, y, vx: Math.cos(ta) * 65 * sm(g), vy: Math.sin(ta) * 65 * sm(g), r: 4, color: '#88ccff', shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+      }
+    }
+    if (g.phaseTimer >= 5.0) {
+      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = [];
+      // Warn ring before eruption
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 30, y: BCY + Math.sin(a) * 30, angle: a, r: 8, color: '#ff2244', timer: 0.9, maxTimer: 0.9 });
+      }
+    }
+    return;
+  }
+  if (g.phase === 1) {
+    // Brief warning pulse
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 0.9) {
+      g.phase = 2; g.phaseTimer = 0; g.warnMarkers = []; g.bullets = []; // clear mercy bullets
+      // Massive eruption: 3 dense rings + aimed spread
+      for (let ring = 0; ring < 3; ring++) {
+        const gapA = Math.random() * Math.PI * 2;
+        g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 10 + ring * 6, speed: (130 + ring * 18) * sm(g), thick: 13, gaps: [gapA, gapA + Math.PI], gapSz: 0.55, color: ring === 0 ? '#ff2244' : ring === 1 ? boss.color : boss.color2 });
+      }
+      // 24-way burst
+      for (let i = 0; i < 24; i++) {
+        const a = (i / 24) * Math.PI * 2;
+        const spd = (155 + (i % 3) * 22) * sm(g);
+        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 5, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 3, frozen: false });
+      }
+    }
+    return;
+  }
+  // Phase 2: sustained aimed fire after eruption
+  g.phaseTimer += dt;
+  g.spawnTimer -= dt;
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = st(0.18, g);
+    const a = Math.atan2(g.player.y - g.bossY, g.player.x - g.bossX) + rand(-0.25, 0.25);
+    const spd = 165 * sm(g);
+    g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 5, color: '#ff4466', shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+  }
+}
+
+// Segment 5: Rift Cleave — diagonal lasers in rapid succession
+function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // Warn phase: queue up two diagonal warn lines
+    if (g.diagWarns.length === 0) {
+      const angles = [Math.PI / 4, -Math.PI / 4, Math.PI * 3 / 4, -Math.PI * 3 / 4];
+      const chosen = angles[(g.spawnCount) % angles.length];
+      const cx = BCX + rand(-50, 50), cy = BCY + rand(-30, 30);
+      const L = Math.max(BW, BH);
+      g.diagWarns.push({ id: nid(g), x1: cx - Math.cos(chosen) * L, y1: cy - Math.sin(chosen) * L, x2: cx + Math.cos(chosen) * L, y2: cy + Math.sin(chosen) * L, width: 18, timer: 1.1, color: boss.color, fake: false });
+      const chosen2 = angles[(g.spawnCount + 2) % angles.length];
+      const cx2 = BCX + rand(-50, 50), cy2 = BCY + rand(-30, 30);
+      g.diagWarns.push({ id: nid(g), x1: cx2 - Math.cos(chosen2) * L, y1: cy2 - Math.sin(chosen2) * L, x2: cx2 + Math.cos(chosen2) * L, y2: cy2 + Math.sin(chosen2) * L, width: 18, timer: 1.1, color: boss.color2, fake: false });
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.1) {
+      // Fire lasers
+      for (const dw of g.diagWarns) {
+        g.diagLasers.push({ id: nid(g), x1: dw.x1, y1: dw.y1, x2: dw.x2, y2: dw.y2, width: dw.width, timer: 0.5, color: dw.color });
+      }
+      g.diagWarns = [];
+      g.phase = 1; g.phaseTimer = 0;
+    }
+    return;
+  }
+  // Phase 1: lasers active for 0.5s
+  g.phaseTimer += dt;
+  if (g.phaseTimer >= 0.55) {
+    g.diagLasers = [];
+    g.phase = 0; g.phaseTimer = 0; g.spawnCount++;
+  }
+}
+
+// Segment 6: Bone Cage Snap — danger zones close from all sides
+function doBoneCageSnap(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    // Warn: show wall warn markers on all 4 edges
+    if (g.warnMarkers.length === 0) {
+      const w = 30;
+      for (let x = BX; x < BX + BW; x += 20) {
+        g.warnMarkers.push({ id: nid(g), x, y: BY, angle: 0, r: 6, color: boss.color, timer: 1.1, maxTimer: 1.1 });
+        g.warnMarkers.push({ id: nid(g), x, y: BY + BH, angle: 0, r: 6, color: boss.color, timer: 1.1, maxTimer: 1.1 });
+      }
+      for (let y = BY; y < BY + BH; y += 20) {
+        g.warnMarkers.push({ id: nid(g), x: BX, y, angle: 0, r: 6, color: boss.color, timer: 1.1, maxTimer: 1.1 });
+        g.warnMarkers.push({ id: nid(g), x: BX + BW, y, angle: 0, r: 6, color: boss.color, timer: 1.1, maxTimer: 1.1 });
+      }
+      g.spawnTimer = w; // store wall-inset progress
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.1) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; g.spawnCount = 0; }
+    return;
+  }
+  if (g.phase === 1) {
+    // Snap cage: danger zone walls advance from all sides with growing inset
+    g.phaseTimer += dt;
+    const inset = Math.min(g.phaseTimer * 28, 80); // max 80px inset
+    g.dangerZones = [];
+    // Top wall
+    g.dangerZones.push({ id: 1, x: BX, y: BY, w: BW, h: inset, warnTimer: -1, activeTimer: 0.2, color: boss.color });
+    // Bottom wall
+    g.dangerZones.push({ id: 2, x: BX, y: BY + BH - inset, w: BW, h: inset, warnTimer: -1, activeTimer: 0.2, color: boss.color });
+    // Left wall
+    g.dangerZones.push({ id: 3, x: BX, y: BY + inset, w: inset, h: BH - inset * 2, warnTimer: -1, activeTimer: 0.2, color: boss.color });
+    // Right wall
+    g.dangerZones.push({ id: 4, x: BX + BW - inset, y: BY + inset, w: inset, h: BH - inset * 2, warnTimer: -1, activeTimer: 0.2, color: boss.color });
+
+    // Add spiral bullets from boss while walls are closing
+    g.spawnTimer -= dt;
+    if (g.spawnTimer <= 0) {
+      g.spawnTimer = st(0.12, g);
+      const angle = g.phaseTimer * 3.5;
+      const spd = 118 * sm(g);
+      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 2, frozen: false });
+    }
+
+    if (inset >= 80) {
+      // Open up
+      g.phase = 2; g.phaseTimer = 0; g.dangerZones = [];
+    }
+    return;
+  }
+  // Phase 2: brief breathing room then repeat
+  g.phaseTimer += dt;
+  if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.spawnCount++; }
+}
+
+// Segment 7: Final Spiral — dense rotating spiral with increasing speed
+function doFinalSpiral(g: GameData, dt: number, boss: BossConf) {
+  if (g.phase === 0) {
+    if (g.warnMarkers.length === 0) {
+      for (let i = 0; i < 20; i++) {
+        const a = (i / 20) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 35, y: BCY + Math.sin(a) * 35, angle: a, r: 7, color: boss.color, timer: 1.2, maxTimer: 1.2 });
+      }
+    }
+    g.phaseTimer += dt;
+    if (g.phaseTimer >= 1.2) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.spawnTimer = 0; }
+    return;
+  }
+
+  g.phaseTimer += dt;
+  g.spawnTimer -= dt;
+
+  // Spiral: 3 arms, each fires bullets
+  const rampup = Math.min(g.phaseTimer / 6.0, 1.0);
+  const interval = st(0.09 - rampup * 0.04, g);
+  const spiralSpd = (130 + rampup * 50) * sm(g);
+  const armCount = 3;
+
+  if (g.spawnTimer <= 0) {
+    g.spawnTimer = interval;
+    const baseAngle = g.phaseTimer * (2.8 + rampup * 1.2);
+    for (let arm = 0; arm < armCount; arm++) {
+      const a = baseAngle + (arm / armCount) * Math.PI * 2;
+      g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spiralSpd, vy: Math.sin(a) * spiralSpd, r: 5.5, color: arm === 0 ? boss.color : arm === 1 ? boss.color2 : '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false });
+    }
+    // Secondary aimed layer every 4th pulse
+    if (g.spawnCount % 4 === 0) {
+      const aimA = Math.atan2(g.player.y - BCY, g.player.x - BCX);
+      g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(aimA) * 155 * sm(g), vy: Math.sin(aimA) * 155 * sm(g), r: 6, color: '#ff4466', shape: 'diamond', rot: aimA, rotSpd: 4, frozen: false });
+    }
+    g.spawnCount++;
   }
 }
 
@@ -4372,6 +4705,10 @@ function update(
   if (g.state === 'bossWin') {
     g.postBossTimer += cap;
     if (g.keys.has('r') || g.keys.has('R')) { resetForBoss(g, 0); g.state = 'title'; return; }
+    if (SINGLE_BOSS_MODE) {
+      if (g.postBossTimer >= 2.5) { g.state = 'finalVictory'; }
+      return;
+    }
     if (g.postBossTimer >= 3.0 && (g.keys.has('Enter') || g.keys.has(' '))) {
       const next = g.bossIdx + 1;
       if (next >= BOSSES.length) { g.state = 'finalVictory'; }
@@ -4389,8 +4726,25 @@ function update(
     return;
   }
 
-  // ---- WAVE END — React overlay handles interaction ----
-  if (g.state === 'waveEnd') return;
+  // ---- WAVE END ----
+  if (g.state === 'waveEnd') {
+    if (SINGLE_BOSS_MODE) {
+      g.segTransTimer += cap;
+      if (g.segTransTimer >= 1.5) {
+        g.segTransTimer = 0;
+        const isBossWin = g.waveEndIsBossWin;
+        g.waveEndIsBossWin = false;
+        if (isBossWin) {
+          g.state = 'bossWin';
+          g.postBossTimer = 0;
+        } else {
+          g.state = 'playing';
+          g.bossMoveTimer = 0;
+        }
+      }
+    }
+    return;
+  }
 
   // ---- PLAYING ----
   if ((g.keys.has('r') || g.keys.has('R')) && !inputFocused) {
@@ -4498,7 +4852,8 @@ function update(
   // Collision & damage
   if (checkHit(g) && !g.adminInvincible) {
     g.hitsThisWave++;
-    g.player.hp -= boss.dmg * g.diffMult;
+    const hitDmg = SINGLE_BOSS_MODE ? (SEGMENT_DAMAGE[g.atkIdx] ?? boss.dmg) : boss.dmg;
+    g.player.hp -= hitDmg * g.diffMult;
     g.player.invTimer = P_INV;
     shake(g);
     if (g.player.hp <= 0) {
@@ -4541,11 +4896,13 @@ function update(
         g.waveEndIsBossWin = true;
       } else {
         g.waveEndIsBossWin = false;
-        g.atkTimer = boss.atkDur;
+        g.atkTimer = boss.waves?.[g.atkIdx]?.duration ?? boss.atkDur;
         g.atkFinishTimer = -1;
         g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
       }
       g.state = 'waveEnd';
+      g.segTransTimer = 0;
+      g.segTransName = SINGLE_BOSS_MODE ? (SEGMENT_NAMES[g.atkIdx] ?? '') : '';
     }
   }
 }
@@ -5470,7 +5827,121 @@ function drawStarPoints(ctx: CanvasRenderingContext2D, g: GameData, boss: BossCo
 
 const HP_X = 28, HP_Y = 458, HP_W = 220, HP_H = 14;
 
+// ================================================================
+// SINGLE BOSS MODE — Premium HUD
+// ================================================================
+function drawSingleBossHUD(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
+  const boss = BOSSES[g.bossIdx];
+  const segIdx = Math.min(g.atkIdx, SEGMENT_NAMES.length - 1);
+  const segName = SEGMENT_NAMES[segIdx] ?? '';
+
+  // ── Top-left: HP bar ───────────────────────────────────────────
+  const hpBX = 20, hpBY = 14, hpBW = 180, hpBH = 12;
+  ctx.fillStyle = '#fff'; ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff88';
+  ctx.font = 'bold 10px "Courier New", monospace'; ctx.textAlign = 'left';
+  ctx.fillText('HP', hpBX, hpBY - 3);
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#1a0a0a'; ctx.fillRect(hpBX, hpBY, hpBW, hpBH);
+  const hpRatio = Math.max(0, g.player.hp / P_MAX_HP);
+  const hpFill = hpRatio > 0.5 ? '#44ff88' : hpRatio > 0.25 ? '#ffcc00' : '#ff2244';
+  ctx.fillStyle = hpFill; ctx.shadowBlur = 14; ctx.shadowColor = hpFill;
+  ctx.fillRect(hpBX, hpBY, hpBW * hpRatio, hpBH);
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#ffffff33'; ctx.lineWidth = 1;
+  ctx.strokeRect(hpBX, hpBY, hpBW, hpBH);
+  ctx.fillStyle = '#cccccc'; ctx.font = '10px "Courier New", monospace';
+  ctx.fillText(`${Math.ceil(Math.max(0, g.player.hp))}/${P_MAX_HP}`, hpBX + hpBW + 7, hpBY + 10);
+
+  // ── Top-center: SOUL ◇ RUSH logo ──────────────────────────────
+  const logoY = 22;
+  const pulse = 0.85 + 0.15 * Math.sin(g.time * 2.8);
+  ctx.save();
+  ctx.shadowBlur = 28 * pulse; ctx.shadowColor = '#cc44ff';
+  ctx.fillStyle = '#cc44ff'; ctx.font = 'bold 15px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText('SOUL', W / 2 - 36, logoY);
+  ctx.shadowBlur = 28 * pulse; ctx.shadowColor = '#ff2244';
+  ctx.fillStyle = '#ff2244';
+  ctx.fillText('RUSH', W / 2 + 34, logoY);
+  ctx.shadowBlur = 8; ctx.shadowColor = '#ffffff88'; ctx.fillStyle = '#ffffff55';
+  ctx.font = 'bold 12px "Courier New", monospace';
+  ctx.fillText('\u25C7', W / 2, logoY);
+  ctx.restore();
+
+  // ── Top-right: SEGMENT N — name ────────────────────────────────
+  const segTotal = boss.attacks.length;
+  const segLabel = `SEGMENT ${segIdx + 1} / ${segTotal}`;
+  ctx.shadowBlur = 12; ctx.shadowColor = '#ff88cc'; ctx.fillStyle = '#ff88cc';
+  ctx.font = 'bold 11px "Courier New", monospace'; ctx.textAlign = 'right';
+  ctx.fillText(segLabel, W - 20, 14);
+  ctx.shadowBlur = 8; ctx.shadowColor = '#ffffff88'; ctx.fillStyle = '#ffffff';
+  ctx.font = '10px "Courier New", monospace';
+  ctx.fillText(segName, W - 20, 27);
+  ctx.shadowBlur = 0;
+
+  // ── Segment progress bar (top-right, under segment name) ────────
+  const sbW = 155, sbH = 4, sbX = W - 20 - sbW, sbY = 32;
+  const waveDur = boss.waves?.[segIdx]?.duration ?? boss.atkDur;
+  const tRatio = Math.max(0, g.atkTimer / waveDur);
+  ctx.fillStyle = '#111'; ctx.fillRect(sbX, sbY, sbW, sbH);
+  const tCol = tRatio > 0.5 ? '#ff88cc' : tRatio > 0.25 ? '#ffcc00' : '#ff2244';
+  ctx.fillStyle = tCol; ctx.shadowBlur = 8; ctx.shadowColor = tCol;
+  ctx.fillRect(sbX, sbY, sbW * tRatio, sbH);
+  ctx.shadowBlur = 0; ctx.strokeStyle = '#ffffff22'; ctx.lineWidth = 1;
+  ctx.strokeRect(sbX, sbY, sbW, sbH);
+
+  // ── Boss name / title (below logo) ─────────────────────────────
+  ctx.shadowBlur = 10; ctx.shadowColor = boss.color; ctx.fillStyle = boss.color;
+  ctx.font = 'bold 11px "Courier New", monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`${boss.name} \u2014 ${boss.title}`, W / 2, logoY + 15);
+  ctx.shadowBlur = 0;
+
+  // ── Admin overlay ───────────────────────────────────────────────
+  if (adminMode) {
+    const dl = DIFF_LEVELS[diffIdx];
+    ctx.fillStyle = '#00ffcc'; ctx.shadowBlur = 8; ctx.shadowColor = '#00ffcc';
+    ctx.font = 'bold 10px "Courier New", monospace'; ctx.textAlign = 'left';
+    ctx.fillText(`[ADMIN] ${dl.label} ${dl.mult}x  |  SEG ${segIdx + 1}  |  I:inv  C:clear  N:next  B:restart`, 20, hpBY + 26);
+    ctx.shadowBlur = 0;
+  }
+
+  // ── Status messages (center-bottom area) ────────────────────────
+  ctx.textAlign = 'center';
+  if (g.ctrlFlipped) {
+    ctx.fillStyle = '#ff3300'; ctx.shadowColor = '#ff3300'; ctx.shadowBlur = 16;
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText('\u26A0 CONTROLS FLIPPED \u26A0', W / 2, BY - 10);
+  }
+  if (g.timeDistorted) {
+    ctx.fillStyle = '#ff9900'; ctx.shadowColor = '#ff9900'; ctx.shadowBlur = 16;
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText('\u23F1 TIME DISTORTED \u23F1', W / 2, BY + BH + 24);
+  }
+  if (g.timeFrozen) {
+    const alpha = 0.6 + 0.4 * Math.sin(g.time * 12);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaddff'; ctx.shadowColor = '#aaddff'; ctx.shadowBlur = 22;
+    ctx.font = 'bold 16px "Courier New", monospace';
+    ctx.fillText('\u2014 TIME FREEZE \u2014', W / 2, BY - 10);
+    ctx.globalAlpha = 1;
+  }
+  if (g.pullActive) {
+    const pulse2 = 0.5 + 0.5 * Math.sin(g.time * 6);
+    ctx.globalAlpha = pulse2;
+    ctx.fillStyle = '#00ccff'; ctx.shadowColor = '#00ccff'; ctx.shadowBlur = 16;
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillText(`\u21E2 CURRENT PULLING ${g.currentPullX < 0 ? 'LEFT' : 'RIGHT'} \u21E2`, W / 2, BY - 10);
+    ctx.globalAlpha = 1;
+  }
+  ctx.shadowBlur = 0;
+}
+
+// ================================================================
+// LEGACY HUD (multi-boss mode)
+// ================================================================
 function drawUI(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
+  if (SINGLE_BOSS_MODE) { drawSingleBossHUD(ctx, g, adminMode, diffIdx); return; }
+
   const boss = BOSSES[g.bossIdx];
 
   ctx.fillStyle = '#ff4466'; ctx.shadowBlur = 8; ctx.shadowColor = '#ff4466';
@@ -5804,7 +6275,7 @@ function renderTitle(ctx: CanvasRenderingContext2D, time: number) {
   ctx.fillText('RUSH', 0, 76);
   ctx.restore();
   ctx.shadowBlur = 0; ctx.fillStyle = '#777777'; ctx.font = '13px "Courier New", monospace'; ctx.textAlign = 'center';
-  ctx.fillText('— 10-BOSS RUSH MODE  \u2665  BULLET HELL —', W / 2, H / 2 + 14);
+  ctx.fillText(SINGLE_BOSS_MODE ? '\u2014 SINGLE BOSS  \u25C7  7 SEGMENTS  \u2014' : '— 10-BOSS RUSH MODE  \u2665  BULLET HELL —', W / 2, H / 2 + 14);
   ctx.fillStyle = '#555';
   ['MOVE: Arrow Keys / WASD', 'PAUSE: P    RESTART: R'].forEach((s, i) => ctx.fillText(s, W / 2, H / 2 + 50 + i * 20));
   ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 3);
@@ -5903,6 +6374,22 @@ function renderFinalVictory(ctx: CanvasRenderingContext2D, time: number) {
     ctx.fillStyle = `hsla(${(time * 55 + i * 22) % 360},100%,55%,0.025)`;
     ctx.fillRect(0, 0, W, H);
   }
+  if (SINGLE_BOSS_MODE) {
+    ctx.shadowBlur = 44; ctx.shadowColor = '#cc44ff'; ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 42px "Courier New", monospace'; ctx.textAlign = 'center';
+    ctx.fillText('WARDEN SHATTERED', W / 2, H / 2 - 68);
+    ctx.shadowBlur = 20; ctx.shadowColor = '#ff88cc'; ctx.fillStyle = '#ff88cc';
+    ctx.font = 'bold 20px "Courier New", monospace';
+    ctx.fillText('The Glass Warden dissolves into soul-light.', W / 2, H / 2 - 22);
+    ctx.shadowBlur = 8; ctx.shadowColor = '#88ccff'; ctx.fillStyle = '#88ccff';
+    ctx.font = '14px "Courier New", monospace';
+    ctx.fillText('All 7 segments survived.', W / 2, H / 2 + 22);
+    ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 2.2);
+    ctx.fillStyle = '#fff'; ctx.shadowBlur = 8; ctx.shadowColor = '#fff'; ctx.font = '13px "Courier New", monospace';
+    ctx.fillText('[ R or ENTER — return to title ]', W / 2, H / 2 + 80);
+    ctx.globalAlpha = 1;
+    return;
+  }
   ctx.shadowBlur = 44; ctx.shadowColor = '#00ffff'; ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 32px "Courier New", monospace'; ctx.textAlign = 'center';
   ctx.fillText('You survived the end of rules.', W / 2, H / 2 - 58);
@@ -5916,13 +6403,57 @@ function renderFinalVictory(ctx: CanvasRenderingContext2D, time: number) {
   ctx.globalAlpha = 1;
 }
 
+// Segment transition overlay (SINGLE_BOSS_MODE) — drawn on top of frozen playing frame
+function renderSegmentTransition(ctx: CanvasRenderingContext2D, g: GameData, elapsed: number) {
+  const nextIdx = g.atkIdx;
+  const segName = SEGMENT_NAMES[nextIdx] ?? '';
+  const segNum  = nextIdx + 1;
+  const segTotal = BOSSES[g.bossIdx].attacks.length;
+  const fadeIn  = Math.min(elapsed / 0.35, 1.0);
+  const fadeOut = elapsed > 1.1 ? 1.0 - Math.min((elapsed - 1.1) / 0.4, 1.0) : 1.0;
+  const alpha   = fadeIn * fadeOut;
+
+  ctx.save();
+  ctx.globalAlpha = alpha * 0.78;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalAlpha = alpha;
+
+  const boss = BOSSES[g.bossIdx];
+  const pulse = 1.0 + 0.04 * Math.sin(elapsed * 8);
+
+  ctx.shadowBlur = 40; ctx.shadowColor = boss.color;
+  ctx.fillStyle = '#ffffff22'; ctx.font = `bold 110px "Courier New", monospace`; ctx.textAlign = 'center';
+  ctx.fillText(`${segNum}`, W / 2, H / 2 + 48);
+
+  ctx.shadowBlur = 24; ctx.shadowColor = '#ff88cc'; ctx.fillStyle = '#ff88cc';
+  ctx.font = `bold 11px "Courier New", monospace`;
+  ctx.fillText(`SEGMENT ${segNum} / ${segTotal}`, W / 2, H / 2 - 58);
+
+  ctx.save();
+  ctx.translate(W / 2, H / 2 - 22);
+  ctx.scale(pulse, pulse);
+  ctx.shadowBlur = 32; ctx.shadowColor = boss.color; ctx.fillStyle = boss.color;
+  ctx.font = `bold 28px "Courier New", monospace`;
+  ctx.fillText(segName, 0, 0);
+  ctx.restore();
+
+  ctx.shadowBlur = 0; ctx.fillStyle = '#ffffff44'; ctx.font = '11px "Courier New", monospace';
+  ctx.fillText(boss.waves?.[nextIdx]?.description ?? '', W / 2, H / 2 + 18);
+
+  ctx.restore();
+}
+
 function render(ctx: CanvasRenderingContext2D, g: GameData, adminMode: boolean, diffIdx: number) {
   ctx.clearRect(0, 0, W, H);
   switch (g.state) {
     case 'title':    renderTitle(ctx, g.time);                   break;
     case 'intro':    renderIntro(ctx, g);                        break;
     case 'playing':  renderPlaying(ctx, g, adminMode, diffIdx);  break;
-    case 'waveEnd':  renderPlaying(ctx, g, adminMode, diffIdx);  break; // frozen frame under the React overlay
+    case 'waveEnd':
+      renderPlaying(ctx, g, adminMode, diffIdx); // frozen frame underneath
+      if (SINGLE_BOSS_MODE) { renderSegmentTransition(ctx, g, g.segTransTimer); }
+      break;
     case 'bossWin':  renderBossWin(ctx, g);                      break;
     case 'gameOver': renderGameOver(ctx, g);                     break;
     case 'victory':       renderVictory(ctx, g.time);       break;
@@ -6464,7 +6995,7 @@ export default function SoulRush() {
     const id = setInterval(() => {
       forceRender(n => n + 1);
       const g = gameRef.current;
-      if (g.state === 'waveEnd' && !waveEndShownRef.current) {
+      if (g.state === 'waveEnd' && !waveEndShownRef.current && !SINGLE_BOSS_MODE) {
         waveEndShownRef.current = true;
         const bIdx = g.waveEndBossIdx;
         const wIdx = g.waveEndWaveIdx;
@@ -6494,18 +7025,20 @@ export default function SoulRush() {
         setPendingItem(null);
       }
 
-      // finalVictory — show congratulations overlay and submit score once
+      // finalVictory — show congratulations overlay and submit score (only outside SINGLE_BOSS_MODE)
       if (g.state === 'finalVictory' && !finalVictoryShownRef.current) {
         finalVictoryShownRef.current = true;
-        const pName = g.state === 'finalVictory' ? (localStorage.getItem('soulrush_name') ?? 'PLAYER') : 'PLAYER';
-        setCongratsData({ name: pName, score: g.runScore, wavesCleared: g.wavesCleared });
-        setCongratsVisible(true);
-        submitScoreToApi(pName, g.runScore, g.wavesCleared, BOSSES.length - 1, true);
+        if (!SINGLE_BOSS_MODE) {
+          const pName = localStorage.getItem('soulrush_name') ?? 'PLAYER';
+          setCongratsData({ name: pName, score: g.runScore, wavesCleared: g.wavesCleared });
+          setCongratsVisible(true);
+          submitScoreToApi(pName, g.runScore, g.wavesCleared, BOSSES.length - 1, true);
+        }
       }
       if (g.state !== 'finalVictory') { finalVictoryShownRef.current = false; }
 
-      // gameOver — auto-open leaderboard after 1.5 s delay
-      if (g.state === 'gameOver' && g.gameOverTimer >= 1.5 && !gameOverLbShownRef.current) {
+      // gameOver — auto-open leaderboard after 1.5 s delay (disabled in SINGLE_BOSS_MODE)
+      if (!SINGLE_BOSS_MODE && g.state === 'gameOver' && g.gameOverTimer >= 1.5 && !gameOverLbShownRef.current) {
         gameOverLbShownRef.current = true;
         openLeaderboard(localStorage.getItem('soulrush_name') ?? '');
       }
@@ -6639,8 +7172,8 @@ export default function SoulRush() {
           );
         })()}
 
-        {/* Title screen — LEADERBOARD button */}
-        {gameRef.current.state === 'title' && (
+        {/* Title screen — LEADERBOARD button (hidden in SINGLE_BOSS_MODE) */}
+        {gameRef.current.state === 'title' && !SINGLE_BOSS_MODE && (
           <div style={{ position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
             <button
               onClick={() => openLeaderboard()}
