@@ -1,0 +1,678 @@
+You are editing my existing game project.
+
+IMPORTANT:
+Keep the current boss design and current visual identity.
+Do NOT redesign the boss.
+Do NOT replace the current Warden.
+Do NOT change the core dark neon cyber-gothic style.
+
+This pass must do 4 things at once:
+
+1. Make the boss moves actually work with no broken logic.
+2. Remove transitions between moves.
+3. Add 5 usable characters.
+4. Improve decoration, boss animation, and attack animation.
+
+==================================================
+CORE GOAL
+=========
+
+Build one polished first boss fight where:
+
+* the current Warden boss stays exactly as the main boss identity
+* the fight uses 7 unique moves in a fixed order
+* each move happens once only
+* there are NO transition screens, NO long pauses, NO title-card delays between moves
+* when one move ends, the next move starts immediately
+* all moves work reliably every run
+* 5 playable/selectable characters exist
+* all 5 characters are usable by any player
+* the 5 characters are gameplay-equivalent for now
+* no character has unique abilities, special stats, different hitboxes, or different movement rules
+* characters are visual choices only for now
+* startup must never error
+* attack visuals, boss visuals, and arena decoration must be more premium
+
+==================================================
+ABSOLUTE RULES
+==============
+
+KEEP:
+
+* current Warden boss design
+* current arena identity
+* current overall HUD direction
+* current red/magenta/black look
+* current small player-in-arena readability
+
+DO NOT:
+
+* redesign the boss again
+* create transition scenes between moves
+* pause for dramatic cutaways between attacks
+* repeat moves in the same run
+* let old hazards remain active after a move ends
+* let startup fail because of missing references
+* give different characters different gameplay power
+* add abilities to character selection
+
+==================================================
+NO TRANSITIONS RULE
+===================
+
+There should be NO visible transition phase between moves.
+
+That means:
+
+* no separate transition state with a pause
+* no segment intermission card
+* no freeze frame between moves
+* no extra label sequence that interrupts gameplay
+
+Instead:
+
+* as soon as one move finishes cleanup, the next move begins telegraphing immediately
+* allowed downtime between moves: 0.0 to 0.15 seconds maximum
+* this should feel like one continuous elite boss sequence
+* the fight should flow, not stop-start
+
+Move flow should feel like:
+cleanup of move N -> next move telegraph immediately -> next move active
+
+==================================================
+5 USABLE CHARACTERS
+===================
+
+Add 5 playable character choices.
+
+Rules:
+
+* all 5 are available from the start
+* all 5 are usable by any player/user
+* all 5 use the exact same gameplay logic
+* same HP
+* same speed
+* same hurtbox / hitbox size
+* same movement
+* same dash behavior if dash exists
+* no abilities
+* no passive bonuses
+* no different attack powers
+* no stat differences at all
+
+These are visual/player-shell choices only.
+
+Implement 5 characters as:
+
+1. The Wanderer
+2. The Exile
+3. The Keeper
+4. The Harbinger
+5. The Veil
+
+Character requirements:
+
+* each must be visually distinct
+* each must fit the same game world and visual style
+* each must remain readable inside the arena
+* keep them faceless or mostly unreadable if that already matches the current style
+* preserve the current small-player readability standard
+
+Selection requirements:
+
+* character select menu should allow choosing any of the 5
+* once selected, that character is used in gameplay
+* gameplay logic should not branch by character
+* all attack interactions remain identical regardless of which character is chosen
+
+==================================================
+MAKE SURE MOVES WORK
+====================
+
+This is the highest priority.
+
+Current problem:
+moves are breaking, desyncing, or behaving unreliably.
+
+Fix this by rebuilding move logic around a strict fight state machine.
+
+Use a clean deterministic sequence like:
+
+* intro
+* move_1
+* move_2
+* move_3
+* move_4
+* move_5
+* move_6
+* move_7
+* boss_end
+
+Each move must manage:
+
+* telegraph start
+* active phase
+* follow-up phase if needed
+* cleanup
+* immediate handoff to the next move
+
+Do NOT use messy overlapping timers that can double-trigger.
+Do NOT leave move logic spread across unrelated scripts if that causes desync.
+Refactor if needed.
+
+Every move must:
+
+* spawn telegraph correctly
+* wait the correct telegraph time
+* activate hitboxes only when visuals say it should
+* remove hitboxes correctly
+* remove hazards correctly
+* fully cleanup before the next move starts
+* never persist invisibly into the next move
+* never stack duplicate move instances
+* never trigger twice by accident
+
+==================================================
+STARTUP / ERROR-PROOFING
+========================
+
+The fight must start cleanly every time.
+
+Before the boss sequence begins, verify all required references:
+
+* player exists
+* selected character exists
+* boss exists
+* arena exists
+* attack container exists
+* hazard pool exists
+* UI labels exist
+* HP bar exists
+* character selection data exists
+* move definitions loaded successfully
+
+On start:
+
+* preload move assets
+* preload hazard objects
+* initialize all nodes safely
+* clear old hazards from previous run
+* reset boss pose
+* reset player state
+* reset UI state
+* only then start move 1
+
+Add safety:
+
+* null checks
+* missing-node checks
+* fallback handling
+* no hard crash on missing references
+* if a dependency is missing, fail gracefully with a clear debug log instead of starting a broken move
+
+==================================================
+MOVE ORDER
+==========
+
+Use this exact fixed order.
+Each move happens once only.
+No repeats.
+
+1. Sever Line
+2. Cathedral Drop
+3. Crown Bloom
+4. Trial Corridor
+5. Judicator Cross
+6. Prison Seal
+7. Rosette Spiral
+
+==================================================
+MOVE 1 — SEVER LINE
+===================
+
+Goal:
+Horizontal execution pattern with correction timing.
+
+Behavior:
+
+* one horizontal lane is marked with a large warning band
+* main execution beam fires across that lane
+* a thinner echo beam fires in an adjacent lane
+* a very brief micro-pulse flashes on the original line
+* cleanup completes immediately
+* next move begins immediately
+
+Movement test:
+
+* dodge first lane
+* correct into second lane
+* avoid returning too early
+
+Implementation rules:
+
+* define 3 fixed horizontal lanes
+* choose main lane
+* choose adjacent echo lane
+* fire main beam first
+* fire echo second
+* micro-pulse last
+* delete all beam hitboxes after the move ends
+
+Unique boss animation:
+
+* shoulders compress inward
+* head/core lowers
+* horizontal energy lines form
+* hard linear release
+* short recoil
+
+Unique VFX:
+
+* striped warning band
+* bright beam core
+* motion streak arrows
+* thinner echo beam
+* sharp spark impacts at arena walls
+
+==================================================
+MOVE 2 — CATHEDRAL DROP
+=======================
+
+Goal:
+Column strike pattern with shifting safe lane.
+
+Behavior:
+
+* 5 to 7 columns telegraph
+* one safe lane is clearly open
+* first pillar wave lands
+* safe lane shifts exactly one lane
+* second staggered wave lands
+* delayed trap pillar hits the previous comfort lane
+* cleanup completes immediately
+* next move begins immediately
+
+Movement test:
+
+* move once
+* read the shift
+* move again
+* avoid delayed comfort-lane punishment
+
+Implementation rules:
+
+* use fixed column grid
+* compute one valid safe lane
+* shift safe lane one column only
+* never make all lanes unsafe
+* telegraph and hit timing must match exactly
+
+Unique boss animation:
+
+* boss rises slightly
+* upper halo/core intensifies
+* downward strike authority pose
+
+Unique VFX:
+
+* tall red column telegraphs
+* heavy impact pillars
+* floor crack bursts
+* delayed trap reticle
+* quick impact fade
+
+==================================================
+MOVE 3 — CROWN BLOOM
+====================
+
+Goal:
+Radial geometry exam with clear safe arc.
+
+Behavior:
+
+* boss charges a crown-like core
+* first radial bloom fires with one obvious safe arc
+* second rotated bloom fires
+* delayed return shards drift inward from the edges
+* cleanup completes immediately
+* next move begins immediately
+
+Movement test:
+
+* identify first safe arc
+* rotate to second safe arc
+* avoid drifting outward too far
+
+Implementation rules:
+
+* use deterministic radial shard counts
+* define one safe arc per bloom
+* define controlled rotation for bloom two
+* keep return shards low count and authored
+* do not randomize into chaos
+
+Unique boss animation:
+
+* chest/core gathers energy inward
+* crest/halo lights up
+* strong bloom release posture
+
+Unique VFX:
+
+* crown-core charge flare
+* elegant shard spokes
+* rotated second bloom
+* delayed edge returns
+* clean circular geometry
+
+==================================================
+MOVE 4 — TRIAL CORRIDOR
+=======================
+
+Goal:
+Deception corridor with a true path shift.
+
+Behavior:
+
+* multiple vertical corridors appear
+* several look safe
+* false corridors start collapsing
+* one true corridor remains
+* the true corridor shifts once to a nearby lane
+* the shift is telegraphed by pulse difference and edge highlight
+* old corridor collapses
+* cleanup completes immediately
+* next move begins immediately
+
+Movement test:
+
+* recognize real path
+* resist false safety
+* shift once correctly
+
+Implementation rules:
+
+* true path shift happens once only
+* shift must be adjacent or near-adjacent
+* collapse order must be deterministic
+* telegraph for the real path must be visible before collapse
+
+Unique boss animation:
+
+* boss becomes still and judgmental
+* symmetrical pose
+* subtle deception pulse in the core
+
+Unique VFX:
+
+* corridor wall glow
+* collapse debris
+* cyan-highlight true path cue
+* clear shift indicator
+* fast collapse cleanup
+
+==================================================
+MOVE 5 — JUDICATOR CROSS
+========================
+
+Goal:
+Two-step diagonal cleave with safe wedge.
+
+Behavior:
+
+* first diagonal rift telegraph appears
+* first cleave opens
+* second crossing telegraph appears
+* second cleave opens
+* narrow safe wedge remains
+* light edge-burst punishes hugging the slash
+* cleanup completes immediately
+* next move begins immediately
+
+Movement test:
+
+* survive first diagonal
+* move into wedge
+* avoid hugging slash edges
+
+Implementation rules:
+
+* use authored diagonal combinations only
+* slash width must match visible damage width
+* wedge must be real and stable
+* edge-burst must be light and fast
+
+Unique boss animation:
+
+* diagonal torso twist
+* one side pulls back
+* heavy cross-cleave release
+
+Unique VFX:
+
+* giant diagonal fracture lines
+* smoky rupture energy
+* bright slash-open frame
+* edge crackle burst
+* premium X-shape composition
+
+==================================================
+MOVE 6 — PRISON SEAL
+====================
+
+Goal:
+Technical inner-cage movement test.
+
+Behavior:
+
+* an inner rectangular cage forms around the player
+* one corner seal ignites and bursts
+* opposite or alternate corner seal ignites next
+* a pressure sweep crosses the cage
+* safe pocket shifts once
+* cage dissolves
+* cleanup completes immediately
+* next move begins immediately
+
+Movement test:
+
+* micro-movement
+* dodge corner bursts
+* react to sweep
+* use shifted safe pocket
+
+Implementation rules:
+
+* only 2 or 3 authored variants max
+* sweep direction must be telegraphed
+* safe pocket shift must be readable
+* cage collision must match visible borders
+
+Unique boss animation:
+
+* both arms clamp inward
+* seal-control pose
+* core flashes tied to each corner burst
+
+Unique VFX:
+
+* glowing cage lines
+* corner sigils
+* controlled burst flares
+* bright sweep beam
+* clean dissolve at the end
+
+==================================================
+MOVE 7 — ROSETTE SPIRAL
+=======================
+
+Goal:
+Final flow-movement exam.
+
+Behavior:
+
+* spiral arms bloom across the arena
+* one readable safe lane curves through the pattern
+* spiral rotates
+* spiral tightens once
+* spiral shifts tempo or reverses once only
+* final ring burst telegraphs
+* final burst resolves
+* move ends
+* boss sequence ends
+
+Movement test:
+
+* follow curved safe lane
+* adapt to one tempo shift
+* prepare for final burst
+
+Implementation rules:
+
+* keep spiral readable
+* use one tempo change only
+* final burst must be clearly telegraphed
+* fully clear the arena after the move ends
+
+Unique boss animation:
+
+* boss expands to widest silhouette
+* strongest halo/core glow
+* final dominance pose
+* visible drain/recovery after release
+
+Unique VFX:
+
+* elegant spiral trails
+* layered rotating petals
+* readable safe curve
+* final ring telegraph
+* dramatic collapse pulse
+
+==================================================
+UNIQUE ANIMATION RULE
+=====================
+
+Every move must have:
+
+* unique boss startup pose
+* unique active boss animation
+* unique telegraph visuals
+* unique attack VFX language
+* unique cleanup feel
+
+Do NOT reuse the same generic beam/collapse/spawn effect for every move.
+
+==================================================
+BETTER DECORATION
+=================
+
+Improve the boss room and arena decoration.
+
+Arena improvements:
+
+* better floor panel lines
+* subtle inner geometric patterns
+* stronger corner accents
+* faint chain silhouettes
+* subtle ember/fog response
+* cleaner border lighting
+* clearer lane/grid readability
+
+Boss improvements:
+
+* stronger core pulse timing
+* better halo/crown lighting
+* better shoulder lighting
+* subtle idle motion when not actively attacking
+* more premium silhouette lighting
+
+Attack decoration improvements:
+
+* better impact marks
+* better scorch/fracture accents
+* better motion smears
+* better glow timing
+* better attack cleanup
+
+Do NOT:
+
+* clutter the arena
+* hide safe paths
+* drown the screen in noise
+
+==================================================
+CHARACTER SELECTION IMPLEMENTATION
+==================================
+
+Add a selection screen or selection step with these 5 characters:
+
+* The Wanderer
+* The Exile
+* The Keeper
+* The Harbinger
+* The Veil
+
+Rules:
+
+* all 5 unlocked immediately
+* all 5 usable by any player/user
+* all 5 use the same exact gameplay code
+* cosmetic difference only
+* no abilities
+* no stat difference
+* no different collision size
+* no branching attack interaction logic
+
+Selection must not break game start.
+Once selected:
+
+* load the chosen character visual
+* keep the same shared movement/controller logic
+* keep same HP and same dodge rules
+
+==================================================
+TEXT / UI CONTRAST
+==================
+
+Improve readability:
+
+* HP text bright off-white
+* title brighter and cleaner
+* boss subtitle readable over background
+* move names high contrast
+* white base text + bright magenta move labels
+* no muddy dark red text against red glow
+
+==================================================
+PERFORMANCE
+===========
+
+Keep it smooth:
+
+* pool hazards
+* pool beams
+* pool pillar strikes
+* pool shards
+* pool cage pieces
+* control particles
+* keep afterimages short-lived
+* do not over-stack transparency
+* do not create lag while improving visuals
+
+==================================================
+DELIVERABLES
+============
+
+When done, report:
+
+1. exact final move order
+2. confirmation that each move happens once only
+3. confirmation that there are no transitions between moves
+4. how move logic was rebuilt so it works reliably
+5. how startup errors were prevented
+6. how each move’s boss animation is unique
+7. how each move’s VFX is unique
+8. what was done for the 5 usable characters
+9. what decoration improvements were added
+10. what files were changed

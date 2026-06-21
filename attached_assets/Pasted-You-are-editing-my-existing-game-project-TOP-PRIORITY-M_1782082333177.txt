@@ -1,0 +1,910 @@
+You are editing my existing game project.
+
+TOP PRIORITY:
+MAKE THE ATTACKS WORK IN REPLIT.
+
+Read that again:
+The most important thing is that the boss attacks actually work reliably in Replit every single run.
+
+Do NOT fake progress with style if the moves are still broken.
+Do NOT prioritize prettier VFX over working gameplay.
+Do NOT break the fight while improving visuals.
+
+Keep the current boss design and core visual direction.
+Do NOT redesign the boss again.
+Do NOT replace the current Warden.
+Do NOT change the core dark neon cyber-gothic identity.
+
+==================================================
+PRIMARY OBJECTIVES
+==================
+
+1. Make all 7 boss attacks work correctly in Replit.
+2. Make all 7 attacks hard, fast, and fair.
+3. Make the fight run reliably every time with no startup errors.
+4. Add 5 selectable playable characters.
+5. All 5 characters must be usable by any player.
+6. All 5 characters must be cosmetic-only for now.
+7. No warning text or warning UI.
+8. No visible transitions between moves.
+9. Every move uses a 0.10 second startup animation.
+10. Improve boss animation, attack animation, arena decoration, and overall animation quality to a much higher level.
+
+==================================================
+NON-NEGOTIABLE ENGINEERING RULE
+===============================
+
+If a move looks cool but is broken, that is failure.
+
+Prioritize exactly in this order:
+
+1. reliable attack logic
+2. correct hitbox timing
+3. cleanup between attacks
+4. startup stability
+5. character selection stability
+6. readability
+7. animation polish
+8. extra decoration
+
+The fight must function first.
+
+==================================================
+MAKE THE ATTACKS WORK IN REPLIT
+===============================
+
+Rebuild the fight as a deterministic state machine.
+Do NOT rely on loose overlapping timers.
+Do NOT allow duplicate move triggers.
+Do NOT leave lingering hazard nodes alive.
+Do NOT allow startup to proceed if references are missing.
+
+Required fight state flow:
+
+* init
+* move_1_startup
+* move_1_active
+* move_1_cleanup
+* move_2_startup
+* move_2_active
+* move_2_cleanup
+* move_3_startup
+* move_3_active
+* move_3_cleanup
+* move_4_startup
+* move_4_active
+* move_4_cleanup
+* move_5_startup
+* move_5_active
+* move_5_cleanup
+* move_6_startup
+* move_6_active
+* move_6_cleanup
+* move_7_startup
+* move_7_active
+* move_7_cleanup
+* boss_end
+
+Every move must:
+
+* start once
+* activate once
+* cleanup once
+* never repeat in the same run
+* never overlap with the next move
+* never leave invisible hitboxes behind
+* never leave old VFX or hazard nodes alive after cleanup
+
+==================================================
+STARTUP SAFETY / NO ERRORS
+==========================
+
+Before move 1 starts, verify:
+
+* player exists
+* selected character exists
+* boss exists
+* arena exists
+* attack container exists
+* hazard pool exists
+* UI labels exist
+* HP bar exists
+* move controller is initialized
+* all move definitions loaded successfully
+
+On startup:
+
+* preload attack assets
+* preload hazard objects
+* clear lingering hazards from previous run
+* reset player state
+* reset selected character state
+* reset boss state
+* reset UI state
+* only then start move_1_startup
+
+Add protection:
+
+* null checks
+* missing-node checks
+* fallback initialization
+* safe early returns
+* clear debug logging if a dependency is missing
+
+If something required is missing:
+
+* do not crash
+* do not begin a broken move
+* fail gracefully and log the error
+
+==================================================
+5 PLAYABLE CHARACTERS
+=====================
+
+Add 5 selectable playable characters.
+Use these names:
+
+1. The Wanderer
+2. The Exile
+3. The Keeper
+4. The Harbinger
+5. The Veil
+
+Rules:
+
+* all 5 available immediately
+* all 5 usable by any player
+* cosmetic only
+* identical gameplay logic
+* no abilities
+* no stat changes
+* no passive bonuses
+* no different speed
+* no different HP
+* no different hurtbox size
+* no different movement rules
+* no different dash behavior
+* no different attack interactions
+
+Implementation:
+
+* create a character select menu or selection step
+* user picks 1 of the 5
+* selected visual loads into gameplay
+* same shared player controller is used for all 5
+* do not fork combat logic by character
+
+Important:
+Character selection must not break startup.
+The fight must work no matter which of the 5 is chosen.
+
+Character visual requirements:
+
+* each should be visually distinct
+* each should fit the same world/style
+* each should remain readable inside the arena
+* keep them faceless or mostly unreadable if that matches the current style
+* preserve current small-player readability
+
+==================================================
+NO VISIBLE TRANSITIONS
+======================
+
+No transition cards.
+No intermission.
+No freeze.
+No pause between moves.
+
+When one move cleanup ends:
+
+* next move startup begins immediately
+
+Allowed downtime:
+
+* 0.00 to 0.15 seconds maximum
+
+The fight should feel continuous and relentless.
+
+==================================================
+NO WARNING UI
+=============
+
+Do NOT use:
+
+* warning text
+* warning labels
+* warning icons
+* warning triangles
+* striped warning banners with words
+* incoming text
+* safe lane labels
+* tutorial overlays
+* false path / true path text
+
+The player must read attacks from:
+
+* boss body language
+* core glow
+* arm / shoulder motion
+* floor light-up
+* lane glow
+* fracture lines
+* sigil ignition
+* spiral growth
+* border pulse
+* arena lighting changes
+
+==================================================
+0.10 SECOND STARTUP ANIMATION RULE
+==================================
+
+Each move must begin with a 0.10 second startup animation.
+
+During that 0.10 seconds:
+
+* no active hitbox yet
+* only boss animation
+* only arena energy formation
+* only readable move intent
+
+Then:
+
+* active hitboxes begin immediately
+
+This startup should feel:
+
+* sharp
+* violent
+* elite
+* fast
+* readable enough to be fair
+* not comfortable
+
+==================================================
+DIFFICULTY TARGET
+=================
+
+Make the fight feel extremely hard, almost overwhelming at first glance, but still secretly fair.
+
+Difficulty should come from:
+
+* quick reads
+* correction timing
+* exact positioning
+* second-step movement
+* punishment for panic movement
+* pattern memory
+* tight but real dodge paths
+* very short startup reads
+* constant pressure
+* little breathing room
+
+Not from:
+
+* random chaos
+* impossible walls
+* fake hitboxes
+* broken collision
+* lag
+* unreadable UI clutter
+
+The player reaction should be:
+“This is impossible.”
+Then after repeated attempts:
+“Oh, it actually has a pattern.”
+
+==================================================
+MOVE ORDER
+==========
+
+Use this exact order:
+
+1. Sever Line
+2. Cathedral Drop
+3. Crown Bloom
+4. Trial Corridor
+5. Judicator Cross
+6. Prison Seal
+7. Rosette Spiral
+
+Each move happens once only.
+No repeats.
+
+==================================================
+MOVE 1 — SEVER LINE
+===================
+
+Purpose:
+Horizontal execution pattern with correction timing.
+
+Startup 0.10 sec:
+
+* shoulders compress inward
+* core lowers
+* one horizontal lane heats up brighter than others
+* faint scan-line streak appears
+
+Active:
+
+* main execution beam fires across the chosen lane
+* thinner echo beam fires in an adjacent lane
+* brief micro-pulse flashes on the original line
+* full cleanup
+
+Movement test:
+
+* first dodge
+* second correction
+* no early backtrack
+
+Must work:
+
+* define 3 fixed horizontal lanes
+* main lane chosen deterministically
+* echo lane adjacent only
+* main beam hitbox only during main beam
+* echo hitbox only during echo
+* pulse hitbox only during pulse
+* remove all beam hitboxes after move ends
+
+Hardness:
+
+* echo timing should punish lazy repositioning
+* still fair
+
+Unique boss animation:
+
+* compressed startup
+* hard horizontal snap release
+* violent recoil
+
+Unique VFX:
+
+* heated lane glow
+* bright beam core
+* motion smear
+* thinner echo line
+* tiny pulse flash
+* wall spark hits
+
+==================================================
+MOVE 2 — CATHEDRAL DROP
+=======================
+
+Purpose:
+Column strike pattern with shifting safe lane.
+
+Startup 0.10 sec:
+
+* threatened columns rise with vertical heat
+* floor below strike zones glows and cracks
+* safe lane remains calmer/darker
+* boss rises slightly
+
+Active:
+
+* first pillar wave lands
+* safe lane shifts exactly one column
+* second staggered wave lands
+* delayed trap pillar hits the prior comfort lane
+* full cleanup
+
+Movement test:
+
+* move once
+* read shift
+* move again
+* avoid trap
+
+Must work:
+
+* fixed column grid
+* always at least one real safe lane
+* safe lane shift exactly one column
+* telegraph timing matches impact timing
+* delayed trap must not target random positions
+
+Hardness:
+
+* demanding double movement
+* punishes freezing
+
+Unique boss animation:
+
+* upward charge
+* downward strike pose
+
+Unique VFX:
+
+* vertical heat columns
+* heavy impact pillars
+* floor crack bursts
+* delayed trap glow
+* fast fade
+
+==================================================
+MOVE 3 — CROWN BLOOM
+====================
+
+Purpose:
+Radial geometry exam.
+
+Startup 0.10 sec:
+
+* chest/core blooms sharply
+* crown/halo lights up
+* one safe arc is readable from missing shard geometry
+
+Active:
+
+* first radial bloom fires
+* rotated second bloom fires
+* delayed return shards come inward from edges
+* full cleanup
+
+Movement test:
+
+* identify first safe arc
+* rotate to second safe arc
+* avoid drifting too far outward
+
+Must work:
+
+* deterministic shard counts
+* one real safe arc per bloom
+* second bloom rotates by authored angles only
+* return shards low count and authored
+* no broken random spawn angles
+
+Hardness:
+
+* precise correction move
+* punishes sloppy outer positioning
+
+Unique boss animation:
+
+* central charge
+* crown flare
+* bloom release
+
+Unique VFX:
+
+* core flare
+* elegant radial shard spokes
+* second rotated bloom
+* delayed edge returns
+* readable circular geometry
+
+==================================================
+MOVE 4 — TRIAL CORRIDOR
+=======================
+
+Purpose:
+Deception corridor with true-path shift.
+
+Startup 0.10 sec:
+
+* corridors appear
+* unstable lanes flicker rougher
+* true lane holds a cleaner edge glow
+* boss becomes still and judgmental
+
+Active:
+
+* false corridors collapse
+* true corridor remains
+* true corridor shifts once to nearby lane
+* old corridor collapses
+* full cleanup
+
+Movement test:
+
+* identify true lane
+* avoid false comfort
+* shift once correctly
+
+Must work:
+
+* one true lane at a time
+* shift occurs once only
+* shift is adjacent or near-adjacent
+* collapse logic deterministic
+* readable cue exists before shift
+
+Hardness:
+
+* punishes hesitation
+* mentally cruel but fair
+
+Unique boss animation:
+
+* symmetrical still pose
+* deception pulse in core
+
+Unique VFX:
+
+* corridor wall glow
+* collapse debris
+* stable true-path cue
+* clean shift cue
+* fast cleanup
+
+==================================================
+MOVE 5 — JUDICATOR CROSS
+========================
+
+Purpose:
+Two-step diagonal cleave with safe wedge.
+
+Startup 0.10 sec:
+
+* first diagonal fracture burns in
+* boss twists and pulls one side back
+
+Active:
+
+* first diagonal cleave opens
+* second crossing telegraph appears
+* second cleave opens
+* narrow safe wedge remains
+* light edge-burst punishes hugging slash line
+* full cleanup
+
+Movement test:
+
+* survive first diagonal
+* move to wedge
+* avoid slash edge
+
+Must work:
+
+* authored diagonal combinations only
+* slash width matches visible width
+* wedge exists every time
+* edge-burst controlled and short
+
+Hardness:
+
+* tight wedge
+* terrifying but fair
+
+Unique boss animation:
+
+* diagonal wind-up
+* torso twist
+* heavy cross release
+
+Unique VFX:
+
+* huge fracture lines
+* smoky rupture energy
+* bright slash-open frame
+* edge crackle
+* clean X composition
+
+==================================================
+MOVE 6 — PRISON SEAL
+====================
+
+Purpose:
+Technical cage move.
+
+Startup 0.10 sec:
+
+* cage lines assemble
+* corner sigils ignite
+* both arms clamp inward
+* core flashes match corner order
+
+Active:
+
+* inner cage forms
+* first corner seal bursts
+* second corner seal bursts
+* pressure sweep crosses cage
+* safe pocket shifts once
+* cage dissolves
+* full cleanup
+
+Movement test:
+
+* micro-movement
+* dodge seal bursts
+* react to sweep
+* use safe-pocket shift
+
+Must work:
+
+* only 2 or 3 authored variants max
+* sweep direction readable before activation
+* safe pocket truly exists
+* cage collision matches visible borders
+
+Hardness:
+
+* claustrophobic
+* precise
+* punishes panic
+
+Unique boss animation:
+
+* clamp pose
+* seal-control posture
+
+Unique VFX:
+
+* cage lines
+* corner sigils
+* controlled burst flares
+* bright sweep beam
+* clean dissolve
+
+==================================================
+MOVE 7 — ROSETTE SPIRAL
+=======================
+
+Purpose:
+Final flow-movement exam.
+
+Startup 0.10 sec:
+
+* spiral petals form instantly
+* one curved channel stays open
+* boss expands to final pose
+* strongest halo/core glow
+
+Active:
+
+* spiral arms bloom
+* safe lane curves through them
+* spiral rotates
+* spiral tightens once
+* spiral shifts tempo or reverses once only
+* final ring burst telegraphs
+* final burst resolves
+* move ends
+* boss ends
+
+Movement test:
+
+* follow curved safe lane
+* adapt to one tempo shift
+* prepare for final burst
+
+Must work:
+
+* safe curve remains real
+* one tempo change only
+* final burst clearly telegraphed
+* full cleanup after move ends
+
+Hardness:
+
+* hardest move
+* overwhelming at first glance
+* secretly fair
+
+Unique boss animation:
+
+* widest silhouette
+* final dominance pose
+* visible post-release drain
+
+Unique VFX:
+
+* elegant spiral trails
+* layered rotating petals
+* readable safe curve
+* final ring telegraph
+* collapse pulse
+
+==================================================
+ANIMATION QUALITY — ON A WHOLE OTHER LEVEL
+==========================================
+
+The animation quality must be dramatically above what we have now.
+
+Everything should feel:
+
+* more cinematic
+* more violent
+* more precise
+* more premium
+* more responsive
+* more intentional
+* more intimidating
+* more alive
+
+BOSS IDLE
+
+* slow threatening core pulse
+* subtle shoulder breathing / weight shift
+* faint crown/halo motion
+* tiny gauntlet motion
+* slight head/core focus downward
+* subtle arena pressure feel
+
+BOSS INTRO
+
+* staged entrance
+* shoulders rise into frame with weight
+* core/eye ignites in steps
+* halo/crown wakes up
+* arena border responds slightly
+* no sloppy pop-in
+
+STARTUP ANIMATION QUALITY
+Every move startup must feel like a violent 0.10 second decision.
+That means:
+
+* fast silhouette snap
+* aggressive anticipation
+* core flare timed to activation
+* shoulders and arms actually move
+* body language clearly signals the move
+
+ACTIVE PHASE ANIMATION QUALITY
+When the move fires:
+
+* boss must feel like it caused it
+* release pose stronger than startup
+* visible force transfer
+* shoulders, gauntlets, core, halo participate
+* release frame feels impactful
+
+RECOVERY ANIMATION QUALITY
+
+* short but visible recoil / settling
+* not too long
+* enough to sell the move
+* then immediately into next startup
+
+ATTACK ANIMATION UPGRADE
+Every attack needs:
+
+* stronger formation animation
+* stronger release animation
+* stronger active-state motion
+* better cleanup animation
+* more premium timing
+
+ARENA REACTION ANIMATION
+Upgrade with:
+
+* border pulses synced to startup/release
+* floor line wake-up during threats
+* subtle panel flicker under heavy attacks
+* corner light surges
+* restrained chain sway
+* light fog/ember disturbance
+* fracture energy crawling across floor where appropriate
+
+PLAYER ANIMATION UPGRADE
+Upgrade:
+
+* stronger movement responsiveness
+* sharper dash start/end if dash exists
+* clearer hurt reaction
+* clearer invulnerability flashing
+* better silhouette preservation while moving
+* better small trailing motion effects
+* better death reaction if present
+
+NO CHEAP FAKE ANIMATION
+Do NOT fake premium animation with:
+
+* only glow pulsing
+* only scale pulsing
+* only opacity flashing
+* only particle spam
+* only shaking everything
+
+Premium animation must come from:
+
+* pose
+* silhouette
+* timing
+* release
+* motion arc
+* follow-through
+* cleanup
+
+==================================================
+DECORATION / VISUAL BUFF
+========================
+
+Arena improvements:
+
+* stronger floor panel lines
+* subtle inner geometric patterns
+* better corner accents
+* faint chain silhouettes
+* subtle ember/fog response
+* cleaner border lighting
+* clearer lane/grid readability
+
+Boss improvements:
+
+* stronger core pulse timing
+* better halo/crown lighting
+* better shoulder lighting
+* subtle idle motion
+* premium silhouette lighting
+
+Attack improvements:
+
+* better impact marks
+* better scorch/fracture accents
+* better motion smears
+* better glow timing
+* better cleanup after each move
+
+Do NOT clutter the arena or hide safe paths.
+
+==================================================
+TEXT / UI CONTRAST
+==================
+
+Improve readability:
+
+* HP bright off-white
+* title brighter and cleaner
+* boss subtitle readable over background
+* move names high contrast
+* white base text + bright magenta move names
+* no muddy red-on-red text
+
+Keep UI minimal:
+
+* HP
+* title / boss text
+* move name if cleanly supported
+
+==================================================
+PERFORMANCE
+===========
+
+Keep it smooth:
+
+* pool hazards
+* pool beams
+* pool pillar strikes
+* pool shards
+* pool cage pieces
+* control particles
+* keep afterimages short-lived
+* avoid transparency stacking
+* do not create lag while improving visuals
+
+If performance and style conflict:
+
+1. working attacks
+2. stable performance
+3. readable gameplay
+4. animation quality
+5. extra polish
+
+==================================================
+DELIVERABLES
+============
+
+When done, report:
+
+1. exact final move order
+2. confirmation that each move happens once only
+3. confirmation that all 7 moves work in Replit reliably
+4. confirmation that all 5 characters are usable
+5. confirmation that the 5 characters are cosmetic-only
+6. confirmation that there are no visible transitions between moves
+7. confirmation that there is no warning UI
+8. confirmation that every move uses a 0.10 second startup animation
+9. how move logic was rebuilt so it works reliably
+10. how startup errors were prevented
+11. how each move’s boss animation is unique
+12. how each move’s VFX is unique
+13. what was upgraded in boss idle/startup/release/recovery
+14. what was upgraded in attack animation
+15. what was upgraded in arena reaction animation
+16. what was upgraded in player animation
+17. what decoration improvements were added
+18. what files were changed
