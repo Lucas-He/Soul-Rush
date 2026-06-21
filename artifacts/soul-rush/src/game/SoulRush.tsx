@@ -1841,108 +1841,102 @@ function applyBossSpecials(g: GameData, dt: number, boss: BossConf) {
 //   Direct dash bullet = dmg 22, afterimage = dmg 14.
 function doPhantomDash(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
-    // Warn: half-arena chevron markers flash on the target half
-    if (g.warnMarkers.length === 0) {
+    // Warn: large half-arena danger panel fills the target half
+    if (g.dangerZones.length === 0) {
       const leftHalf = g.bossX < BCX;
-      const targetX = leftHalf ? BX + BW * 0.75 : BX + BW * 0.25;
-      // Chevron-style markers across the target half
-      for (let col = 0; col < 4; col++) {
-        const mx = leftHalf ? BX + BW * 0.55 + col * 22 : BX + BW * 0.1 + col * 22;
-        for (let row = 0; row < 5; row++) {
-          const my = BY + BH * 0.1 + row * (BH * 0.18);
-          g.warnMarkers.push({ id: nid(g), x: mx, y: my, angle: leftHalf ? 0 : Math.PI, r: 7, color: '#ff2244', timer: 1.0, maxTimer: 1.0 });
-        }
-      }
-      // Boss moves to opposite half pre-warn
-      const tx = leftHalf ? BX + BW * 0.15 : BX + BW * 0.85;
+      // Pulsing half-arena warning panel (warnTimer only, no damage until dash)
+      const warnX = leftHalf ? BX + BW * 0.5 : BX;
+      g.dangerZones.push({ id: nid(g), x: warnX, y: BY, w: BW * 0.5, h: BH, warnTimer: 1.0, activeTimer: 0, color: '#ff2244', dmg: 0 });
+      // Boss moves to opposite half to telegraph the dash direction
+      const tx = leftHalf ? BX + BW * 0.12 : BX + BW * 0.88;
       g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, tx));
       g.bossTY = BY + BH * 0.35;
-      void targetX;
     }
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; }
+    // Tick warn panels
+    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0 || dz.activeTimer > 0; });
+    if (g.phaseTimer >= 1.0) { g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.dangerZones = []; }
     return;
   }
 
   if (g.phase === 1) {
-    // Dash: boss teleports across the arena and leaves afterimage trails
+    // Beat 1–3: boss dashes; each beat spawns aimed bullet tri-shot + 1 afterimage trail bullet
     g.phaseTimer += dt;
     const leftHalf = g.bossX < BCX;
     const dashTarget = leftHalf ? BX + BW * 0.85 : BX + BW * 0.15;
     g.bossTX = Math.max(BOSS_MIN_X, Math.min(BOSS_MAX_X, dashTarget));
     g.bossTY = BY + BH * 0.35;
 
-    // Spawn afterimage ghost bullets that arc toward player from trail positions
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = 0.07;
-      // Afterimage ghost (dmg 14)
-      const ghostX = g.bossX + rand(-12, 12);
-      const ghostY = g.bossY + rand(-8, 8);
-      const ga = Math.atan2(g.player.y - ghostY, g.player.x - ghostX) + rand(-0.18, 0.18);
-      g.bullets.push({ id: nid(g), x: ghostX, y: ghostY, vx: Math.cos(ga) * 130 * sm(g), vy: Math.sin(ga) * 130 * sm(g), r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 14 });
+      g.spawnTimer = 0.09;
+      // Afterimage trail bullet (dmg 14) — cap to 4 per repeat cycle via spawnCount
+      if (g.spawnCount < 4) {
+        const ghostX = g.bossX + rand(-14, 14);
+        const ghostY = g.bossY + rand(-8, 8);
+        const ga = Math.atan2(g.player.y - ghostY, g.player.x - ghostX) + rand(-0.2, 0.2);
+        g.bullets.push({ id: nid(g), x: ghostX, y: ghostY, vx: Math.cos(ga) * 125 * sm(g), vy: Math.sin(ga) * 125 * sm(g), r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 14 });
+        g.spawnCount++;
+      }
     }
-    if (g.phaseTimer >= 0.6) {
-      // Main direct-dash bullet burst at end of dash (dmg 22)
+    if (g.phaseTimer >= 0.65) {
+      // End-of-dash: tri-shot aimed burst (dmg 22 each)
       const a = Math.atan2(g.player.y - g.bossY, g.player.x - g.bossX);
       for (let i = -1; i <= 1; i++) {
-        const da = a + i * 0.22;
-        g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(da) * 200 * sm(g), vy: Math.sin(da) * 200 * sm(g), r: 6, color: boss.color, shape: 'diamond', rot: da, rotSpd: 5, frozen: false, dmg: 22 });
+        const da = a + i * 0.24;
+        g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(da) * 205 * sm(g), vy: Math.sin(da) * 205 * sm(g), r: 6, color: boss.color, shape: 'diamond', rot: da, rotSpd: 5, frozen: false, dmg: 22 });
       }
-      g.phase = 2; g.phaseTimer = 0;
+      g.phase = 2; g.phaseTimer = 0; g.spawnCount = 0;
     }
     return;
   }
 
   // Phase 2: recovery pause then repeat
   g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.8) { g.phase = 0; g.phaseTimer = 0; g.warnMarkers = []; }
+  if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; g.warnMarkers = []; g.dangerZones = []; }
 }
 
-// Segment 2: Judgment Rain — 4–6 vertical lane markers pulse in sequence;
-//   strikes slam down. At least 1 clear safe lane always open. Each strike = 18.
+// Segment 2: Judgment Rain — 5 vertical column lanes, 1 safe (blue), rest danger (red);
+//   full column danger-zone panels warn, then bullets slam down. Each strike = 18.
 function doJudgmentRain(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
-    // Pick 5 candidate lanes; designate one safe lane
-    if (g.warnMarkers.length === 0) {
+    // Warn: full-column danger zone panels (one blue safe lane, four red danger lanes)
+    if (g.dangerZones.length === 0) {
       const totalLanes = 5;
       g.spawnCount = Math.floor(Math.random() * totalLanes); // safe lane index
+      const laneW = BW / (totalLanes + 1);
       for (let i = 0; i < totalLanes; i++) {
-        const lx = BX + BW * ((i + 1) / (totalLanes + 1));
+        const lx = BX + BW * ((i + 1) / (totalLanes + 1)) - laneW * 0.45;
         const isSafe = (i === g.spawnCount);
-        // Danger lanes pulse hot; safe lane pulses dim/cool
-        const col = isSafe ? '#4488ff' : '#ff2244';
-        for (let y = BY + 4; y <= BY + BH; y += 22) {
-          g.warnMarkers.push({ id: nid(g), x: lx, y, angle: Math.PI / 2, r: 5, color: col, timer: 1.3, maxTimer: 1.3 });
-        }
+        g.dangerZones.push({ id: nid(g), x: lx, y: BY, w: laneW * 0.9, h: BH, warnTimer: 1.3, activeTimer: 0, color: isSafe ? '#2244ff' : '#ff2244', dmg: 0 });
       }
     }
     g.phaseTimer += dt;
+    g.dangerZones = g.dangerZones.filter(dz => { dz.warnTimer -= dt; return dz.warnTimer > 0 || dz.activeTimer > 0; });
     if (g.phaseTimer >= 1.3) {
-      g.phase = 1; g.phaseTimer = 0;
-      g.warnMarkers = [];
+      g.phase = 1; g.phaseTimer = 0; g.warnMarkers = []; g.dangerZones = [];
     }
     return;
   }
 
   if (g.phase === 1) {
-    // Fire column strikes from danger lanes (skip safe lane)
+    // Rain: dense column strikes from danger lanes
     g.phaseTimer += dt;
     g.spawnTimer -= dt;
     const totalLanes = 5;
     const safeIdx = g.spawnCount;
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.08, g);
+      g.spawnTimer = st(0.09, g);
       for (let i = 0; i < totalLanes; i++) {
         if (i === safeIdx) continue;
         const lx = BX + BW * ((i + 1) / (totalLanes + 1));
-        const spd = 230 * sm(g);
-        g.bullets.push({ id: nid(g), x: lx + rand(-5, 5), y: BY - 10, vx: 0, vy: spd, r: 7, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+        g.bullets.push({ id: nid(g), x: lx + rand(-4, 4), y: BY - 10, vx: 0, vy: 230 * sm(g), r: 7, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
       }
     }
-    if (g.phaseTimer >= 2.5) { g.phase = 0; g.phaseTimer = 0; g.warnMarkers = []; }
+    if (g.phaseTimer >= 2.6) { g.phase = 0; g.phaseTimer = 0; g.warnMarkers = []; g.dangerZones = []; }
     return;
   }
+  void boss;
 }
 
 // Segment 3: Soul Shatter Burst — boss charges a glowing core then fires
@@ -5129,7 +5123,260 @@ function drawWarnMarkers(ctx: CanvasRenderingContext2D, g: GameData) {
 // BOSS DRAW FUNCTIONS
 // ================================================================
 
+// ================================================================
+// THE WARDEN — Layered boss visual for SINGLE_BOSS_MODE
+// ================================================================
+function drawWardenBoss(ctx: CanvasRenderingContext2D, g: GameData) {
+  const wx = BCX;
+  const arenaTop = BY;
+  const t = g.time;
+  const seg = Math.min(Math.max(0, g.atkIdx), 6);
+  const pulse = 0.7 + 0.3 * Math.sin(t * 2.2);
+  const corePulse = 0.5 + 0.5 * Math.sin(t * 3.5);
+  const idleBob = Math.sin(t * 0.8) * 2;
+
+  const haloY    = arenaTop - 108 + idleBob;
+  const headY    = arenaTop - 88  + idleBob;
+  const shoulderY = arenaTop - 65 + idleBob;
+  const chestY   = arenaTop - 50  + idleBob;
+  const gauntletY = arenaTop - 16 + idleBob;
+
+  ctx.save();
+
+  // 1. Rear shadow mass
+  const shadowGrad = ctx.createRadialGradient(wx, shoulderY, 0, wx, shoulderY, 130);
+  shadowGrad.addColorStop(0, 'rgba(60,0,20,0.40)');
+  shadowGrad.addColorStop(0.5, 'rgba(20,0,8,0.25)');
+  shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = shadowGrad;
+  ctx.fillRect(wx - 145, haloY - 30, 290, arenaTop - haloY + 40);
+
+  // 2. Ritual halo / crown crest
+  ctx.save();
+  ctx.shadowBlur = 20 + 12 * pulse; ctx.shadowColor = '#cc0033';
+  ctx.strokeStyle = '#660018'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.ellipse(wx, haloY, 44, 13, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.shadowBlur = 12 + 10 * pulse; ctx.shadowColor = '#ff1144';
+  ctx.strokeStyle = `rgba(220,0,60,${0.55 + 0.4 * pulse})`; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.ellipse(wx, haloY, 34, 9, 0, 0, Math.PI * 2); ctx.stroke();
+  // Crown spikes
+  ctx.shadowBlur = 16; ctx.shadowColor = '#cc0033';
+  ctx.fillStyle = '#100006'; ctx.strokeStyle = '#991122'; ctx.lineWidth = 2;
+  for (let si = -1; si <= 1; si++) {
+    const sx = wx + si * 15;
+    const sh = si === 0 ? 26 : 16;
+    ctx.beginPath(); ctx.moveTo(sx - 5, haloY - 2); ctx.lineTo(sx, haloY - 2 - sh); ctx.lineTo(sx + 5, haloY - 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  // Side horn wings
+  ctx.shadowBlur = 10; ctx.shadowColor = '#bb0022';
+  ctx.fillStyle = '#0d0004'; ctx.strokeStyle = '#880022'; ctx.lineWidth = 1.5;
+  for (const sd of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(wx + sd * 46, haloY - 5); ctx.lineTo(wx + sd * 68, haloY - 18);
+    ctx.lineTo(wx + sd * 72, haloY - 3); ctx.lineTo(wx + sd * 52, haloY + 3);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
+
+  // 3. Left shoulder armor
+  ctx.save();
+  ctx.shadowBlur = 14; ctx.shadowColor = '#aa1133';
+  ctx.fillStyle = '#0b0003'; ctx.strokeStyle = '#771122'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx - 32, shoulderY - 18); ctx.lineTo(wx - 100, shoulderY - 6);
+  ctx.lineTo(wx - 108, shoulderY + 32); ctx.lineTo(wx - 38, shoulderY + 38);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 0; ctx.strokeStyle = '#550011'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(wx - 50, shoulderY + 5); ctx.lineTo(wx - 95, shoulderY + 14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(wx - 55, shoulderY + 18); ctx.lineTo(wx - 100, shoulderY + 26); ctx.stroke();
+  ctx.shadowBlur = 10; ctx.shadowColor = '#cc1133'; ctx.strokeStyle = '#cc1133'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(wx - 32, shoulderY - 18); ctx.lineTo(wx - 100, shoulderY - 6); ctx.stroke();
+  ctx.restore();
+
+  // 4. Right shoulder armor
+  ctx.save();
+  ctx.shadowBlur = 14; ctx.shadowColor = '#aa1133';
+  ctx.fillStyle = '#0b0003'; ctx.strokeStyle = '#771122'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx + 32, shoulderY - 18); ctx.lineTo(wx + 100, shoulderY - 6);
+  ctx.lineTo(wx + 108, shoulderY + 32); ctx.lineTo(wx + 38, shoulderY + 38);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 0; ctx.strokeStyle = '#550011'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(wx + 50, shoulderY + 5); ctx.lineTo(wx + 95, shoulderY + 14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(wx + 55, shoulderY + 18); ctx.lineTo(wx + 100, shoulderY + 26); ctx.stroke();
+  ctx.shadowBlur = 10; ctx.shadowColor = '#cc1133'; ctx.strokeStyle = '#cc1133'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(wx + 32, shoulderY - 18); ctx.lineTo(wx + 100, shoulderY - 6); ctx.stroke();
+  ctx.restore();
+
+  // 5. Chest plate / core housing
+  ctx.save();
+  ctx.shadowBlur = 12; ctx.shadowColor = '#660022';
+  ctx.fillStyle = '#090003'; ctx.strokeStyle = '#550022'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(wx - 28, chestY - 22); ctx.lineTo(wx + 28, chestY - 22);
+  ctx.lineTo(wx + 36, chestY + 32); ctx.lineTo(wx - 36, chestY + 32);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 0; ctx.strokeStyle = '#330011'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(wx - 16, chestY - 18); ctx.lineTo(wx - 22, chestY + 28); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(wx + 16, chestY - 18); ctx.lineTo(wx + 22, chestY + 28); ctx.stroke();
+  // Core glow
+  const coreGrad = ctx.createRadialGradient(wx, chestY + 5, 0, wx, chestY + 5, 18);
+  coreGrad.addColorStop(0, `rgba(255,0,50,${0.75 + 0.25 * corePulse})`);
+  coreGrad.addColorStop(0.5, `rgba(140,0,30,${0.4 + 0.3 * corePulse})`);
+  coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath(); ctx.arc(wx, chestY + 5, 18, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 24 * corePulse; ctx.shadowColor = '#ff2244'; ctx.fillStyle = '#ff1033';
+  ctx.beginPath(); ctx.arc(wx, chestY + 5, 5 + 2 * corePulse, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 16; ctx.shadowColor = '#ff0033'; ctx.strokeStyle = '#440016'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(wx, chestY + 5, 12, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+
+  // 6. Collar / mantle
+  ctx.save();
+  ctx.shadowBlur = 10; ctx.shadowColor = '#550022';
+  ctx.fillStyle = '#080003'; ctx.strokeStyle = '#440018'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx - 28, shoulderY + 5); ctx.lineTo(wx - 20, headY + 16);
+  ctx.lineTo(wx + 20, headY + 16); ctx.lineTo(wx + 28, shoulderY + 5);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+
+  // 7. Helmet / head
+  ctx.save();
+  ctx.shadowBlur = 18; ctx.shadowColor = '#881133';
+  ctx.fillStyle = '#0a0003'; ctx.strokeStyle = '#551122'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(wx, headY - 22); ctx.lineTo(wx + 19, headY - 8);
+  ctx.lineTo(wx + 24, headY + 20); ctx.lineTo(wx - 24, headY + 20);
+  ctx.lineTo(wx - 19, headY - 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#070002'; ctx.strokeStyle = '#440011'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(wx - 19, headY - 4); ctx.lineTo(wx - 34, headY - 16); ctx.lineTo(wx - 30, headY + 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(wx + 19, headY - 4); ctx.lineTo(wx + 34, headY - 16); ctx.lineTo(wx + 30, headY + 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+
+  // 8. Visor slit
+  ctx.save();
+  ctx.shadowBlur = 18 * pulse; ctx.shadowColor = '#ff0033'; ctx.fillStyle = '#bb0022';
+  ctx.fillRect(wx - 15, headY + 5, 30, 5);
+  ctx.shadowBlur = 10 * pulse; ctx.shadowColor = '#ff4466';
+  ctx.fillStyle = `rgba(255,60,90,${0.7 + 0.3 * pulse})`;
+  ctx.fillRect(wx - 11, headY + 6, 22, 3);
+  ctx.restore();
+
+  // 9. Left arm + gauntlet
+  ctx.save();
+  ctx.shadowBlur = 14; ctx.shadowColor = '#aa1133';
+  ctx.fillStyle = '#0b0004'; ctx.strokeStyle = '#660022'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx - 38, shoulderY + 36); ctx.lineTo(wx - 68, gauntletY - 10);
+  ctx.lineTo(wx - 55, gauntletY + 8); ctx.lineTo(wx - 30, shoulderY + 44);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#090003'; ctx.strokeStyle = '#881133'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx - 78, gauntletY - 12); ctx.lineTo(wx - 55, gauntletY - 14);
+  ctx.lineTo(wx - 50, gauntletY + 12); ctx.lineTo(wx - 74, gauntletY + 14);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 6; ctx.shadowColor = '#cc2244'; ctx.strokeStyle = '#cc2244'; ctx.lineWidth = 1;
+  for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(wx - 76 + k * 8, gauntletY - 6); ctx.lineTo(wx - 76 + k * 8, gauntletY + 6); ctx.stroke(); }
+  ctx.restore();
+
+  // 10. Right arm + gauntlet
+  ctx.save();
+  ctx.shadowBlur = 14; ctx.shadowColor = '#aa1133';
+  ctx.fillStyle = '#0b0004'; ctx.strokeStyle = '#660022'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx + 38, shoulderY + 36); ctx.lineTo(wx + 68, gauntletY - 10);
+  ctx.lineTo(wx + 55, gauntletY + 8); ctx.lineTo(wx + 30, shoulderY + 44);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#090003'; ctx.strokeStyle = '#881133'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(wx + 78, gauntletY - 12); ctx.lineTo(wx + 55, gauntletY - 14);
+  ctx.lineTo(wx + 50, gauntletY + 12); ctx.lineTo(wx + 74, gauntletY + 14);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 6; ctx.shadowColor = '#cc2244'; ctx.strokeStyle = '#cc2244'; ctx.lineWidth = 1;
+  for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(wx + 60 + k * 8, gauntletY - 6); ctx.lineTo(wx + 60 + k * 8, gauntletY + 6); ctx.stroke(); }
+  ctx.restore();
+
+  // 11. Segment pose accents
+  ctx.save();
+  if (seg === 0) {
+    const da = 0.3 + 0.5 * Math.abs(Math.sin(t * 7));
+    ctx.globalAlpha = da; ctx.shadowBlur = 22; ctx.shadowColor = '#ff2244'; ctx.strokeStyle = '#ff2244'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(wx - 108, shoulderY); ctx.lineTo(wx - 38, shoulderY + 20); ctx.stroke();
+  } else if (seg === 1) {
+    const rg = ctx.createLinearGradient(wx, chestY, wx, haloY - 20);
+    rg.addColorStop(0, `rgba(255,17,68,${0.3 + 0.3 * Math.sin(t * 3)})`); rg.addColorStop(1, 'rgba(255,17,68,0)');
+    ctx.fillStyle = rg; ctx.fillRect(wx - 18, haloY - 20, 36, chestY - haloY + 20);
+  } else if (seg === 2) {
+    ctx.globalAlpha = 0.45 + 0.45 * corePulse;
+    ctx.shadowBlur = 35 * corePulse; ctx.shadowColor = '#ff0033'; ctx.strokeStyle = '#ff0044'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(wx, chestY + 5, 20 + 8 * corePulse, 0, Math.PI * 2); ctx.stroke();
+  } else if (seg === 4) {
+    ctx.globalAlpha = 0.3 + 0.4 * Math.abs(Math.sin(t * 5));
+    ctx.shadowBlur = 20; ctx.shadowColor = '#ff4400'; ctx.strokeStyle = '#ff4400'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(wx + 35, chestY - 18); ctx.lineTo(wx - 35, chestY + 30); ctx.stroke();
+  } else if (seg === 5) {
+    ctx.globalAlpha = 0.4 + 0.35 * Math.sin(t * 5.5);
+    ctx.shadowBlur = 18; ctx.shadowColor = '#ff1133'; ctx.strokeStyle = '#ff1133'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(wx - 64, gauntletY, 10, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(wx + 64, gauntletY, 10, 0, Math.PI * 2); ctx.stroke();
+  } else if (seg === 6) {
+    ctx.globalAlpha = 0.5 + 0.4 * pulse;
+    ctx.shadowBlur = 32 * pulse; ctx.shadowColor = '#ff0033'; ctx.strokeStyle = '#ff0033'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.ellipse(wx, haloY, 58, 18, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(wx, haloY, 72, 22, 0, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.restore();
+
+  // 12. Charge ring
+  if (g.bossChargeTimer > 0) {
+    const n = g.bossChargeTimer;
+    ctx.save(); ctx.globalAlpha = 0.8 * (1 - n);
+    ctx.shadowBlur = 28; ctx.shadowColor = '#ff0033'; ctx.strokeStyle = '#ff1144'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.arc(wx, chestY + 5, 18 + n * 45, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// ================================================================
+// WARDEN PLAYER — Dark cloaked figure with white scarf + cyan aura
+// ================================================================
+function drawWardenPlayer(ctx: CanvasRenderingContext2D, g: GameData) {
+  const px = g.player.x, py = g.player.y, t = g.time;
+  // Cyan aura ring
+  ctx.save();
+  ctx.shadowBlur = 16; ctx.shadowColor = '#00ccff'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.5 + 0.3 * Math.sin(t * 3.5);
+  ctx.beginPath(); ctx.ellipse(px, py + 5, 14, 5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.shadowBlur = 8; ctx.strokeStyle = '#44eeff'; ctx.lineWidth = 1; ctx.globalAlpha = 0.35 + 0.25 * Math.sin(t * 3.5);
+  ctx.beginPath(); ctx.ellipse(px, py + 5, 9, 3.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  // Dark cloak body
+  ctx.save();
+  ctx.shadowBlur = 8; ctx.shadowColor = '#00aacc';
+  ctx.fillStyle = '#0a0008'; ctx.strokeStyle = '#1a1020'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 2, 7, 11, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  // Head
+  ctx.fillStyle = '#111018'; ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.arc(px, py - 14, 6, 0, Math.PI * 2); ctx.fill();
+  // White scarf / cape
+  ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff88'; ctx.fillStyle = '#e0e0ff';
+  ctx.beginPath();
+  ctx.moveTo(px - 3, py - 12);
+  ctx.quadraticCurveTo(px - 16, py - 6 + Math.sin(t * 3.5) * 4, px - 18, py + 4 + Math.sin(t * 2.8) * 3);
+  ctx.quadraticCurveTo(px - 12, py + 2, px - 2, py - 10);
+  ctx.closePath(); ctx.fill();
+  // White hair streak
+  ctx.shadowBlur = 4; ctx.fillStyle = '#f0f0ff';
+  ctx.beginPath(); ctx.ellipse(px - 2, py - 17, 2, 3, -0.4, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
 function drawBoss1(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) {
+  if (SINGLE_BOSS_MODE) { drawWardenBoss(ctx, g); return; }
   ctx.save();
   ctx.translate(g.bossX, g.bossY + Math.sin(g.bossAngle) * 2);
   ctx.shadowBlur = 22; ctx.shadowColor = boss.color;
@@ -5739,23 +5986,86 @@ function drawBoss20(ctx: CanvasRenderingContext2D, g: GameData, boss: BossConf) 
 // BACKGROUND + BOX
 // ================================================================
 
+function drawTorch(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
+  ctx.save();
+  ctx.fillStyle = '#110008'; ctx.fillRect(x - 3, y, 6, 28);
+  const fa = 0.55 + 0.4 * Math.sin(t * 7.3 + x);
+  ctx.shadowBlur = 18; ctx.shadowColor = '#ff2200';
+  ctx.globalAlpha = fa; ctx.fillStyle = '#ff3300';
+  ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.quadraticCurveTo(x - 8, y - 13, x, y - 22 + Math.sin(t * 9 + x) * 4); ctx.quadraticCurveTo(x + 8, y - 13, x + 6, y); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = fa * 0.65; ctx.fillStyle = '#ffaa00';
+  ctx.beginPath(); ctx.moveTo(x - 2, y); ctx.quadraticCurveTo(x - 3, y - 9, x, y - 14 + Math.sin(t * 11 + x) * 3); ctx.quadraticCurveTo(x + 3, y - 9, x + 2, y); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = 1; ctx.restore();
+}
+
+function drawExecutionChamberBG(ctx: CanvasRenderingContext2D, g: GameData) {
+  const t = g.time;
+  ctx.fillStyle = '#050008'; ctx.fillRect(0, 0, W, H);
+
+  const vigGrad = ctx.createRadialGradient(BCX, BCY - 60, 50, BCX, BCY, 420);
+  vigGrad.addColorStop(0, 'rgba(10,0,6,0)'); vigGrad.addColorStop(1, 'rgba(0,0,0,0.88)');
+  ctx.fillStyle = vigGrad; ctx.fillRect(0, 0, W, H);
+
+  // Distant gothic spire silhouettes
+  ctx.save(); ctx.globalAlpha = 0.2; ctx.fillStyle = '#0c0005';
+  const spireGroups: [number, number, number, number][][] = [
+    [[BX - 55, H * 0.62, 14, 145], [BX - 30, H * 0.67, 10, 125], [BX - 78, H * 0.57, 8, 100]],
+    [[BX + BW + 55, H * 0.62, 14, 145], [BX + BW + 30, H * 0.67, 10, 125], [BX + BW + 78, H * 0.57, 8, 100]],
+  ];
+  for (const group of spireGroups) {
+    for (const [sx, sy, sw, sh] of group) {
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - sw * 0.5, sy - sh * 0.55); ctx.lineTo(sx - sw * 0.25, sy - sh); ctx.lineTo(sx + sw * 0.25, sy - sh); ctx.lineTo(sx + sw * 0.5, sy - sh * 0.55); ctx.lineTo(sx + sw, sy); ctx.closePath(); ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  // Hanging chain silhouettes
+  ctx.save(); ctx.globalAlpha = 0.18; ctx.strokeStyle = '#1a0009'; ctx.lineWidth = 5;
+  const chainL: [number, number][] = [[BX - 8, 0], [BX + 6, 24], [BX - 4, 50], [BX + 8, 76], [BX - 2, 102], [BX + 5, BY - 18]];
+  ctx.beginPath(); ctx.moveTo(chainL[0][0], chainL[0][1]);
+  for (const [cx, cy] of chainL.slice(1)) ctx.lineTo(cx, cy);
+  ctx.stroke();
+  const chainR: [number, number][] = [[BX + BW + 8, 0], [BX + BW - 6, 24], [BX + BW + 4, 50], [BX + BW - 8, 76], [BX + BW + 2, 102], [BX + BW - 5, BY - 18]];
+  ctx.beginPath(); ctx.moveTo(chainR[0][0], chainR[0][1]);
+  for (const [cx, cy] of chainR.slice(1)) ctx.lineTo(cx, cy);
+  ctx.stroke();
+  ctx.restore();
+
+  // Torches at lower arena corners
+  drawTorch(ctx, BX - 24, BY + BH - 24, t);
+  drawTorch(ctx, BX + BW + 24, BY + BH - 24, t);
+
+  // Arena floor — dark charcoal with geometric panel lines
+  ctx.save();
+  ctx.fillStyle = '#0b0008'; ctx.fillRect(BX, BY, BW, BH);
+  const floorGrad = ctx.createLinearGradient(BCX, BY, BCX, BY + BH);
+  floorGrad.addColorStop(0, 'rgba(22,0,12,0.5)'); floorGrad.addColorStop(1, 'rgba(0,0,0,0.8)');
+  ctx.fillStyle = floorGrad; ctx.fillRect(BX, BY, BW, BH);
+  // Panel grid lines
+  ctx.strokeStyle = 'rgba(55,0,28,0.32)'; ctx.lineWidth = 1;
+  for (let r = 1; r < 5; r++) { const py = BY + (BH / 5) * r; ctx.beginPath(); ctx.moveTo(BX + 6, py); ctx.lineTo(BX + BW - 6, py); ctx.stroke(); }
+  for (let c = 1; c < 6; c++) { const px = BX + (BW / 6) * c; ctx.beginPath(); ctx.moveTo(px, BY + 6); ctx.lineTo(px, BY + BH - 6); ctx.stroke(); }
+  // Central diamond rune
+  ctx.globalAlpha = 0.14; ctx.strokeStyle = '#881133'; ctx.lineWidth = 1.5;
+  for (const ds of [30, 20]) {
+    ctx.beginPath(); ctx.moveTo(BCX, BCY - ds); ctx.lineTo(BCX + ds, BCY); ctx.lineTo(BCX, BCY + ds); ctx.lineTo(BCX - ds, BCY); ctx.closePath(); ctx.stroke();
+  }
+  ctx.globalAlpha = 1; ctx.restore();
+}
+
 function drawBackground(ctx: CanvasRenderingContext2D, g: GameData) {
+  if (SINGLE_BOSS_MODE) { drawExecutionChamberBG(ctx, g); return; }
   const boss = BOSSES[g.bossIdx];
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   const grad = ctx.createRadialGradient(BCX, BCY, 40, BCX, H * 0.55, 420);
   grad.addColorStop(0, boss.bgTint); grad.addColorStop(1, '#000000');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-  // Single pass scanline overlay — much cheaper than per-row fillRect loop
-  ctx.fillStyle = 'rgba(0,0,0,0.08)';
-  ctx.fillRect(0, 0, W, H);
-
-  // Boss 6: underwater shimmer effect
+  ctx.fillStyle = 'rgba(0,0,0,0.08)'; ctx.fillRect(0, 0, W, H);
   if (g.bossIdx === 5) {
     ctx.globalAlpha = 0.06;
     for (let i = 0; i < 6; i++) {
       const shimY = ((g.time * 28 + i * 45) % H);
-      ctx.fillStyle = '#00ccff';
-      ctx.fillRect(0, shimY, W, 2);
+      ctx.fillStyle = '#00ccff'; ctx.fillRect(0, shimY, W, 2);
     }
     ctx.globalAlpha = 1;
   }
@@ -5763,6 +6073,28 @@ function drawBackground(ctx: CanvasRenderingContext2D, g: GameData) {
 
 function drawBox(ctx: CanvasRenderingContext2D, boss: BossConf, g: GameData) {
   ctx.save();
+  if (SINGLE_BOSS_MODE) {
+    const t = g.time;
+    const bp = 0.7 + 0.3 * Math.sin(t * 2.5);
+    // Main magenta border
+    ctx.shadowBlur = 16 + 8 * bp; ctx.shadowColor = '#cc1155';
+    ctx.strokeStyle = '#cc1155'; ctx.lineWidth = 3;
+    ctx.strokeRect(BX, BY, BW, BH);
+    // Inner accent line
+    ctx.shadowBlur = 8; ctx.shadowColor = '#ff2266';
+    ctx.strokeStyle = `rgba(255,40,90,${0.45 + 0.4 * bp})`; ctx.lineWidth = 1;
+    ctx.strokeRect(BX + 4, BY + 4, BW - 8, BH - 8);
+    // Glowing corner brackets
+    const cL2 = 22;
+    ctx.shadowBlur = 22 * bp; ctx.shadowColor = '#ff2266'; ctx.strokeStyle = '#ff2266'; ctx.lineWidth = 3.5;
+    const wCorners: [number, number][] = [[BX, BY], [BX + BW, BY], [BX, BY + BH], [BX + BW, BY + BH]];
+    for (const [cx2, cy2] of wCorners) {
+      const dx = cx2 === BX ? 1 : -1; const dy = cy2 === BY ? 1 : -1;
+      ctx.beginPath(); ctx.moveTo(cx2 + dx * cL2, cy2); ctx.lineTo(cx2, cy2); ctx.lineTo(cx2, cy2 + dy * cL2); ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
   // If rewrittenBounds active, show it in cyan
   if (g.rewrittenBounds) {
     const rb = g.rewrittenBounds;
@@ -6004,21 +6336,10 @@ function drawSingleBossHUD(ctx: CanvasRenderingContext2D, g: GameData, adminMode
   void totalW; // suppress unused warning
   ctx.shadowBlur = 0;
 
-  // ── Segment progress bar (top-right, under segment name) ────────
-  const sbW = 155, sbH = 4, sbX = W - 20 - sbW, sbY = 32;
-  const waveDur = boss.waves?.[segIdx]?.duration ?? boss.atkDur;
-  const tRatio = Math.max(0, g.atkTimer / waveDur);
-  ctx.fillStyle = '#111'; ctx.fillRect(sbX, sbY, sbW, sbH);
-  const tCol = tRatio > 0.5 ? '#ff88cc' : tRatio > 0.25 ? '#ffcc00' : '#ff2244';
-  ctx.fillStyle = tCol; ctx.shadowBlur = 8; ctx.shadowColor = tCol;
-  ctx.fillRect(sbX, sbY, sbW * tRatio, sbH);
-  ctx.shadowBlur = 0; ctx.strokeStyle = '#ffffff22'; ctx.lineWidth = 1;
-  ctx.strokeRect(sbX, sbY, sbW, sbH);
-
   // ── Boss name / title (below logo) ─────────────────────────────
-  ctx.shadowBlur = 10; ctx.shadowColor = boss.color; ctx.fillStyle = boss.color;
+  ctx.shadowBlur = 18; ctx.shadowColor = '#cc1155'; ctx.fillStyle = '#cc1155';
   ctx.font = 'bold 11px "Courier New", monospace'; ctx.textAlign = 'center';
-  ctx.fillText(`${boss.name} \u2014 ${boss.title}`, W / 2, logoY + 15);
+  ctx.fillText('THE WARDEN \u2014 Keeper of Doomed Souls', W / 2, logoY + 15);
   ctx.shadowBlur = 0;
 
   // ── Admin overlay ───────────────────────────────────────────────
@@ -6374,9 +6695,10 @@ function renderPlaying(ctx: CanvasRenderingContext2D, g: GameData, adminMode: bo
     ctx.restore();
   }
 
-  // Player heart
+  // Player
   if (!g.player.flicker) {
-    drawHeart(ctx, g.player.x, g.player.y - 7, 6, '#ff2244');
+    if (SINGLE_BOSS_MODE) { drawWardenPlayer(ctx, g); }
+    else { drawHeart(ctx, g.player.x, g.player.y - 7, 6, '#ff2244'); }
   }
 
   ctx.restore();
