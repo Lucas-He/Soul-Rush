@@ -1843,8 +1843,9 @@ function doPhantomDash(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     // Beat 1: half-arena warning panel with pink chevron fill (warnTimer only, no dmg)
     if (g.dangerZones.length === 0) {
-      // Alternate which half is warned each cycle via spawnCount parity
-      const warnRight = (g.spawnCount % 2 === 0);
+      // Cycle count lives in upper byte — use it to alternate which half is warned
+      const cycleCount = (g.spawnCount >> 8) & 0xFF;
+      const warnRight = (cycleCount % 2 === 0);
       const warnX = warnRight ? BX + BW * 0.5 : BX;
       g.dangerZones.push({ id: nid(g), x: warnX, y: BY, w: BW * 0.5, h: BH, warnTimer: 1.0, activeTimer: 0, color: '#ff2244', dmg: 0 });
     }
@@ -2018,18 +2019,15 @@ function doSoulShatterBurst(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 1) {
-    // Beat 2: primary radial shard burst — 20 shards, 3 gap corridors
-    const gapBase = g.spawnCount * (Math.PI / 3); // spawnCount used to rotate gaps each cycle
-    const gapWidth = (Math.PI * 2 / 3) * 0.28;
+    // Beat 2: primary radial shard burst — 20 shards, ONE wide gap corridor (readable safe lane)
+    // Gap rotates each cycle so player can't memorise a fixed angle
+    const gapBase = g.spawnCount * (Math.PI * 0.7); // single gap center; rotates by ~40deg each cycle
+    const gapWidth = Math.PI * 0.48; // ~86deg arc — wide enough to clearly dodge through
     for (let i = 0; i < 20; i++) {
       const a = (i / 20) * Math.PI * 2;
-      let inGap = false;
-      for (let gi = 0; gi < 3; gi++) {
-        const gc = gapBase + (gi / 3) * Math.PI * 2;
-        const d = Math.min(Math.abs(a - gc) % (Math.PI * 2), Math.PI * 2 - Math.abs(a - gc) % (Math.PI * 2));
-        if (d < gapWidth) { inGap = true; break; }
-      }
-      if (inGap) continue;
+      let diff = Math.abs(a - gapBase) % (Math.PI * 2);
+      if (diff > Math.PI) diff = Math.PI * 2 - diff;
+      if (diff < gapWidth) continue;
       const spd = (140 + (i % 3) * 20) * sm(g);
       g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 5, color: i % 2 === 0 ? boss.color : '#ffffff88', shape: 'diamond', rot: a, rotSpd: 6, frozen: false, dmg: 12 });
     }
@@ -2038,25 +2036,21 @@ function doSoulShatterBurst(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 2) {
-    // Beat 3: pause (0.55s) — let primary shards travel before echo
+    // Beat 3: pause (0.55s) — let primary shards travel before echo correction
     g.phaseTimer += dt;
     if (g.phaseTimer >= 0.55) { g.phase = 3; g.phaseTimer = 0; }
     return;
   }
 
   if (g.phase === 3) {
-    // Beat 4: echo burst — 12 shards at offset gap angles (rotate by π/3), smaller dmg
-    const echoGapBase = g.spawnCount * (Math.PI / 3) + Math.PI / 3; // gaps rotated relative to primary
-    const echoGapW = (Math.PI * 2 / 3) * 0.32;
-    for (let i = 0; i < 14; i++) {
-      const a = (i / 14) * Math.PI * 2;
-      let inGap = false;
-      for (let gi = 0; gi < 3; gi++) {
-        const gc = echoGapBase + (gi / 3) * Math.PI * 2;
-        const d = Math.min(Math.abs(a - gc) % (Math.PI * 2), Math.PI * 2 - Math.abs(a - gc) % (Math.PI * 2));
-        if (d < echoGapW) { inGap = true; break; }
-      }
-      if (inGap) continue;
+    // Beat 4: echo burst — ONE rotated gap (π opposite the primary) forces player correction
+    const echoGapBase = g.spawnCount * (Math.PI * 0.7) + Math.PI; // exact opposite of primary gap
+    const echoGapW = Math.PI * 0.44;
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2;
+      let diff = Math.abs(a - echoGapBase) % (Math.PI * 2);
+      if (diff > Math.PI) diff = Math.PI * 2 - diff;
+      if (diff < echoGapW) continue;
       const spd = (110 + (i % 2) * 18) * sm(g);
       g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 12 });
     }
@@ -2248,31 +2242,35 @@ function doRiftCleave(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 3) {
-    // Beat 4: crossing cleave active (0.55s)
+    // Beat 4: crossing cleave active (0.55s) — also warn edge rupture zones
     g.phaseTimer += dt;
+    if (!g.spawnCount) {
+      g.spawnCount = 1;
+      // Warn: edge rupture zones along the arena border near the primary fracture line
+      const rupW = BW * 0.3, rupH = 18;
+      g.dangerZones.push({ id: nid(g), x: BX + BW * 0.1, y: BY, w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
+      g.dangerZones.push({ id: nid(g), x: BX + BW * 0.6, y: BY + BH - rupH, w: rupW, h: rupH, warnTimer: 0.55, activeTimer: 0, color: '#ff4400', dmg: 0 });
+    }
     if (g.phaseTimer >= 0.55) {
       g.diagLasers = [];
-      // Beat 5: intersection mini-burst — 12-way radial from arena center (dmg 14)
-      for (let i = 0; i < 12; i++) {
-        const a = (i / 12) * Math.PI * 2;
-        const spd = 115 * sm(g);
-        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 4, color: boss.color, shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 14 });
-      }
-      g.phase = 4; g.phaseTimer = 0;
+      // Beat 5: edge rupture fires — activate the pre-warned wall strips (dmg 18)
+      for (const dz of g.dangerZones) { dz.warnTimer = -1; dz.activeTimer = 0.5; dz.dmg = 18; }
+      g.phase = 4; g.phaseTimer = 0; g.spawnCount = 0;
     }
     return;
   }
 
   if (g.phase === 4) {
-    // Beat 5: intersection burst settling (0.3s)
+    // Beat 5: edge rupture active (0.5s)
     g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.3) { g.phase = 5; g.phaseTimer = 0; }
+    g.dangerZones = g.dangerZones.filter(dz => { dz.activeTimer -= dt; return dz.activeTimer > 0; });
+    if (g.phaseTimer >= 0.7) { g.phase = 5; g.phaseTimer = 0; g.dangerZones = []; }
     return;
   }
 
-  // Beat 6: recovery (0.8s) then loop
+  // Beat 6: recovery (0.7s) then loop
   g.phaseTimer += dt;
-  if (g.phaseTimer >= 0.8) { g.phase = 0; g.phaseTimer = 0; g.spawnCount++; g.diagWarns = []; g.diagLasers = []; }
+  if (g.phaseTimer >= 0.7) { g.phase = 0; g.phaseTimer = 0; g.spawnCount++; g.diagWarns = []; g.diagLasers = []; g.dangerZones = []; }
 }
 
 // Segment 6: Bone Cage Snap — inner cage of walls snaps into place;
@@ -2312,30 +2310,35 @@ function doBoneCageSnap(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 1) {
-    // Beat 2: cage walls with pre-snap warn (warnTimer=0.35) then snap active (1.8s)
-    //         Beat 3: first burst zones detonate + spiral bullets during cage lock
+    // Beat 2: cage walls snap shut (warnTimer=0.35 flash, then activeTimer=1.8 dmg)
+    //         + spiral bullets during cage lock
     g.phaseTimer += dt;
     g.dangerZones = g.dangerZones.filter(dz => {
       if (dz.warnTimer > 0) { dz.warnTimer -= dt; return true; }
       dz.activeTimer -= dt;
       return dz.activeTimer > 0;
     });
-    // Spiral bullets inside cage during snap
     g.spawnTimer -= dt;
     if (g.spawnTimer <= 0) {
       g.spawnTimer = st(0.13, g);
       const angle = g.phaseTimer * 4.2;
-      const spd = 100 * sm(g);
-      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 2, frozen: false, dmg: 20 });
+      g.bullets.push({ id: nid(g), x: g.bossX, y: g.bossY, vx: Math.cos(angle) * 100 * sm(g), vy: Math.sin(angle) * 100 * sm(g), r: 4, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 2, frozen: false, dmg: 20 });
     }
-    // Beat 4: second burst wave at mid-cage at t=0.9
-    if (g.phaseTimer >= 0.9 && !g.spawnCount) {
-      g.spawnCount = 1;
+    // Beat 3: first internal burst zones — 3 zones in a fixed quadrant layout
+    if (g.phaseTimer >= 0.45 && !(g.spawnCount & 1)) {
+      g.spawnCount |= 1;
       const inset = 60;
-      for (let b = 0; b < 3; b++) {
-        const bx2 = BX + inset + rand(0, BW - inset * 2 - 55);
-        const by2 = BY + inset + rand(0, BH - inset * 2 - 35);
-        g.dangerZones.push({ id: nid(g), x: bx2, y: by2, w: 55, h: 35, warnTimer: 0.35, activeTimer: 0.5, color: '#ff4400', dmg: 20 });
+      for (const [fx, fy] of [[0.25, 0.25], [0.65, 0.5], [0.25, 0.72]]) {
+        g.dangerZones.push({ id: nid(g), x: BX + inset + fx * (BW - inset * 2) - 28, y: BY + inset + fy * (BH - inset * 2) - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff2244', dmg: 20 });
+      }
+    }
+    // Beat 4 (safe-pocket SHIFTS): after first burst clears (~1.2s), second wave appears
+    //   in OPPOSITE quadrant to first — player must move across cage
+    if (g.phaseTimer >= 1.2 && !(g.spawnCount & 2)) {
+      g.spawnCount |= 2;
+      const inset = 60;
+      for (const [fx, fy] of [[0.65, 0.72], [0.25, 0.5], [0.65, 0.25]]) {
+        g.dangerZones.push({ id: nid(g), x: BX + inset + fx * (BW - inset * 2) - 28, y: BY + inset + fy * (BH - inset * 2) - 18, w: 56, h: 36, warnTimer: 0.35, activeTimer: 0.5, color: '#ff4400', dmg: 20 });
       }
     }
     if (g.phaseTimer >= 2.3) {
@@ -2344,7 +2347,7 @@ function doBoneCageSnap(g: GameData, dt: number, boss: BossConf) {
     return;
   }
 
-  // Beat 5: cage release + recovery
+  // Beat 5: cage dissolves — brief safety window then recovery
   g.phaseTimer += dt;
   if (g.phaseTimer >= 1.0) { g.phase = 0; g.phaseTimer = 0; }
 }
@@ -2370,47 +2373,67 @@ function doFinalSpiral(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 1) {
-    // Beat 2–4: spiral phase with mid-point arm-count shift and gap corridor inversion
-    //   0–5s: 3 arms slow (gap = 1/3 arc); 5s: brief gap-shift flash; 5–9s: 5 arms faster
+    // Spiral phase structured as 4 sub-beats via phaseTimer:
+    //   Beat 2 (0–4s): 3 arms, slow rotation (gap = 1 arm width, moves clockwise)
+    //   Beat 3 (4s):   warn ring signals upcoming speed/arm change
+    //   Beat 4 (4–7s): 5 arms, faster rotation (gap narrows)
+    //   Beat 5 (7s):   warn flash signals DIRECTION REVERSAL (compression)
+    //   Beat 5b(7–9s): 5 arms, REVERSED rotation (counter-clockwise) + faster
+    //   → exit to collapse at 9s
     g.phaseTimer += dt;
     g.spawnTimer -= dt;
 
-    const isMidShift = g.phaseTimer >= 5.0;
-    // Beat 3 marker: at exactly 5s, flash a warn ring to signal corridor shift
-    if (isMidShift && !(g.spawnCount & 0x8000)) {
-      g.spawnCount |= 0x8000; // flag: mid-shift done
+    const t = g.phaseTimer;
+    const isMidShift    = t >= 4.0;
+    const isDirectionRev = t >= 7.0;
+
+    // Beat 3 signal: arm-count shift warn (once at t=4s)
+    if (isMidShift && !(g.spawnCount & 0x4000)) {
+      g.spawnCount |= 0x4000;
       for (let i = 0; i < 16; i++) {
         const a = (i / 16) * Math.PI * 2;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 30, y: BCY + Math.sin(a) * 30, angle: a, r: 5, color: '#ff2244', timer: 0.4, maxTimer: 0.4 });
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 28, y: BCY + Math.sin(a) * 28, angle: a, r: 5, color: '#ffaa00', timer: 0.45, maxTimer: 0.45 });
       }
     }
+    // Beat 5 signal: direction-reversal warn (once at t=7s)
+    if (isDirectionRev && !(g.spawnCount & 0x8000)) {
+      g.spawnCount |= 0x8000;
+      for (let i = 0; i < 20; i++) {
+        const a = (i / 20) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 38, y: BCY + Math.sin(a) * 38, angle: a, r: 6, color: '#ff2244', timer: 0.4, maxTimer: 0.4 });
+      }
+    }
+    g.warnMarkers = g.warnMarkers.filter(wm => { wm.timer -= dt; return wm.timer > 0; });
 
-    const armCount = isMidShift ? 5 : 3;
-    const rampup   = Math.min(g.phaseTimer / 9.0, 1.0);
-    const interval = st(Math.max(0.05, isMidShift ? 0.07 - rampup * 0.02 : 0.1 - rampup * 0.03), g);
+    const armCount  = isMidShift ? 5 : 3;
+    const rampup    = Math.min(t / 9.0, 1.0);
+    const interval  = st(Math.max(0.05, isMidShift ? 0.065 - rampup * 0.015 : 0.1 - rampup * 0.02), g);
     const spiralSpd = (125 + rampup * 60) * sm(g);
-    const rotSpeed  = (isMidShift ? 3.5 : 2.4) + rampup * 0.8;
-    // Gap corridor: arm index to skip (rotates per half)
-    const skipArm   = isMidShift ? (armCount - 1) : (armCount - 1);
+    // Rotation speed — reverses direction at t≥7s (negative = counter-clockwise)
+    const rotDir    = isDirectionRev ? -1 : 1;
+    const rotSpeed  = rotDir * ((isMidShift ? 3.6 : 2.4) + rampup * 0.9);
+    // Gap: skip 1 arm index; gap corridor angle offset shifts at direction reversal
+    const gapOffset = isDirectionRev ? Math.PI * 0.6 : 0;
 
     if (g.spawnTimer <= 0) {
       g.spawnTimer = interval;
-      const baseAngle = g.phaseTimer * rotSpeed + (isMidShift ? Math.PI * 0.55 : 0); // shift corridor angle at mid
+      const frameCount = (g.spawnCount & 0x3FFF);
+      const baseAngle  = t * rotSpeed + gapOffset;
       for (let arm = 0; arm < armCount; arm++) {
-        if (arm === skipArm && (g.spawnCount & 0x7FFF) % 4 !== 0) continue; // gap
+        if (arm === armCount - 1 && frameCount % 4 !== 0) continue; // visible gap every 4th frame
         const a = baseAngle + (arm / armCount) * Math.PI * 2;
         const col = arm === 0 ? boss.color : arm === 1 ? boss.color2 : arm === 2 ? '#ff2244' : arm === 3 ? '#ffffff66' : boss.color;
         g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spiralSpd, vy: Math.sin(a) * spiralSpd, r: 5, color: col, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
       }
-      g.spawnCount = (g.spawnCount & 0x8000) | (((g.spawnCount & 0x7FFF) + 1) & 0x7FFF);
+      g.spawnCount = (g.spawnCount & 0xC000) | ((frameCount + 1) & 0x3FFF);
     }
 
-    // Beat 5: wind-up warn then collapse burst
-    if (g.phaseTimer >= 9.0) {
+    // Beat 6: wind-up collapse warn at t=9s
+    if (t >= 9.0) {
       g.phase = 2; g.phaseTimer = 0; g.warnMarkers = []; g.spawnCount = 0;
-      for (let i = 0; i < 20; i++) {
-        const a = (i / 20) * Math.PI * 2;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 26, y: BCY + Math.sin(a) * 26, angle: a, r: 8, color: '#ff2244', timer: 0.8, maxTimer: 0.8 });
+      for (let i = 0; i < 24; i++) {
+        const a = (i / 24) * Math.PI * 2;
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 28, y: BCY + Math.sin(a) * 28, angle: a, r: 8, color: '#ff2244', timer: 0.8, maxTimer: 0.8 });
       }
     }
     return;
