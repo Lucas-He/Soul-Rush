@@ -4965,6 +4965,7 @@ function update(
   if (g.state === 'title') {
     if (g.keys.has('Enter') || g.keys.has(' ')) {
       g.state = 'charSelect'; g.charSelectIdx = g.selectedChar;
+      g.keys.delete('Enter'); g.keys.delete(' ');
     }
     return;
   }
