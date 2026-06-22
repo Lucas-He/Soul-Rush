@@ -1712,6 +1712,20 @@ function updateAttack(g: GameData, dt: number, boss: BossConf) {
 
   const atk = boss.attacks[g.atkIdx];
 
+  // SINGLE_BOSS_MODE safety: if the attack key is missing or unrecognised, warn,
+  // clear hazards, and advance to the next move rather than stalling the fight.
+  if (SINGLE_BOSS_MODE) {
+    const wardenAtks = new Set(['severLine','cathedralDrop','crownBloom','trialCorridor','judicatorCross','prisonSeal','rosetteSpiral']);
+    if (!atk || !wardenAtks.has(atk)) {
+      console.warn(`[Warden] unrecognised attack "${atk}" at idx ${g.atkIdx} — skipping`);
+      clearEntities(g);
+      g.atkIdx++;
+      g.phase = 0; g.phaseTimer = 0; g.spawnTimer = 0; g.spawnCount = 0;
+      if (g.atkIdx >= boss.attacks.length) { g.state = 'bossWin'; g.postBossTimer = 0; }
+      return;
+    }
+  }
+
   // Store the current wave's debuffed config on g so sm()/st()/warnDur() can read it.
   // Use the atkIdx index directly — boss.waves is a parallel array to boss.attacks,
   // so boss.waves[g.atkIdx] is always the exact Wave for the current attack.
@@ -1932,58 +1946,72 @@ function doSeverLine(g: GameData, dt: number, boss: BossConf) {
 
 // ================================================================
 // Segment 2 — CATHEDRAL DROP
-// Shard rain with a drifting ~84px safe gap. Gap bounces off walls.
-// Punish burst fires at t=2.2s to discourage camping the gap edge.
+// 3 vertical columns: 2 danger, 1 safe (centre first).
+// Telegraph via floor column glow. At t=0.9s safe shifts one lane right.
+// At t=1.15s a delayed upward trap fires in the OLD safe column.
 // Single-run: ends at t=3.5s.
 // ================================================================
 function doCathedralDrop(g: GameData, dt: number, boss: BossConf) {
+  const laneW = BW / 3;
+
   if (g.phase === 0) {
-    // 0.10s startup: ceiling glow, boss tilts head up
-    g.phaseTimer += dt;
+    // 0.10s startup: danger columns flash red; safe column stays clear
+    if (!(g.spawnCount & 1)) {
+      g.spawnCount |= 1;
+      const safeIdx = 1;
+      for (let col = 0; col < 3; col++) {
+        if (col === safeIdx) continue;
+        g.dangerZones.push({ id: nid(g), x: BX + laneW * col, y: BY, w: laneW, h: BH, warnTimer: 0.10, activeTimer: 0, color: boss.color, dmg: 0 });
+      }
+    }
+    g.phaseTimer += dt; tickDZ(g, dt);
     if (g.phaseTimer >= 0.10) {
-      g.phase = 1; g.phaseTimer = 0; g.spawnTimer = 0;
-      // bits 0-8: gap X offset from BX (initial = center ~180); bit 9: direction (0=right)
-      g.spawnCount = Math.round(BCX - BX) & 0x1FF;
+      g.dangerZones = []; g.phase = 1; g.phaseTimer = 0;
+      // bits 0-1: current safe lane (1=centre); bit 4: shift fired; bit 5: trap fired; bits 8-9: old safe
+      g.spawnCount = 1; g.spawnTimer = 0;
     }
     return;
   }
 
   if (g.phase === 1) {
     g.phaseTimer += dt; g.spawnTimer -= dt; moveBullets(g, dt);
+    const safeIdx = g.spawnCount & 3;
 
-    const gapOffset  = g.spawnCount & 0x1FF;
-    const goRight    = !((g.spawnCount >> 9) & 1);
-    const burstFired = (g.spawnCount >> 15) & 1;
-    const GAP_W = 84, GAP_SPD = 54;
-
-    let newOff = gapOffset + (goRight ? 1 : -1) * GAP_SPD * dt;
-    let newDir = goRight;
-    if (newOff < GAP_W * 0.55)       { newOff = GAP_W * 0.55;      newDir = true;  }
-    if (newOff > BW - GAP_W * 0.55)  { newOff = BW - GAP_W * 0.55; newDir = false; }
-    g.spawnCount = (Math.round(newOff) & 0x1FF) | (newDir ? 0 : 0x200) | (burstFired << 15);
-
-    const gapX = BX + newOff;
-
+    // Rain bullets in the two danger columns
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.07, g);
-      const colW = 26;
-      for (let cx = BX + colW / 2; cx < BX + BW; cx += colW) {
-        if (Math.abs(cx - gapX) < GAP_W / 2) continue;
-        g.bullets.push({ id: nid(g), x: cx + rand(-4, 4), y: BY - 10, vx: rand(-8, 8), vy: (192 + rand(-15, 15)) * sm(g), r: 6, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+      g.spawnTimer = st(0.065, g);
+      for (let col = 0; col < 3; col++) {
+        if (col === safeIdx) continue;
+        const cx = BX + laneW * col + laneW / 2;
+        g.bullets.push({ id: nid(g), x: cx + rand(-10, 10), y: BY - 10, vx: rand(-6, 6), vy: (188 + rand(-18, 18)) * sm(g), r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
       }
     }
 
-    // Punish burst at t=2.2s
-    if (g.phaseTimer >= 2.2 && !burstFired) {
-      g.spawnCount |= (1 << 15);
-      for (let i = 0; i < 8; i++) {
-        const bx = BX + (i / 7) * BW;
-        if (Math.abs(bx - gapX) < GAP_W * 0.65) continue;
-        g.bullets.push({ id: nid(g), x: bx, y: BY - 10, vx: 0, vy: 272 * sm(g), r: 9, color: boss.color2, shape: 'square', rot: 0, rotSpd: 3, frozen: false, dmg: 18 });
+    // At t=0.9s: shift safe to adjacent lane — column flash telegraphs the change
+    if (g.phaseTimer >= 0.9 && !(g.spawnCount & 0x10)) {
+      g.spawnCount |= 0x10;
+      const oldSafe = safeIdx;
+      const newSafe = (safeIdx + 1) % 3;
+      g.spawnCount = (g.spawnCount & ~3) | newSafe | (oldSafe << 8); // store old safe in bits 8-9
+      g.dangerZones = [];
+      for (let col = 0; col < 3; col++) {
+        if (col === newSafe) continue;
+        g.dangerZones.push({ id: nid(g), x: BX + laneW * col, y: BY, w: laneW, h: BH, warnTimer: 0.12, activeTimer: 0, color: boss.color, dmg: 0 });
       }
     }
 
-    if (g.phaseTimer >= 3.5) { g.phase = 2; g.phaseTimer = 0; }
+    // At t=1.15s: delayed upward trap bursts from the floor in the OLD safe lane
+    if (g.phaseTimer >= 1.15 && !(g.spawnCount & 0x20) && (g.spawnCount & 0x10)) {
+      g.spawnCount |= 0x20;
+      const oldSafe = (g.spawnCount >> 8) & 3;
+      const trapCX = BX + laneW * oldSafe + laneW / 2;
+      for (let i = 0; i < 5; i++) {
+        const ox = (i - 2) * 14;
+        g.bullets.push({ id: nid(g), x: trapCX + ox, y: BY + BH + 5, vx: rand(-10, 10), vy: -(255 + i * 20) * sm(g), r: 8, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: 3, frozen: false, dmg: 20 });
+      }
+    }
+
+    if (g.phaseTimer >= 3.5) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
@@ -2093,7 +2121,7 @@ function doTrialCorridor(g: GameData, dt: number, boss: BossConf) {
     // Shift safe lane once at t=1.5s
     if (g.phaseTimer >= 1.5 && !(g.spawnCount & 0x100)) {
       g.spawnCount |= 0x100;
-      const nextSafe = (safeIdx + 2) % 3; // jump 2 — non-trivial shift
+      const nextSafe = (safeIdx + 1) % 3; // adjacent lane shift
       g.spawnCount = (g.spawnCount & ~3) | nextSafe;
       g.dangerZones = [];
       spawnDangerColumns(g, nextSafe, 0.10, boss);
@@ -2239,11 +2267,17 @@ function doPrisonSeal(g: GameData, dt: number, boss: BossConf) {
 
 // ================================================================
 // Segment 7 — ROSETTE SPIRAL
-// Rotating arms emit soul-fire bullets: 3 arms for first 2.5s, then 5.
-// Angular speed ramps 0.85→1.75 rad/s. Mid-shift burst + warn ring at t=2.5s.
-// Off-screen bullets pruned each frame for performance. Single-run: 5.5s.
+// Clockwise 3-arm spiral (0-2.0s) → direction reversal to anti-clockwise
+// 4-arm (2.0-4.0s) → tightening 5-arm fast (4.0-5.2s) → final burst
+// with a clear ~60° safe wedge at t=5.2s, then wardenDone. Total: 5.5s.
+// Off-screen bullets pruned each frame for performance.
 // ================================================================
 function doRosetteSpiral(g: GameData, dt: number, boss: BossConf) {
+  const SWITCH_T = 2.0; // direction reversal
+  const TIGHT_T  = 4.0; // tightening — arm count 4→5
+  const BURST_T  = 5.2; // final radial burst with safe wedge
+  const END_T    = 5.5;
+
   if (g.phase === 0) {
     // 0.10s startup: concentric warn rings — main loop handles decrement
     if (!(g.spawnCount & 1)) {
@@ -2263,31 +2297,42 @@ function doRosetteSpiral(g: GameData, dt: number, boss: BossConf) {
 
   if (g.phase === 1) {
     g.phaseTimer += dt; g.spawnTimer -= dt; moveBullets(g, dt);
+    const t = g.phaseTimer;
 
-    const t         = g.phaseTimer;
-    const armCount  = t < 2.5 ? 3 : 5;
-    const angSpeed  = 0.85 + Math.min(t / 5.5, 1.0) * 0.90; // ramps 0.85→1.75 rad/s
+    // Deterministic accumulated angle across direction changes
+    let baseAngle: number;
+    const spd1 = 1.05;  // clockwise (rad/s)
+    const spd2 = -1.65; // anti-clockwise after switch
+    const spd3 = -2.25; // tightened final phase
+    if (t < SWITCH_T) {
+      baseAngle = t * spd1;
+    } else if (t < TIGHT_T) {
+      baseAngle = SWITCH_T * spd1 + (t - SWITCH_T) * spd2;
+    } else {
+      baseAngle = SWITCH_T * spd1 + (TIGHT_T - SWITCH_T) * spd2 + (t - TIGHT_T) * spd3;
+    }
+    const armCount = t < SWITCH_T ? 3 : t < TIGHT_T ? 4 : 5;
+    const spiralSpd = (142 + Math.min(t / END_T, 1.0) * 80) * sm(g);
 
-    // Mid-shift burst + warn ring at t=2.5s
-    if (t >= 2.5 && !(g.spawnCount & 0x1000)) {
+    // Reversal burst + warn ring at SWITCH_T
+    if (t >= SWITCH_T && !(g.spawnCount & 0x1000)) {
       g.spawnCount |= 0x1000;
       for (let i = 0; i < 14; i++) {
         const a = (i / 14) * Math.PI * 2;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 28, y: BCY + Math.sin(a) * 28, angle: a, r: 5, color: '#ffaa00', timer: 0.38, maxTimer: 0.38 });
+        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 28, y: BCY + Math.sin(a) * 28, angle: a, r: 5, color: '#ffaa00', timer: 0.36, maxTimer: 0.36 });
       }
       for (let i = 0; i < 12; i++) {
         const a = (i / 12) * Math.PI * 2;
-        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 108 * sm(g), vy: Math.sin(a) * 108 * sm(g), r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 106 * sm(g), vy: Math.sin(a) * 106 * sm(g), r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
       }
     }
 
+    // Spiral arm bullets
     if (g.spawnTimer <= 0) {
       g.spawnTimer = st(0.065, g);
       const frameCount = g.spawnCount & 0xFFF;
-      const baseAngle  = t * angSpeed;
-      const spiralSpd  = (148 + Math.min(t / 5.5, 1.0) * 65) * sm(g);
       for (let arm = 0; arm < armCount; arm++) {
-        // Skip last arm every 4 frames — keeps a visible gap lane
+        // Skip gap arm every 4 frames — curved visible lane
         if (arm === armCount - 1 && frameCount % 4 !== 0) continue;
         const a   = baseAngle + (arm / armCount) * Math.PI * 2;
         const col = arm === 0 ? boss.color : arm === 1 ? boss.color2 : arm === 2 ? '#ff2244' : arm === 3 ? '#ffaa0099' : boss.color;
@@ -2296,10 +2341,24 @@ function doRosetteSpiral(g: GameData, dt: number, boss: BossConf) {
       g.spawnCount = (g.spawnCount & ~0xFFF) | ((frameCount + 1) & 0xFFF);
     }
 
-    // Prune bullets that have left the arena to prevent accumulation
-    g.bullets = g.bullets.filter(b => b.x > BX - 50 && b.x < BX + BW + 50 && b.y > BY - 50 && b.y < BY + BH + 50);
+    // Final burst at BURST_T: near-full radial + one clear ~65° safe wedge (fixed at upward)
+    if (t >= BURST_T && !(g.spawnCount & 0x2000)) {
+      g.spawnCount |= 0x2000;
+      const safeAngle = -Math.PI / 2; // wedge points straight up
+      const safeHalfWidth = 0.57; // ~65°
+      for (let i = 0; i < 32; i++) {
+        const a = (i / 32) * Math.PI * 2 - Math.PI;
+        const dA = Math.abs(((a - safeAngle + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+        if (dA < safeHalfWidth) continue; // safe wedge
+        const spd = (165 + (i % 4) * 18) * sm(g);
+        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 6, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 20 });
+      }
+    }
 
-    if (t >= 5.5) { g.phase = 2; g.phaseTimer = 0; }
+    // Prune bullets that have left the arena to prevent accumulation
+    g.bullets = g.bullets.filter(b => b.x > BX - 60 && b.x < BX + BW + 60 && b.y > BY - 60 && b.y < BY + BH + 60);
+
+    if (t >= END_T) { g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
