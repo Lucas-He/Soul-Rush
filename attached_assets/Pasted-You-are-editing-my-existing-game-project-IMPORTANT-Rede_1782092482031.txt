@@ -1,0 +1,451 @@
+You are editing my existing game project.
+
+IMPORTANT:
+Redesign the boss moves again so they are:
+
+* simpler
+* lighter on performance
+* easier to keep bug-free
+* still hard
+* still fast
+* still stylish
+* not too complicated
+
+Keep:
+
+* the current Warden boss design
+* the current arena style
+* one continuous boss fight
+* no boss phases
+* no visible transitions
+* 5 selectable cosmetic-only characters
+* no warning text/UI
+* 0.10 second startup animation per move
+
+TOP PRIORITY:
+MAKE THE ATTACKS WORK RELIABLY IN REPLIT AND REMOVE LAG.
+
+Do NOT use overcomplicated attacks.
+Do NOT use dense projectile storms.
+Do NOT use many overlapping systems in one move.
+Do NOT use attacks that require lots of particles or dozens of simultaneous hazard objects.
+
+==================================================
+NEW DESIGN RULE
+===============
+
+Redesign the move set around:
+
+* simple geometry
+* low object count
+* strong timing
+* hard movement checks
+* clean lane logic
+* clear active hazards
+* fast chaining
+
+Difficulty should come from:
+
+* speed
+* timing
+* positioning
+* correction movement
+* short downtime
+
+Not from:
+
+* too many projectiles
+* too many layers
+* random clutter
+* complicated spawn logic
+* laggy effects
+
+==================================================
+PERFORMANCE-FIRST MOVE DESIGN RULES
+===================================
+
+Every move should use mostly:
+
+* 1 to 3 major hazard groups
+* simple line / lane / arc / ring geometry
+* short active durations
+* limited particles
+* deterministic behavior
+* fast cleanup
+
+Avoid:
+
+* many simultaneous independent projectiles
+* recursive spawns
+* overlapping hazard systems
+* long-lived VFX
+* complex debris
+* too many moving pieces at once
+
+==================================================
+USE THIS NEW LIGHTWEIGHT MOVESET
+================================
+
+Keep 7 moves, but redesign them to be simpler and more stable.
+
+1. Split Line
+2. Drop Shift
+3. Open Arc
+4. False Lane
+5. Cross Cut
+6. Seal Box
+7. Spiral Ring
+
+==================================================
+MOVE 1 — SPLIT LINE
+===================
+
+Purpose:
+Fast horizontal line attack with one correction.
+
+Startup:
+
+* 0.10 seconds
+* one horizontal lane heats up
+* boss snaps downward slightly
+
+Active:
+
+* one thick beam fires across that lane
+* one second thinner beam fires in the adjacent lane
+* done
+
+Why this is better:
+
+* only 2 real beam hazards
+* easy to sync
+* easy to clean up
+* still hard because of fast correction
+
+Implementation:
+
+* 3 fixed horizontal lanes
+* choose one lane
+* choose one adjacent lane
+* fire main beam
+* short delay
+* fire echo beam
+* cleanup immediately
+
+==================================================
+MOVE 2 — DROP SHIFT
+===================
+
+Purpose:
+Vertical pressure with one lane shift.
+
+Startup:
+
+* 0.10 seconds
+* 4 to 6 columns glow
+* one safe lane remains darker
+
+Active:
+
+* first vertical strike wave
+* safe lane shifts by one column
+* second strike wave
+* done
+
+Why this is better:
+
+* no extra trap pillar
+* no unnecessary third layer
+* still hard because player must move twice quickly
+
+Implementation:
+
+* fixed column grid
+* first strike set
+* one safe lane shift
+* second strike set
+* cleanup
+
+==================================================
+MOVE 3 — OPEN ARC
+=================
+
+Purpose:
+Simple radial burst with one safe opening.
+
+Startup:
+
+* 0.10 seconds
+* boss core flares
+* one arc remains visually open
+
+Active:
+
+* one outward shard ring with one open arc
+* short delay
+* second outward ring rotated slightly
+* done
+
+Why this is better:
+
+* only 2 radial waves
+* no return shards
+* much lower projectile count
+* still hard because of precise repositioning
+
+Implementation:
+
+* fixed shard count
+* one open safe arc
+* second ring rotates by one authored angle
+* cleanup
+
+==================================================
+MOVE 4 — FALSE LANE
+===================
+
+Purpose:
+Simple deception lane move.
+
+Startup:
+
+* 0.10 seconds
+* 3 or 4 vertical lanes appear
+* one lane glows cleaner than the others
+
+Active:
+
+* false lanes collapse
+* one true lane remains
+* that true lane shifts once to a nearby lane
+* old lane collapses
+* done
+
+Why this is better:
+
+* no complex multi-wave corridor system
+* only one true lane and one shift
+* low object count
+* still hard because player must commit and correct fast
+
+Implementation:
+
+* 3 or 4 lane layout only
+* collapse false lanes
+* shift true lane once
+* cleanup
+
+==================================================
+MOVE 5 — CROSS CUT
+==================
+
+Purpose:
+Two-step diagonal slash.
+
+Startup:
+
+* 0.10 seconds
+* first diagonal fracture appears
+* boss twists
+
+Active:
+
+* first diagonal slash
+* second crossing diagonal slash
+* done
+
+Why this is better:
+
+* remove edge-burst
+* keep only the two slashes
+* much simpler logic
+* still hard because wedge is tight
+
+Implementation:
+
+* authored slash pair only
+* first slash
+* short delay
+* second slash
+* cleanup
+
+==================================================
+MOVE 6 — SEAL BOX
+=================
+
+Purpose:
+Small cage with one burst and one sweep.
+
+Startup:
+
+* 0.10 seconds
+* inner box forms
+* one corner seal ignites
+
+Active:
+
+* one corner burst
+* one horizontal or vertical sweep through the box
+* done
+
+Why this is better:
+
+* remove second corner burst
+* remove extra safe-pocket complexity
+* much lower complexity
+* still hard because space is tight
+
+Implementation:
+
+* cage appears
+* one seal burst
+* one sweep
+* cleanup and dissolve
+
+==================================================
+MOVE 7 — SPIRAL RING
+====================
+
+Purpose:
+Final rotating ring move.
+
+Startup:
+
+* 0.10 seconds
+* spiral ring forms
+* one curved safe route remains open
+
+Active:
+
+* one rotating spiral/ring pattern
+* one tightening event
+* one final burst ring
+* done
+
+Why this is better:
+
+* no reversal
+* no multiple tempo events
+* no many layered spiral systems
+* still hard because tracking is continuous
+
+Implementation:
+
+* one rotating pattern
+* tighten once
+* final burst
+* cleanup
+
+==================================================
+GENERAL ATTACK RULES
+====================
+
+All 7 moves must:
+
+* be short
+* be deterministic
+* be visible
+* have simple collision
+* use few hazard objects
+* cleanup fully
+* start the next move immediately
+
+Each move should feel:
+
+* quick
+* mean
+* clean
+* hard
+* reliable
+
+==================================================
+BOSS ANIMATION RULES
+====================
+
+Do not overcomplicate boss animation either.
+Make it premium but lightweight.
+
+Per move:
+
+* 0.10 second startup pose
+* one strong release pose
+* brief recovery
+* done
+
+Use:
+
+* shoulder motion
+* core glow
+* slight torso twist
+* arm/gauntlet movement
+* silhouette changes
+
+Do NOT use:
+
+* too many moving body parts
+* many layered particles around the boss
+* constant decorative shards
+
+==================================================
+ARENA / FX RULES
+================
+
+Keep VFX restrained and performant.
+
+Use:
+
+* lane glow
+* fracture glow
+* simple beam cores
+* simple impact flashes
+* border pulse
+* light floor response
+
+Do NOT use:
+
+* heavy debris
+* long smoke clouds
+* too many particles
+* bloom spam
+* many overlapping transparent effects
+
+==================================================
+5 CHARACTERS
+============
+
+Keep 5 selectable characters:
+
+* The Wanderer
+* The Exile
+* The Keeper
+* The Harbinger
+* The Veil
+
+Rules:
+
+* player can choose one
+* all 5 are usable
+* all 5 are cosmetic-only
+* same HP
+* same speed
+* same hurtbox
+* same movement
+* no abilities
+* no stat differences
+
+Make sure character selection does not break fight startup or attack logic.
+
+==================================================
+REPORT BACK
+===========
+
+When done, report clearly:
+
+1. confirmation that the moves were simplified for performance
+2. confirmation that all 7 attacks work in Replit
+3. confirmation that lag was reduced
+4. confirmation that the player can choose a character
+5. confirmation that all 5 characters are usable
+6. confirmation that all 5 characters are cosmetic-only
+7. exact files changed
+8. exact attack logic simplifications made
