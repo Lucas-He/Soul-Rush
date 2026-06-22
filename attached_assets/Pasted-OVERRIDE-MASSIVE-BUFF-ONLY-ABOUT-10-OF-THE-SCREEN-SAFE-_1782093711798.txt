@@ -1,0 +1,188 @@
+OVERRIDE — MASSIVE BUFF, ONLY ABOUT 10% OF THE SCREEN SAFE
+
+Keep everything from the current prompt, but override the attack density and safe-space rules with this section.
+
+IMPORTANT:
+Buff the moves harder.
+At the hardest moment of most attacks, only about 10% of the arena should remain safe.
+
+Target safe-space rule:
+
+* ideal safe area at peak pressure = about 8% to 12% of the arena
+* target average = 10%
+* there must still be one real dodge route
+* do NOT reduce safe space to 0%
+* do NOT make it fake-impossible
+* do NOT make it random
+
+Interpretation:
+The player should feel like:
+“there is almost nowhere to stand”
+But in reality:
+there is still one correct path or pocket.
+
+GENERAL BUFF RULE
+Make moves harder by:
+
+* shrinking safe lanes
+* shrinking safe wedges
+* shrinking safe arcs
+* forcing second corrections faster
+* extending attack duration
+* reducing comfort space
+* making the player stay accurate longer
+
+Do NOT make them harder by:
+
+* random clutter
+* invisible hitboxes
+* laggy particle spam
+* impossible overlap
+* removing the real safe route
+
+SCREEN-SAFE TARGETS BY MOVE
+
+MOVE 1 — SPLIT LINE
+Peak safe area target:
+
+* about 10% to 12%
+
+Buff:
+
+* narrower safe lane after main beam
+* echo beam should leave only a thin adjacent survival strip
+* final return punish should discourage early recentering
+
+Goal:
+player feels forced into a tiny surviving band
+
+MOVE 2 — DROP SHIFT
+Peak safe area target:
+
+* about 8% to 10%
+
+Buff:
+
+* first strike wave leaves one narrow safe column
+* second wave shifts that narrow column
+* third beat or delayed punish should reduce comfort around the new lane
+
+Goal:
+the arena feels nearly closed off vertically
+
+MOVE 3 — OPEN ARC
+Peak safe area target:
+
+* about 8% to 12%
+
+Buff:
+
+* safe arc becomes much tighter
+* second bloom rotates to a similarly tight safe arc
+* third partial ring should compress the player toward a very small curved pocket
+
+Goal:
+player feels like only a thin crescent of survival exists
+
+MOVE 4 — FALSE LANE
+Peak safe area target:
+
+* about 10%
+
+Buff:
+
+* make true lane narrow
+* false lanes collapse closer to the player
+* after the shift, the new safe lane should be only slightly wider than the player needs
+
+Goal:
+player feels like they are threading a needle through corridor logic
+
+MOVE 5 — CROSS CUT
+Peak safe area target:
+
+* about 8% to 10%
+
+Buff:
+
+* surviving wedge between the two slashes should be very tight
+* residual crackle should make edge-hugging dangerous
+* wedge must still be real and consistent
+
+Goal:
+the player survives in a tiny diagonal wedge, not a roomy gap
+
+MOVE 6 — SEAL BOX
+Peak safe area target:
+
+* about 8% to 10%
+
+Buff:
+
+* inner box should feel claustrophobic
+* burst + sweep combination should leave only a very small safe pocket
+* the final shifted safe space should be tiny but still playable
+
+Goal:
+player feels trapped in a shrinking execution cell
+
+MOVE 7 — SPIRAL RING
+Peak safe area target:
+
+* about 8% to 10%
+
+Buff:
+
+* safe curve through the spiral should be narrow
+* tightening phase should reduce it even more
+* final burst should leave only a small commit window
+
+Goal:
+final move feels brutally precise and nearly overwhelming
+
+SAFE-SPACE ENGINEERING RULE
+For every move:
+
+* calculate or design the safe route intentionally
+* do not eyeball it randomly
+* if possible, make the safe lane/wedge/arc approximately one player-width plus a small reaction margin
+* at hardest moments, safe space should feel scarce but still beatable
+
+READABILITY RULE
+Even with only ~10% safe space:
+
+* the real path must still be visible
+* active danger must still be honest
+* the player must be able to understand death after the fact
+* no fake walls
+* no invisible collision expansion
+
+LONGER + HARDER RULE
+Because moves are longer now:
+
+* keep the player under pressure longer
+* but maintain one correct survival route at each beat
+* difficulty should come from staying accurate over time
+
+ANTI-BROKEN RULE
+If reducing safe space causes:
+
+* collision bugs
+* impossible overlap
+* unavoidable death
+* unreadable mush
+  then widen the safe space slightly until the move becomes fair again
+
+FINAL TARGET
+The fight should feel like:
+
+* almost no room
+* constant pressure
+* one tiny surviving route
+* brutal but learnable
+
+When done, report:
+
+1. estimated safe-space percentage for each move at peak pressure
+2. how each move was buffed toward the ~10% safe-area target
+3. confirmation that each move still has one real dodge path

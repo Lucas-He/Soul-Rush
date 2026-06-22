@@ -1907,19 +1907,24 @@ function tickDZ(g: GameData, dt: number) {
 }
 
 // ================================================================
-// Move 1 — SPLIT LINE
-// Main horizontal beam → echo beam in adjacent lane. 2 DZ objects total.
-// Zero bullets. Fast, clean, hard due to quick correction read.
-// Single-run: ends at t=1.1s active.
+// Move 1 — SPLIT LINE (BUFFED: ~10% safe at peak)
+// Two wide beams (h=120 + h=80) that briefly overlap, leaving ONE
+// 30px middle channel (10.5% of BH) as the primary safe zone.
+// Punish bullets at t=0.90s cover the top sliver + bottom sliver.
+// Single-run: ends at t=1.6s.
+// Safe-space engineering: top sliver=12px(4%), gap=30px(10.5%), bot=43px(15%).
+// After punish, top+bot targeted → only gap survives = ~10.5%.
 // ================================================================
 function doSplitLine(g: GameData, dt: number, boss: BossConf) {
-  const LANES = [BY + BH * 0.28, BY + BH * 0.52, BY + BH * 0.76];
-  const MAIN = 1, ECHO = 2;
+  const MAIN_Y = BY + 12;   // top of main beam
+  const MAIN_H = 120;       // 42% of BH — covers BY+12 to BY+132
+  const ECHO_Y = BY + 162;  // top of echo — gap between beams: BY+132→BY+162 = 30px (10.5%)
+  const ECHO_H = 80;        // 28% of BH — covers BY+162 to BY+242; below: BY+242→285 = 43px
 
   if (g.phase === 0) {
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      spawnFloorCrack(g, LANES[MAIN], 20, '#ff1133', 0.10);
+      spawnFloorCrack(g, MAIN_Y + MAIN_H / 2, MAIN_H, '#ff1133', 0.10);
     }
     g.phaseTimer += dt; tickDZ(g, dt);
     if (g.phaseTimer >= 0.10) { g.dangerZones = []; g.phase = 1; g.phaseTimer = 0; g.spawnCount = 0; }
@@ -1927,36 +1932,53 @@ function doSplitLine(g: GameData, dt: number, boss: BossConf) {
   }
 
   if (g.phase === 1) {
-    g.phaseTimer += dt; tickDZ(g, dt);
+    g.phaseTimer += dt; tickDZ(g, dt); moveBullets(g, dt);
     const t = g.phaseTimer;
+    // Main beam at t=0 (wide, 0.65s active)
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      g.dangerZones.push({ id: nid(g), x: BX, y: LANES[MAIN] - 12, w: BW, h: 24, warnTimer: 0, activeTimer: 0.55, color: '#ff1133', dmg: 22 });
+      g.dangerZones.push({ id: nid(g), x: BX, y: MAIN_Y, w: BW, h: MAIN_H, warnTimer: 0, activeTimer: 0.65, color: '#ff1133', dmg: 22 });
     }
-    if (t >= 0.55 && !(g.spawnCount & 2)) {
+    // Echo beam at t=0.45 — overlaps main, compresses safe zone to 30px gap
+    if (t >= 0.45 && !(g.spawnCount & 2)) {
       g.spawnCount |= 2;
-      g.dangerZones.push({ id: nid(g), x: BX, y: LANES[ECHO] - 8, w: BW, h: 16, warnTimer: 0, activeTimer: 0.45, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: BX, y: ECHO_Y, w: BW, h: ECHO_H, warnTimer: 0.04, activeTimer: 0.55, color: boss.color, dmg: 20 });
     }
-    if (t >= 1.1) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
+    // Punish at t=0.90: 3 bullets per wall targeting top sliver + bottom sliver
+    if (t >= 0.90 && !(g.spawnCount & 4)) {
+      g.spawnCount |= 4;
+      const spd = 215 * sm(g);
+      for (let i = 0; i < 3; i++) {
+        const tpy = BY + 4 + i * 4;
+        const bpy = ECHO_Y + ECHO_H + 5 + i * 8;
+        g.bullets.push({ id: nid(g), x: BX - 8,      y: tpy, vx:  spd, vy: 0, r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 8, y: tpy, vx: -spd, vy: 0, r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX - 8,      y: bpy, vx:  spd, vy: 0, r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 8, y: bpy, vx: -spd, vy: 0, r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+      }
+    }
+    if (t >= 1.6) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
   if (g.phase === 2) {
-    g.phaseTimer += dt;
+    g.phaseTimer += dt; moveBullets(g, dt);
     if (g.phaseTimer >= 0.06) { g.wardenDone = true; }
     return;
   }
 }
 
 // ================================================================
-// Move 2 — DROP SHIFT
-// 4 columns rain, 1 safe. Safe shifts once at t=0.85s. No trap.
-// Max ~3 bullets per tick. Prune off-screen. Single-run: ends at t=1.9s.
+// Move 2 — DROP SHIFT (BUFFED: ~9% safe at peak)
+// 5 columns (72px each = 20% width). Denser faster rain.
+// Safe shifts at t=0.85s. Cross-sweep at t=1.4s pressures safe col.
+// Safe col = 1/5 = 20%; cross-sweep reduces effective safe to ~9%.
+// Single-run: ends at t=2.4s.
 // ================================================================
 function doDropShift(g: GameData, dt: number, boss: BossConf) {
-  const COLS = 4;
-  const laneW = BW / COLS;
-  const INIT_SAFE = 1;
+  const COLS = 5;
+  const laneW = BW / COLS;   // 72px per column
+  const INIT_SAFE = 2;       // centre column safe first
 
   if (g.phase === 0) {
     if (!(g.spawnCount & 1)) {
@@ -1979,28 +2001,39 @@ function doDropShift(g: GameData, dt: number, boss: BossConf) {
     const safeIdx = g.spawnCount & 0xF;
 
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.07, g);
+      g.spawnTimer = st(0.05, g); // denser: was 0.07
       for (let col = 0; col < COLS; col++) {
         if (col === safeIdx) continue;
         const cx = BX + laneW * col + laneW / 2;
-        g.bullets.push({ id: nid(g), x: cx + rand(-8, 8), y: BY - 10, vx: rand(-5, 5), vy: (192 + rand(-16, 16)) * sm(g), r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+        g.bullets.push({ id: nid(g), x: cx + rand(-6, 6), y: BY - 10, vx: rand(-4, 4), vy: (218 + rand(-14, 14)) * sm(g), r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
       }
     }
 
-    // Safe shifts once at t=0.85s
+    // Safe shifts at t=0.85s
     if (g.phaseTimer >= 0.85 && !(g.spawnCount & 0x10)) {
       const newSafe = (safeIdx + 1) % COLS;
       g.spawnCount = (g.spawnCount & ~0xF) | newSafe | 0x10;
       g.dangerZones = [];
       for (let col = 0; col < COLS; col++) {
         if (col === newSafe) continue;
-        g.dangerZones.push({ id: nid(g), x: BX + laneW * col, y: BY, w: laneW, h: BH, warnTimer: 0.10, activeTimer: 0, color: boss.color, dmg: 0 });
+        g.dangerZones.push({ id: nid(g), x: BX + laneW * col, y: BY, w: laneW, h: BH, warnTimer: 0.08, activeTimer: 0, color: boss.color, dmg: 0 });
       }
     }
 
-    g.bullets = g.bullets.filter(b => b.y < BY + BH + 40);
+    // Cross-sweep punish at t=1.4s: 4 horizontal bullets crossing the safe column
+    if (g.phaseTimer >= 1.4 && !(g.spawnCount & 0x20)) {
+      g.spawnCount |= 0x20;
+      const spd = 230 * sm(g);
+      for (let i = 0; i < 4; i++) {
+        const py = BY + BH * (0.14 + i * 0.22);
+        g.bullets.push({ id: nid(g), x: BX - 8,      y: py, vx:  spd, vy: 0, r: 6, color: boss.color2, shape: 'diamond', rot: 0, rotSpd:  3, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 8, y: py, vx: -spd, vy: 0, r: 6, color: boss.color2, shape: 'diamond', rot: 0, rotSpd: -3, frozen: false, dmg: 20 });
+      }
+    }
 
-    if (g.phaseTimer >= 1.9) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
+    g.bullets = g.bullets.filter(b => b.y < BY + BH + 40 && b.x > BX - 40 && b.x < BX + BW + 40);
+
+    if (g.phaseTimer >= 2.4) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
@@ -2012,13 +2045,14 @@ function doDropShift(g: GameData, dt: number, boss: BossConf) {
 }
 
 // ================================================================
-// Move 3 — OPEN ARC
-// Two outward shard rings from boss, each with a ~63° safe gap.
-// Ring 2 gap rotated 60°. ~12 bullets per ring. Single-run: 1.4s.
+// Move 3 — OPEN ARC (BUFFED: ~9% safe at peak)
+// Three rings with shrinking safe gaps: 44° → 38° → 36°.
+// N per ring: 20 / 22 / 24. Gap rotates each ring.
+// Safe arc at ring 3 ≈ 36° = 10% of full circle → ~9% effective.
+// Single-run: ends at t=2.0s.
 // ================================================================
 function doOpenArc(g: GameData, dt: number, boss: BossConf) {
   const WX = BCX, WY = BCY;
-  const GAP_HALF = 0.55; // ~63° safe arc per ring
 
   if (g.phase === 0) {
     if (!(g.spawnCount & 1)) {
@@ -2037,21 +2071,24 @@ function doOpenArc(g: GameData, dt: number, boss: BossConf) {
     g.phaseTimer += dt; moveBullets(g, dt);
     const t = g.phaseTimer;
 
-    const fireRing = (gapAngle: number) => {
-      const N = 16;
+    const fireRing = (gapAngle: number, gapHalf: number, N: number) => {
       for (let i = 0; i < N; i++) {
         const a = (i / N) * Math.PI * 2;
         const dA = Math.abs(((a - gapAngle + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
-        if (dA < GAP_HALF) continue;
-        const spd = (138 + (i % 3) * 22) * sm(g);
+        if (dA < gapHalf) continue;
+        const spd = (148 + (i % 3) * 24) * sm(g);
         g.bullets.push({ id: nid(g), x: WX, y: WY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 6, color: boss.color, shape: 'diamond', rot: a, rotSpd: 3, frozen: false, dmg: 16 });
       }
     };
 
-    if (!(g.spawnCount & 1))                  { g.spawnCount |= 1; fireRing(0); }
-    if (t >= 0.65 && !(g.spawnCount & 2))     { g.spawnCount |= 2; fireRing(Math.PI / 3); }
+    // Ring 1: gap=0 (right), 44° safe arc (0.38 rad half)
+    if (!(g.spawnCount & 1))               { g.spawnCount |= 1; fireRing(0, 0.38, 20); }
+    // Ring 2 at t=0.65: gap rotated 70°, 38° safe arc
+    if (t >= 0.65 && !(g.spawnCount & 2))  { g.spawnCount |= 2; fireRing(Math.PI * 0.39, 0.33, 22); }
+    // Ring 3 at t=1.20: gap rotated again, 36° safe arc — compresses player into thin crescent
+    if (t >= 1.20 && !(g.spawnCount & 4))  { g.spawnCount |= 4; fireRing(Math.PI * 0.72, 0.32, 24); }
 
-    if (t >= 1.4) { g.phase = 2; g.phaseTimer = 0; }
+    if (t >= 2.0) { g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
@@ -2063,9 +2100,12 @@ function doOpenArc(g: GameData, dt: number, boss: BossConf) {
 }
 
 // ================================================================
-// Move 4 — FALSE LANE
-// 3 lanes glow equally (deception) → rain in 2 danger cols.
-// Safe shifts once at t=1.2s. Off-screen prune. Single-run: 2.5s.
+// Move 4 — FALSE LANE (BUFFED: ~10% safe at peak)
+// Denser rain (0.055s), faster bullets (210 vy).
+// Shift at t=0.95s (was 1.2s) — faster correction demand.
+// Safe lane = 1/3 of BW = 120px. Bullets fill danger lanes so
+// player must thread the 120px lane accurately for 3.0s.
+// Single-run: ends at t=3.0s.
 // ================================================================
 function doFalseLane(g: GameData, dt: number, boss: BossConf) {
   const initialSafe = 1;
@@ -2092,25 +2132,26 @@ function doFalseLane(g: GameData, dt: number, boss: BossConf) {
     const laneW = BW / 3;
 
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.07, g);
+      g.spawnTimer = st(0.055, g); // denser: was 0.07
       for (let col = 0; col < 3; col++) {
         if (col === safeIdx) continue;
         const cx = BX + laneW * col + laneW / 2;
-        g.bullets.push({ id: nid(g), x: cx + rand(-10, 10), y: BY - 10, vx: rand(-5, 5), vy: (185 + rand(-18, 18)) * sm(g), r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: cx + rand(-8, 8), y: BY - 10, vx: rand(-4, 4), vy: (210 + rand(-15, 15)) * sm(g), r: 7, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
       }
     }
 
-    if (g.phaseTimer >= 1.2 && !(g.spawnCount & 0x100)) {
+    // Shift at t=0.95s — faster than before, demands quicker read
+    if (g.phaseTimer >= 0.95 && !(g.spawnCount & 0x100)) {
       g.spawnCount |= 0x100;
       const nextSafe = (safeIdx + 1) % 3;
       g.spawnCount = (g.spawnCount & ~3) | nextSafe;
       g.dangerZones = [];
-      spawnDangerColumns(g, nextSafe, 0.10, boss);
+      spawnDangerColumns(g, nextSafe, 0.08, boss);
     }
 
     g.bullets = g.bullets.filter(b => b.y < BY + BH + 40);
 
-    if (g.phaseTimer >= 2.5) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
+    if (g.phaseTimer >= 3.0) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
@@ -2130,16 +2171,19 @@ function spawnDangerColumns(g: GameData, safeIdx: number, warnT: number, boss: B
 }
 
 // ================================================================
-// Move 5 — CROSS CUT
-// Two crossing diagonal slashes only. No bullets. Tight wedge survives.
-// 2 diagLaser objects total. Single-run: ends at t=1.5s.
+// Move 5 — CROSS CUT (BUFFED: ~8% safe at peak)
+// Wider beams (18px). Slash 2 at t=0.50 (longer X overlap).
+// Crackle at t=0.30: 3 bullets from L/R mid-edges inward.
+// Crackle at t=0.80: 3 bullets from T/B mid-edges inward.
+// Crackle targets the 4 safe wedge zones, compressing to ~8%.
+// Single-run: ends at t=2.0s.
 // ================================================================
 function doCrossCut(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 0) {
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      g.diagWarns.push({ id: nid(g), x1: BX,    y1: BY, x2: BX+BW, y2: BY+BH, width: 6, timer: 0.10, color: boss.color,  fake: false });
-      g.diagWarns.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX,    y2: BY+BH, width: 6, timer: 0.10, color: boss.color2, fake: false });
+      g.diagWarns.push({ id: nid(g), x1: BX,    y1: BY, x2: BX+BW, y2: BY+BH, width: 7, timer: 0.10, color: boss.color,  fake: false });
+      g.diagWarns.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX,    y2: BY+BH, width: 7, timer: 0.10, color: boss.color2, fake: false });
     }
     g.phaseTimer += dt;
     g.diagWarns = g.diagWarns.filter(dw => { dw.timer -= dt; return dw.timer > 0; });
@@ -2150,38 +2194,65 @@ function doCrossCut(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 1) {
     g.phaseTimer += dt;
     g.diagLasers = g.diagLasers.filter(dl => { dl.timer -= dt; return dl.timer > 0; });
+    moveBullets(g, dt);
     const t = g.phaseTimer;
 
+    // Slash 1 at t=0, wide 18px beam, 0.85s duration
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      g.diagLasers.push({ id: nid(g), x1: BX,    y1: BY, x2: BX+BW, y2: BY+BH, width: 10, timer: 0.75, color: boss.color,  dmg: 22 });
+      g.diagLasers.push({ id: nid(g), x1: BX,    y1: BY, x2: BX+BW, y2: BY+BH, width: 18, timer: 0.85, color: boss.color,  dmg: 22 });
     }
-    if (t >= 0.65 && !(g.spawnCount & 2)) {
+    // Crackle at t=0.30: L/R mid-edge bullets target left/right safe wedges
+    if (t >= 0.30 && !(g.spawnCount & 2)) {
       g.spawnCount |= 2;
-      g.diagLasers.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX,    y2: BY+BH, width: 10, timer: 0.75, color: boss.color2, dmg: 22 });
+      const spd = 170 * sm(g);
+      for (let i = 0; i < 3; i++) {
+        const py = BCY + (i - 1) * 40;
+        g.bullets.push({ id: nid(g), x: BX - 6,      y: py, vx:  spd, vy: rand(-10, 10), r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 6, y: py, vx: -spd, vy: rand(-10, 10), r: 5, color: boss.color2, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+      }
+    }
+    // Slash 2 at t=0.50 — earlier than before (was 0.65), longer X overlap
+    if (t >= 0.50 && !(g.spawnCount & 4)) {
+      g.spawnCount |= 4;
+      g.diagLasers.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX,    y2: BY+BH, width: 18, timer: 0.85, color: boss.color2, dmg: 22 });
+    }
+    // Crackle at t=0.80: T/B mid-edge bullets target top/bottom safe wedges
+    if (t >= 0.80 && !(g.spawnCount & 8)) {
+      g.spawnCount |= 8;
+      const spd = 170 * sm(g);
+      for (let i = 0; i < 3; i++) {
+        const px = BCX + (i - 1) * 40;
+        g.bullets.push({ id: nid(g), x: px, y: BY - 6,      vx: rand(-10, 10), vy:  spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+        g.bullets.push({ id: nid(g), x: px, y: BY + BH + 6, vx: rand(-10, 10), vy: -spd, r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+      }
     }
 
-    if (t >= 1.5) { g.diagLasers = []; g.phase = 2; g.phaseTimer = 0; }
+    if (t >= 2.0) { g.diagLasers = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
   if (g.phase === 2) {
-    g.phaseTimer += dt;
+    g.phaseTimer += dt; moveBullets(g, dt);
     if (g.phaseTimer >= 0.06) { g.wardenDone = true; }
     return;
   }
 }
 
 // ================================================================
-// Move 6 — SEAL BOX
-// Cage (4 DZ walls) + 1 corner burst (5 bullets) + 1 interior sweep DZ.
-// Max 6 DZ objects, ~5 bullets. No pocket shift. Single-run: 2.2s.
+// Move 6 — SEAL BOX (BUFFED: ~8% safe at peak)
+// Outer DZs force player INTO cage (CW=175, CH=148).
+// Cage interior: 151×124 = 18,724px² = 18.2% of arena.
+// Sweep 1 at t=0.55: top 55% of interior → safe = bottom 45% = 8.2% arena.
+// Sweep 2 at t=1.0: bottom 55% of interior → safe = top 45% = 8.2% arena.
+// Corner burst (5 bullets) at t=0.25. Single-run: ends at t=2.5s.
 // ================================================================
 function doSealBox(g: GameData, dt: number, boss: BossConf) {
-  const CW = 220, CH = 190, WALL = 12;
+  const CW = 175, CH = 148, WALL = 12;
   const CX = BCX, CY = BCY;
 
   if (g.phase === 0) {
+    // Startup: show cage wall frame as warning only
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
       const wT = 0.10;
@@ -2198,36 +2269,51 @@ function doSealBox(g: GameData, dt: number, boss: BossConf) {
   if (g.phase === 1) {
     g.phaseTimer += dt; tickDZ(g, dt); moveBullets(g, dt);
     const t = g.phaseTimer;
+    const innerTop = CY - CH / 2 + WALL;
+    const innerH   = CH - WALL * 2;   // 124px
+    const innerW   = CW - WALL * 2;   // 151px
 
+    // Phase 1 start: 4 outer DZs seal the arena outside the cage + cage wall frame
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      const aT = 2.0;
+      const aT = 2.3;
+      // Outer zones — force player into cage interior
+      g.dangerZones.push({ id: nid(g), x: BX,       y: BY,          w: BW,            h: CY-CH/2-BY,        warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: BX,       y: CY+CH/2,     w: BW,            h: BY+BH-CY-CH/2,     warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: BX,       y: CY-CH/2,     w: CX-CW/2-BX,   h: CH,                warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX+CW/2,  y: CY-CH/2,     w: BX+BW-CX-CW/2, h: CH,               warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      // Inner cage wall frame (visual + collision)
       g.dangerZones.push({ id: nid(g), x: CX-CW/2,        y: CY-CH/2,        w: CW,      h: WALL,      warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
       g.dangerZones.push({ id: nid(g), x: CX-CW/2,        y: CY+CH/2-WALL,   w: CW,      h: WALL,      warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
       g.dangerZones.push({ id: nid(g), x: CX-CW/2,        y: CY-CH/2+WALL,   w: WALL,    h: CH-WALL*2, warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
       g.dangerZones.push({ id: nid(g), x: CX+CW/2-WALL,   y: CY-CH/2+WALL,   w: WALL,    h: CH-WALL*2, warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
     }
 
-    // One corner burst at t=0.28s — top-left corner, 5 bullets inward
-    if (t >= 0.28 && !(g.spawnCount & 2)) {
+    // Corner burst at t=0.25s — top-left cage corner, 5 bullets inward
+    if (t >= 0.25 && !(g.spawnCount & 2)) {
       g.spawnCount |= 2;
-      const cx = CX - CW / 2, cy = CY - CH / 2;
+      const cx = CX - CW / 2 + WALL, cy = CY - CH / 2 + WALL;
       for (let k = 0; k < 5; k++) {
-        const a = Math.atan2(CY - cy, CX - cx) + (k - 2) * 0.25;
-        const spd = (130 + k * 16) * sm(g);
+        const a = Math.atan2(CY - cy, CX - cx) + (k - 2) * 0.22;
+        const spd = (128 + k * 18) * sm(g);
         g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 6, color: boss.color2, shape: 'diamond', rot: a, rotSpd: 3, frozen: false, dmg: 18 });
       }
     }
 
-    // One sweep — single DZ covering the top half of the cage interior
-    if (t >= 0.65 && !(g.spawnCount & 4)) {
+    // Sweep 1 at t=0.55: top 55% of interior — safe = bottom 45% = 8.2% of arena
+    if (t >= 0.55 && !(g.spawnCount & 4)) {
       g.spawnCount |= 4;
-      const innerTop = CY - CH / 2 + WALL;
-      const innerH   = CH - WALL * 2;
-      g.dangerZones.push({ id: nid(g), x: CX-CW/2+WALL, y: innerTop, w: CW-WALL*2, h: innerH / 2, warnTimer: 0, activeTimer: 0.45, color: '#ff2244', dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2+WALL, y: innerTop, w: innerW, h: innerH * 0.55, warnTimer: 0, activeTimer: 0.50, color: '#ff2244', dmg: 20 });
     }
 
-    if (t >= 2.2) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
+    // Sweep 2 at t=1.0: bottom 55% of interior — safe = top 45% = 8.2% of arena
+    if (t >= 1.0 && !(g.spawnCount & 8)) {
+      g.spawnCount |= 8;
+      const btmY = innerTop + innerH * 0.45;
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2+WALL, y: btmY, w: innerW, h: innerH * 0.55, warnTimer: 0.08, activeTimer: 0.45, color: '#ff2244', dmg: 20 });
+    }
+
+    if (t >= 2.5) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
@@ -2239,15 +2325,16 @@ function doSealBox(g: GameData, dt: number, boss: BossConf) {
 }
 
 // ================================================================
-// Move 7 — SPIRAL RING
-// One 3-arm clockwise spiral → tighten to 4-arm at t=2.5s →
-// final burst ring with safe gap pointing up at t=3.8s. No reversal.
-// Off-screen bullets pruned each frame. Total: 4.2s active.
+// Move 7 — SPIRAL RING (BUFFED: ~8% safe at peak)
+// Denser 3-arm spiral (0.055s, gap skips every 3 not 4 frames).
+// Tightens to 4-arm at t=2.5s. Final burst at t=3.8s: 28 bullets,
+// safe gap = 40° (0.35 rad half-width = ~11% of circle, ~8% arena).
+// Extended to 4.8s. Off-screen bullets pruned each frame.
 // ================================================================
 function doSpiralRing(g: GameData, dt: number, boss: BossConf) {
   const TIGHT_T = 2.5;
   const BURST_T = 3.8;
-  const END_T   = 4.2;
+  const END_T   = 4.8;
 
   if (g.phase === 0) {
     if (!(g.spawnCount & 1)) {
@@ -2268,15 +2355,15 @@ function doSpiralRing(g: GameData, dt: number, boss: BossConf) {
 
     const armCount  = t < TIGHT_T ? 3 : 4;
     const baseAngle = t < TIGHT_T
-      ? t * 1.0
-      : TIGHT_T * 1.0 + (t - TIGHT_T) * 1.55;
-    const spiralSpd = (138 + Math.min(t / END_T, 1.0) * 60) * sm(g);
+      ? t * 1.1
+      : TIGHT_T * 1.1 + (t - TIGHT_T) * 1.7;
+    const spiralSpd = (148 + Math.min(t / END_T, 1.0) * 70) * sm(g);
 
     if (g.spawnTimer <= 0) {
-      g.spawnTimer = st(0.075, g);
+      g.spawnTimer = st(0.055, g); // denser: was 0.075
       const frameCount = g.spawnCount & 0xFFF;
       for (let arm = 0; arm < armCount; arm++) {
-        if (arm === armCount - 1 && frameCount % 4 !== 0) continue;
+        if (arm === armCount - 1 && frameCount % 3 !== 0) continue; // tighter: was % 4
         const a   = baseAngle + (arm / armCount) * Math.PI * 2;
         const col = arm === 0 ? boss.color : arm === 1 ? boss.color2 : arm === 2 ? '#ff2244' : boss.color;
         g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spiralSpd, vy: Math.sin(a) * spiralSpd, r: 5, color: col, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
@@ -2284,16 +2371,16 @@ function doSpiralRing(g: GameData, dt: number, boss: BossConf) {
       g.spawnCount = (g.spawnCount & ~0xFFF) | ((frameCount + 1) & 0xFFF);
     }
 
-    // Final burst ring at BURST_T — safe gap pointing straight up
+    // Final burst at BURST_T — 28 bullets, tight 40° safe gap pointing straight up
     if (t >= BURST_T && !(g.spawnCount & 0x1000)) {
       g.spawnCount |= 0x1000;
-      const safeAngle   = -Math.PI / 2;
-      const safeHalf    = 0.60;
-      for (let i = 0; i < 24; i++) {
-        const a  = (i / 24) * Math.PI * 2 - Math.PI;
+      const safeAngle = -Math.PI / 2;
+      const safeHalf  = 0.35; // 40° — was 0.60 (69°)
+      for (let i = 0; i < 28; i++) {
+        const a  = (i / 28) * Math.PI * 2 - Math.PI;
         const dA = Math.abs(((a - safeAngle + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
         if (dA < safeHalf) continue;
-        const spd = (155 + (i % 3) * 20) * sm(g);
+        const spd = (158 + (i % 3) * 22) * sm(g);
         g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 6, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 20 });
       }
     }
