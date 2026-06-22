@@ -4964,12 +4964,7 @@ function update(
 
   if (g.state === 'title') {
     if (g.keys.has('Enter') || g.keys.has(' ')) {
-      if (SINGLE_BOSS_MODE) {
-        g.state = 'charSelect'; g.charSelectIdx = g.selectedChar;
-      } else {
-        g.state = 'intro'; g.introTimer = 0; g.introLine = 0;
-        resetForBoss(g, 0);
-      }
+      g.state = 'charSelect'; g.charSelectIdx = g.selectedChar;
     }
     return;
   }
