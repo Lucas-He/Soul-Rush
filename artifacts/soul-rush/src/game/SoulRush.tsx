@@ -5591,187 +5591,282 @@ function drawWardenBoss(ctx: CanvasRenderingContext2D, g: GameData) {
 // WARDEN PLAYER — Dark cloaked figure with white scarf + cyan aura
 // ================================================================
 // ─── Character 0: The Wanderer (original design) ─────────────────────────────
+// ─── Character 0: The Wanderer — long dark coat, white scarf, cyan wrist/boot accents ───
 function drawCharWanderer(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
   ctx.save();
-  ctx.shadowBlur = 16; ctx.shadowColor = '#00ccff'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 1.5;
-  ctx.globalAlpha = 0.5 + 0.3 * Math.sin(t * 3.5);
-  ctx.beginPath(); ctx.ellipse(px, py + 5, 14, 5, 0, 0, Math.PI * 2); ctx.stroke();
-  ctx.shadowBlur = 8; ctx.strokeStyle = '#44eeff'; ctx.lineWidth = 1; ctx.globalAlpha = 0.35 + 0.25 * Math.sin(t * 3.5);
-  ctx.beginPath(); ctx.ellipse(px, py + 5, 9, 3.5, 0, 0, Math.PI * 2); ctx.stroke();
-  ctx.globalAlpha = 1;
-  ctx.restore();
-  ctx.save();
-  ctx.shadowBlur = 8; ctx.shadowColor = '#00aacc';
-  ctx.fillStyle = '#0a0008'; ctx.strokeStyle = '#1a1020'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.ellipse(px, py - 2, 7, 11, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#111018'; ctx.shadowBlur = 0;
-  ctx.beginPath(); ctx.arc(px, py - 14, 6, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff88'; ctx.fillStyle = '#e0e0ff';
+  // Ground glow
+  ctx.shadowBlur = 14; ctx.shadowColor = '#00ccff'; ctx.strokeStyle = '#00ccff44'; ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.4 + 0.2 * Math.sin(t * 3.2);
+  ctx.beginPath(); ctx.ellipse(px, py + 12, 11, 3.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+  // Coat body — two split hems at the bottom
+  ctx.fillStyle = '#0e0c14'; ctx.shadowBlur = 6; ctx.shadowColor = '#00ccff33';
+  ctx.strokeStyle = '#2a2535'; ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px - 3, py - 12);
-  ctx.quadraticCurveTo(px - 16, py - 6 + Math.sin(t * 3.5) * 4, px - 18, py + 4 + Math.sin(t * 2.8) * 3);
-  ctx.quadraticCurveTo(px - 12, py + 2, px - 2, py - 10);
+  ctx.moveTo(px - 6, py - 14);   // left shoulder
+  ctx.lineTo(px + 6, py - 14);   // right shoulder
+  ctx.lineTo(px + 7, py + 2);    // right hip
+  ctx.lineTo(px + 4, py + 12);   // right hem
+  ctx.lineTo(px + 1, py + 6);    // split center-right
+  ctx.lineTo(px - 1, py + 6);    // split center-left
+  ctx.lineTo(px - 4, py + 12);   // left hem
+  ctx.lineTo(px - 7, py + 2);    // left hip
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Coat collar / inner shadow
+  ctx.fillStyle = '#080610';
+  ctx.beginPath();
+  ctx.moveTo(px - 4, py - 14); ctx.lineTo(px + 4, py - 14);
+  ctx.lineTo(px + 2, py - 8);  ctx.lineTo(px - 2, py - 8);
   ctx.closePath(); ctx.fill();
-  ctx.shadowBlur = 4; ctx.fillStyle = '#f0f0ff';
-  ctx.beginPath(); ctx.ellipse(px - 2, py - 17, 2, 3, -0.4, 0, Math.PI * 2); ctx.fill();
+
+  // Head — dark oval, faceless
+  ctx.shadowBlur = 0; ctx.fillStyle = '#0d0b12'; ctx.strokeStyle = '#1e1a28'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 19, 5.5, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  // Scarf — trailing white ribbon behind left side, animated
+  const scarfSway = Math.sin(t * 2.8) * 3;
+  ctx.shadowBlur = 5; ctx.shadowColor = '#ffffffaa'; ctx.fillStyle = '#ccd0e8';
+  ctx.beginPath();
+  ctx.moveTo(px - 3, py - 15);
+  ctx.quadraticCurveTo(px - 14 + scarfSway * 0.5, py - 8 + scarfSway, px - 16 + scarfSway, py + 3);
+  ctx.quadraticCurveTo(px - 12 + scarfSway * 0.4, py + 1, px - 1, py - 13);
+  ctx.closePath(); ctx.fill();
+
+  // Cyan wrist accents
+  ctx.shadowBlur = 8; ctx.shadowColor = '#00ccff'; ctx.fillStyle = '#00ccff';
+  ctx.beginPath(); ctx.ellipse(px - 7, py + 1, 2.5, 1.2, 0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(px + 7, py + 1, 2.5, 1.2, -0.3, 0, Math.PI * 2); ctx.fill();
+
+  // Cyan boot accents
+  ctx.shadowBlur = 6; ctx.fillStyle = '#00aaddcc';
+  ctx.beginPath(); ctx.ellipse(px - 4, py + 12, 2, 1, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(px + 4, py + 12, 2, 1, 0, 0, Math.PI * 2); ctx.fill();
+
   ctx.restore();
 }
 
-// ─── Character 1: The Exile — fractured armor, amber flame ───────────────────
+// ─── Character 1: The Exile — layered cloak, cracked armor plates, dim cyan under-edge ───
 function drawCharExile(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
   ctx.save();
-  // Ember ground glow
-  ctx.shadowBlur = 18; ctx.shadowColor = '#ff8800'; ctx.strokeStyle = '#ff6600'; ctx.lineWidth = 1.5;
-  ctx.globalAlpha = 0.45 + 0.25 * Math.sin(t * 4.2);
-  ctx.beginPath(); ctx.ellipse(px, py + 5, 13, 4, 0, 0, Math.PI * 2); ctx.stroke();
-  ctx.globalAlpha = 1;
-  // Fractured armor body — slightly angled quadrilateral
-  ctx.shadowBlur = 10; ctx.shadowColor = '#cc5500';
-  ctx.fillStyle = '#1a0e00'; ctx.strokeStyle = '#cc5500'; ctx.lineWidth = 1.5;
+  // Ground glow — dim, worn
+  ctx.shadowBlur = 10; ctx.shadowColor = '#0099bb44'; ctx.strokeStyle = '#0099bb33'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.35 + 0.15 * Math.sin(t * 2.6);
+  ctx.beginPath(); ctx.ellipse(px, py + 12, 12, 3.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+  // Outer rough cloak — asymmetric, heavy
+  ctx.fillStyle = '#0a0d0e'; ctx.strokeStyle = '#1e2428'; ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px - 7, py - 14);
-  ctx.lineTo(px + 8, py - 12);
-  ctx.lineTo(px + 6, py + 10);
-  ctx.lineTo(px - 8, py + 10);
+  ctx.moveTo(px - 8, py - 13);   // left shoulder (wider/rougher)
+  ctx.lineTo(px + 7, py - 15);   // right shoulder (slightly higher — asymmetric)
+  ctx.lineTo(px + 9, py - 1);    // right chest
+  ctx.lineTo(px + 7, py + 13);   // right hem — straight
+  ctx.lineTo(px - 7, py + 13);   // left hem — straight (no split)
+  ctx.lineTo(px - 9, py - 1);    // left chest
   ctx.closePath(); ctx.fill(); ctx.stroke();
-  // Crack lines on armor
-  ctx.shadowBlur = 6; ctx.strokeStyle = '#ff8800cc'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(px - 3, py - 13); ctx.lineTo(px + 1, py - 4); ctx.lineTo(px - 2, py + 2); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px + 4, py - 8); ctx.lineTo(px + 2, py + 6); ctx.stroke();
-  // Head — helmet visor
-  ctx.shadowBlur = 8; ctx.fillStyle = '#110800';
-  ctx.beginPath(); ctx.arc(px + 1, py - 18, 6, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#ff8800'; ctx.shadowColor = '#ff8800';
-  ctx.beginPath(); ctx.ellipse(px + 2, py - 18, 3.5, 2, 0.2, 0, Math.PI * 2); ctx.fill();
-  // Amber shoulder flame
-  const flameY = py - 16 + Math.sin(t * 6) * 2;
-  ctx.shadowBlur = 14; ctx.shadowColor = '#ffaa00'; ctx.fillStyle = '#ff8800aa';
+
+  // Shoulder wrap — rough rectangular plate left side
+  ctx.fillStyle = '#141820'; ctx.strokeStyle = '#2a3040'; ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px - 9, flameY);
-  ctx.quadraticCurveTo(px - 14 + Math.sin(t * 5) * 2, flameY - 8, px - 10, flameY - 14 + Math.sin(t * 7) * 2);
-  ctx.quadraticCurveTo(px - 7, flameY - 6, px - 5, flameY);
-  ctx.closePath(); ctx.fill();
+  ctx.moveTo(px - 8, py - 13);
+  ctx.lineTo(px - 4, py - 13);
+  ctx.lineTo(px - 3, py - 7);
+  ctx.lineTo(px - 9, py - 6);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Wrapped forearms — horizontal bands
+  ctx.strokeStyle = '#22303888'; ctx.lineWidth = 1.2;
+  for (let i = 0; i < 3; i++) {
+    const by = py - 5 + i * 4;
+    ctx.beginPath(); ctx.moveTo(px - 9, by); ctx.lineTo(px - 5, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px + 5, by); ctx.lineTo(px + 9, by); ctx.stroke();
+  }
+
+  // Head — dark round, faceless, hood shadow
+  ctx.shadowBlur = 0; ctx.fillStyle = '#0c1014'; ctx.strokeStyle = '#1c2428'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 20, 5.5, 6.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  // Dim cyan glow visible under cloak hem edge only
+  ctx.shadowBlur = 9; ctx.shadowColor = '#00aabb'; ctx.strokeStyle = '#00aabbe0'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.45 + 0.2 * Math.sin(t * 2.1);
+  ctx.beginPath(); ctx.moveTo(px - 7, py + 13); ctx.lineTo(px + 7, py + 13); ctx.stroke();
+  ctx.globalAlpha = 1;
+
   ctx.restore();
 }
 
-// ─── Character 2: The Keeper — spectral robe, teal sigil ─────────────────────
+// ─── Character 2: The Keeper — ritual robe, geometric hems, cyan ring details ───
 function drawCharKeeper(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
   ctx.save();
-  // Robe base — wide bell shape
-  ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc';
-  ctx.fillStyle = '#040e14'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 1.2;
+  // Ground glow — soft ritual circle
+  ctx.shadowBlur = 12; ctx.shadowColor = '#0088cc44'; ctx.strokeStyle = '#0088cc44'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.4 + 0.15 * Math.sin(t * 2.4);
+  ctx.beginPath(); ctx.ellipse(px, py + 12, 11, 3.5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+  // Robe — clean bell silhouette, straight sides, upright
+  ctx.fillStyle = '#080c10'; ctx.strokeStyle = '#1a2430'; ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px - 10, py + 12);
-  ctx.quadraticCurveTo(px - 12, py - 2, px - 5, py - 14);
-  ctx.quadraticCurveTo(px, py - 16, px + 5, py - 14);
-  ctx.quadraticCurveTo(px + 12, py - 2, px + 10, py + 12);
+  ctx.moveTo(px - 5, py - 14);
+  ctx.lineTo(px + 5, py - 14);
+  ctx.lineTo(px + 8, py + 13);
+  ctx.lineTo(px - 8, py + 13);
   ctx.closePath(); ctx.fill(); ctx.stroke();
-  // Robe hem shimmer
-  ctx.strokeStyle = '#00ffcc55'; ctx.lineWidth = 1;
-  for (let si = 0; si < 3; si++) {
-    const oy = si * 4;
-    ctx.globalAlpha = 0.5 - si * 0.12 + 0.1 * Math.sin(t * 3 + si);
-    ctx.beginPath(); ctx.moveTo(px - 10 + si, py + 12 - oy); ctx.lineTo(px + 10 - si, py + 12 - oy); ctx.stroke();
+
+  // Geometric hem — three stacked horizontal lines at bottom (clean)
+  ctx.strokeStyle = '#1e3040'; ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    const hy = py + 8 - i * 3;
+    ctx.beginPath(); ctx.moveTo(px - 8 + i, hy); ctx.lineTo(px + 8 - i, hy); ctx.stroke();
   }
+
+  // Hanging rectangular cloth tabs — two below waist
+  ctx.fillStyle = '#0d1620'; ctx.strokeStyle = '#1e3040'; ctx.lineWidth = 1;
+  ctx.fillRect(px - 6, py + 2, 4, 6); ctx.strokeRect(px - 6, py + 2, 4, 6);
+  ctx.fillRect(px + 2, py + 2, 4, 6); ctx.strokeRect(px + 2, py + 2, 4, 6);
+
+  // Cord / sash across waist
+  ctx.strokeStyle = '#22384a'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(px - 8, py + 1); ctx.lineTo(px + 8, py + 1); ctx.stroke();
+
+  // Head — upright oval, faceless
+  ctx.shadowBlur = 0; ctx.fillStyle = '#080c10'; ctx.strokeStyle = '#16222c'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 20, 5, 6.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  // Cyan ring at sleeve (waist)
+  ctx.shadowBlur = 8; ctx.shadowColor = '#0099cc'; ctx.strokeStyle = '#0099cc'; ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.7 + 0.3 * Math.sin(t * 3);
+  ctx.beginPath(); ctx.ellipse(px, py + 1, 8.5, 1.2, 0, 0, Math.PI * 2); ctx.stroke();
   ctx.globalAlpha = 1;
-  // Hood
-  ctx.shadowBlur = 6; ctx.fillStyle = '#050e14';
-  ctx.beginPath(); ctx.arc(px, py - 18, 7, 0, Math.PI * 2); ctx.fill();
-  // Glowing eyes
-  ctx.shadowBlur = 10; ctx.shadowColor = '#00ffaa'; ctx.fillStyle = '#00ffcc';
-  ctx.beginPath(); ctx.ellipse(px - 3, py - 19, 2, 1.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(px + 3, py - 19, 2, 1.5, 0, 0, Math.PI * 2); ctx.fill();
-  // Orbiting sigil diamond
-  const sigA = t * 2.4;
-  const sx = px + Math.cos(sigA) * 13, sy = py - 6 + Math.sin(sigA) * 6;
-  ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc'; ctx.fillStyle = '#00ffaa';
-  ctx.beginPath(); ctx.save(); ctx.translate(sx, sy); ctx.rotate(sigA);
-  ctx.moveTo(0, -4); ctx.lineTo(3, 0); ctx.lineTo(0, 4); ctx.lineTo(-3, 0); ctx.closePath(); ctx.fill();
-  ctx.restore();
+
+  // Cyan ring at collar
+  ctx.shadowBlur = 6; ctx.strokeStyle = '#0088bbaa'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.5 + 0.2 * Math.sin(t * 2.4 + 1);
+  ctx.beginPath(); ctx.ellipse(px, py - 14, 5, 1, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1;
+
   ctx.restore();
 }
 
-// ─── Character 3: The Harbinger — void wings, deep purple ────────────────────
+// ─── Character 3: The Harbinger — sharp coat, angular shoulders, bright cyan chest/belt ───
 function drawCharHarbinger(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
   ctx.save();
-  // Void wings (two sweep curves)
-  const wFlap = Math.sin(t * 4.5) * 0.14;
-  ctx.shadowBlur = 22; ctx.shadowColor = '#8800ff';
-  for (const side of [-1, 1] as const) {
-    ctx.save();
-    ctx.fillStyle = '#22006688';
-    ctx.beginPath();
-    ctx.moveTo(px + side * 5, py - 8);
-    ctx.quadraticCurveTo(px + side * 28, py - 20 + wFlap * side * 12, px + side * 34, py - 2);
-    ctx.quadraticCurveTo(px + side * 22, py + 10, px + side * 8, py + 6);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#aa22ff'; ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(px + side * 5, py - 8);
-    ctx.quadraticCurveTo(px + side * 28, py - 20 + wFlap * side * 12, px + side * 34, py - 2);
-    ctx.stroke();
-    ctx.restore();
-  }
-  // Body — narrow dark silhouette
-  ctx.shadowBlur = 10; ctx.shadowColor = '#8800ff';
-  ctx.fillStyle = '#100018'; ctx.strokeStyle = '#7700ee'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.ellipse(px, py - 2, 6, 10, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  // Head
-  ctx.fillStyle = '#0e0016';
-  ctx.beginPath(); ctx.arc(px, py - 14, 6, 0, Math.PI * 2); ctx.fill();
-  // Purple eye slit
-  ctx.shadowBlur = 14; ctx.shadowColor = '#cc00ff'; ctx.fillStyle = '#cc44ff';
-  ctx.beginPath(); ctx.ellipse(px, py - 14, 5, 1.5, 0, 0, Math.PI * 2); ctx.fill();
-  // Crown particles
-  for (let ci = 0; ci < 4; ci++) {
-    const ca = t * 3 + ci * Math.PI * 0.5;
-    const cr = 10 + Math.sin(t * 2 + ci) * 2;
-    ctx.globalAlpha = 0.6 + 0.4 * Math.sin(t * 4 + ci);
-    ctx.shadowBlur = 8; ctx.fillStyle = '#aa44ff';
-    ctx.beginPath(); ctx.arc(px + Math.cos(ca) * cr, py - 22 + Math.sin(ca) * 3, 2, 0, Math.PI * 2); ctx.fill();
-  }
+  // Ground glow — sharper, faster pulse
+  ctx.shadowBlur = 14; ctx.shadowColor = '#00ccff55'; ctx.strokeStyle = '#00ccff55'; ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.5 + 0.3 * Math.sin(t * 5);
+  ctx.beginPath(); ctx.ellipse(px, py + 12, 10, 3, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+  // Long coat — angular lower panels (pointed tails)
+  ctx.fillStyle = '#080810'; ctx.strokeStyle = '#18182a'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(px - 6, py - 14);
+  ctx.lineTo(px + 6, py - 14);
+  ctx.lineTo(px + 7, py + 3);
+  ctx.lineTo(px + 5, py + 14);   // right tail — angled
+  ctx.lineTo(px + 1, py + 8);    // right inner panel
+  ctx.lineTo(px - 1, py + 8);    // left inner panel
+  ctx.lineTo(px - 5, py + 14);   // left tail — angled
+  ctx.lineTo(px - 7, py + 3);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Angular shoulders — pointed, wider
+  ctx.fillStyle = '#0e0e1a'; ctx.strokeStyle = '#1e1e2e'; ctx.lineWidth = 1;
+  // Left shoulder plate — pointed outward
+  ctx.beginPath();
+  ctx.moveTo(px - 6, py - 14);
+  ctx.lineTo(px - 11, py - 12);
+  ctx.lineTo(px - 9, py - 7);
+  ctx.lineTo(px - 6, py - 8);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Right shoulder plate
+  ctx.beginPath();
+  ctx.moveTo(px + 6, py - 14);
+  ctx.lineTo(px + 11, py - 12);
+  ctx.lineTo(px + 9, py - 7);
+  ctx.lineTo(px + 6, py - 8);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Head — slightly angular, faceless
+  ctx.shadowBlur = 0; ctx.fillStyle = '#08081a'; ctx.strokeStyle = '#16162a'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 19, 5.5, 6.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  // Bright cyan belt accent
+  ctx.shadowBlur = 10; ctx.shadowColor = '#00ccff'; ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.8 + 0.2 * Math.sin(t * 4);
+  ctx.beginPath(); ctx.moveTo(px - 7, py + 3); ctx.lineTo(px + 7, py + 3); ctx.stroke();
   ctx.globalAlpha = 1;
+
+  // Bright cyan chest stripe — vertical line
+  ctx.shadowBlur = 8; ctx.strokeStyle = '#00bbeecc'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(px, py - 13); ctx.lineTo(px, py + 2); ctx.stroke();
+
   ctx.restore();
 }
 
-// ─── Character 4: The Veil — translucent ghost-shroud, silver-white ───────────
+// ─── Character 4: The Veil — layered veil-cape, shrouded upper body, faint cyan highlights ───
 function drawCharVeil(ctx: CanvasRenderingContext2D, px: number, py: number, t: number) {
   ctx.save();
-  // Phase-shift shimmer ground ring
-  ctx.shadowBlur = 14; ctx.shadowColor = '#ffffff'; ctx.strokeStyle = '#ddddff'; ctx.lineWidth = 1;
-  ctx.globalAlpha = 0.3 + 0.2 * Math.sin(t * 5);
-  ctx.beginPath(); ctx.ellipse(px, py + 5, 12, 4, 0, 0, Math.PI * 2); ctx.stroke();
-  ctx.globalAlpha = 1;
-  // Veil body — translucent bell with inner shimmer
-  const pulse = 0.55 + 0.15 * Math.sin(t * 3);
-  ctx.shadowBlur = 12; ctx.shadowColor = '#aaaaff';
-  ctx.fillStyle = `rgba(180,180,255,${pulse * 0.22})`;
-  ctx.strokeStyle = `rgba(220,220,255,${pulse})`;
-  ctx.lineWidth = 1.2;
+  // Ground glow — slow, spectral
+  ctx.shadowBlur = 10; ctx.shadowColor = '#0088aa22'; ctx.strokeStyle = '#0088aa22'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.3 + 0.15 * Math.sin(t * 1.8);
+  ctx.beginPath(); ctx.ellipse(px, py + 12, 13, 4, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+  // Outer cape layer — wide, trailing softly, slightly transparent
+  ctx.fillStyle = '#07090c'; ctx.strokeStyle = '#12191e'; ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(px - 9, py + 12);
-  ctx.quadraticCurveTo(px - 11, py - 2, px - 4, py - 14);
-  ctx.quadraticCurveTo(px, py - 17, px + 4, py - 14);
-  ctx.quadraticCurveTo(px + 11, py - 2, px + 9, py + 12);
+  ctx.moveTo(px - 4, py - 15);
+  ctx.quadraticCurveTo(px - 14, py - 4, px - 11, py + 14);
+  ctx.lineTo(px + 11, py + 14);
+  ctx.quadraticCurveTo(px + 14, py - 4, px + 4, py - 15);
   ctx.closePath(); ctx.fill(); ctx.stroke();
-  // Inner glow core
-  const coreAlpha = 0.4 + 0.3 * Math.sin(t * 4.5);
-  ctx.fillStyle = `rgba(210,210,255,${coreAlpha})`;
-  ctx.shadowBlur = 20; ctx.shadowColor = '#8888ff';
-  ctx.beginPath(); ctx.ellipse(px, py - 4, 3.5, 7, 0, 0, Math.PI * 2); ctx.fill();
-  // Floating face — barely visible eyes
-  ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff'; ctx.fillStyle = '#ffffff';
-  ctx.globalAlpha = 0.55 + 0.25 * Math.sin(t * 3.5);
-  ctx.beginPath(); ctx.ellipse(px - 3, py - 15, 2, 1.2, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(px + 3, py - 15, 2, 1.2, 0, 0, Math.PI * 2); ctx.fill();
-  // Trailing afterimage wisps
-  for (let wi = 0; wi < 3; wi++) {
-    const wo = (wi + 1) * 5;
-    ctx.globalAlpha = 0.12 - wi * 0.03;
-    ctx.fillStyle = '#aaaaff';
-    ctx.beginPath(); ctx.ellipse(px, py - 2 + wo * 0.5, 5 - wi, 8 + wi, 0, 0, Math.PI * 2); ctx.fill();
-  }
+
+  // Inner robe beneath — narrow
+  ctx.fillStyle = '#050810'; ctx.strokeStyle = '#0e1420'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(px - 4, py - 14);
+  ctx.lineTo(px + 4, py - 14);
+  ctx.lineTo(px + 5, py + 13);
+  ctx.lineTo(px - 5, py + 13);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Upper body shrouded — layered fabric curve over shoulders
+  ctx.fillStyle = '#0a0d12'; ctx.strokeStyle = '#141a22'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(px - 9, py - 7);
+  ctx.quadraticCurveTo(px - 7, py - 16, px, py - 18);
+  ctx.quadraticCurveTo(px + 7, py - 16, px + 9, py - 7);
+  ctx.quadraticCurveTo(px + 5, py - 4, px - 5, py - 4);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Head — obscured, partially within shroud
+  ctx.shadowBlur = 0; ctx.fillStyle = '#060810'; ctx.strokeStyle = '#10161e'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(px, py - 21, 5, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  // Trailing fabric edge — right side, animated slow drift
+  const drift = Math.sin(t * 1.6) * 2.5;
+  ctx.shadowBlur = 4; ctx.shadowColor = '#0088aaaa'; ctx.strokeStyle = '#0a121888'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(px + 11, py + 14);
+  ctx.quadraticCurveTo(px + 13 + drift, py + 6, px + 10 + drift, py - 2);
+  ctx.stroke();
+
+  // Faint cyan highlights along fabric edges
+  ctx.shadowBlur = 7; ctx.shadowColor = '#0099bb'; ctx.strokeStyle = '#0099bbaa'; ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.4 + 0.2 * Math.sin(t * 2.2);
+  ctx.beginPath();
+  ctx.moveTo(px - 11, py + 14);
+  ctx.quadraticCurveTo(px - 14, py - 4, px - 4, py - 15);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(px + 11, py + 14);
+  ctx.quadraticCurveTo(px + 14, py - 4, px + 4, py - 15);
+  ctx.stroke();
   ctx.globalAlpha = 1;
+
   ctx.restore();
 }
 
