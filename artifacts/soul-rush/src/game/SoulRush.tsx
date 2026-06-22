@@ -1356,6 +1356,19 @@ function resetForBoss(g: GameData, idx: number) {
   g.runScore = 0; g.wavesCleared = 0;
   g.bossChargeTimer = 0;
   g.wardenDone = false; g.pendingClick = null;
+  // Startup validation: verify boss config and handlers before the fight starts
+  if (SINGLE_BOSS_MODE) {
+    const wBoss = BOSSES[idx];
+    const wardenSet = new Set(['severLine','cathedralDrop','crownBloom','trialCorridor','judicatorCross','prisonSeal','rosetteSpiral']);
+    if (!wBoss?.attacks?.length) {
+      console.warn('[Warden] startup: boss has no attacks — fight will be skipped');
+    } else {
+      const unknown = wBoss.attacks.filter(a => !wardenSet.has(a));
+      if (unknown.length) console.warn('[Warden] startup: unrecognised attacks:', unknown);
+      else               console.log('[Warden] startup OK — 7 attacks registered');
+    }
+    if (g.player.hp <= 0) { g.player.hp = P_MAX_HP; console.warn('[Warden] startup: player HP corrected'); }
+  }
   clearEntities(g);
   g.ctrlFlipped = false; g.ctrlFlipTimer = 12;
   g.timeDistorted = false; g.timeDistortTimer = 3;
@@ -1895,45 +1908,59 @@ function tickDZ(g: GameData, dt: number) {
 
 // ================================================================
 // Segment 1 — SEVER LINE
-// 3 horizontal execution slashes at staggered heights, each with flanking bullets.
-// Fires all 3 passes in one active window then signals done. Single-run.
+// Main execution beam + quick adjacent echo beam + return punish pulse.
+// Spec: fast horizontal beam → adjacent echo → tiny punish from walls.
+// Single-run: ~1.7s active.
 // ================================================================
 function doSeverLine(g: GameData, dt: number, boss: BossConf) {
-  const slashYs = [BY + BH * 0.22, BY + BH * 0.54, BY + BH * 0.76];
+  const MAIN_Y = BY + BH * 0.42;
+  const ECHO_Y = MAIN_Y + 58;
 
   if (g.phase === 0) {
-    // 0.10s startup: floor crack glow at first slash Y — no hitbox
+    // 0.10s: floor crack glow on the main beam line — no hitbox
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      spawnFloorCrack(g, slashYs[0], 22, '#ff1133', 0.10);
+      spawnFloorCrack(g, MAIN_Y, 20, '#ff1133', 0.10);
     }
     g.phaseTimer += dt; tickDZ(g, dt);
-    if (g.phaseTimer >= 0.10) {
-      g.dangerZones = []; g.phase = 1; g.phaseTimer = 0; g.spawnCount = 0;
-    }
+    if (g.phaseTimer >= 0.10) { g.dangerZones = []; g.phase = 1; g.phaseTimer = 0; g.spawnCount = 0; }
     return;
   }
 
   if (g.phase === 1) {
     g.phaseTimer += dt; tickDZ(g, dt); moveBullets(g, dt);
-    // Fire 3 slashes at t=0, 0.75, 1.50
-    const beatTimes = [0, 0.75, 1.50];
-    for (let i = 0; i < 3; i++) {
-      if (g.phaseTimer >= beatTimes[i] && !(g.spawnCount & (1 << i))) {
-        g.spawnCount |= (1 << i);
-        const sy = slashYs[i];
-        g.dangerZones.push({ id: nid(g), x: BX, y: sy - 14, w: BW, h: 28, warnTimer: 0, activeTimer: 0.55, color: '#ff1133', dmg: 22 });
-        for (let k = 0; k < 5; k++) {
-          const yo = (k - 2) * 10;
-          const spd = (300 + k * 22) * sm(g);
-          g.bullets.push({ id: nid(g), x: BX - 10,      y: sy + yo, vx:  spd, vy: rand(-12, 12), r: 7, color: boss.color, shape: 'diamond', rot: 0, rotSpd:  5, frozen: false, dmg: 22 });
-          g.bullets.push({ id: nid(g), x: BX + BW + 10, y: sy + yo, vx: -spd, vy: rand(-12, 12), r: 7, color: boss.color, shape: 'diamond', rot: 0, rotSpd: -5, frozen: false, dmg: 22 });
-        }
+    const t = g.phaseTimer;
+
+    // Main beam fires at t=0 (full width, 0.55s active)
+    if (!(g.spawnCount & 1)) {
+      g.spawnCount |= 1;
+      g.dangerZones.push({ id: nid(g), x: BX, y: MAIN_Y - 10, w: BW, h: 20, warnTimer: 0, activeTimer: 0.55, color: '#ff1133', dmg: 22 });
+    }
+
+    // Adjacent echo beam at t=0.55s + 4 flanking bullets each side
+    if (t >= 0.55 && !(g.spawnCount & 2)) {
+      g.spawnCount |= 2;
+      g.dangerZones.push({ id: nid(g), x: BX, y: ECHO_Y - 7, w: BW, h: 14, warnTimer: 0, activeTimer: 0.45, color: boss.color, dmg: 20 });
+      for (let k = 0; k < 4; k++) {
+        const yo = (k - 1.5) * 12;
+        const spd = (278 + k * 18) * sm(g);
+        g.bullets.push({ id: nid(g), x: BX - 8,      y: ECHO_Y + yo, vx:  spd, vy: rand(-8, 8), r: 6, color: boss.color, shape: 'diamond', rot: 0, rotSpd:  4, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 8, y: ECHO_Y + yo, vx: -spd, vy: rand(-8, 8), r: 6, color: boss.color, shape: 'diamond', rot: 0, rotSpd: -4, frozen: false, dmg: 20 });
       }
     }
-    if (g.phaseTimer >= 2.35) {
-      g.dangerZones = []; g.phase = 2; g.phaseTimer = 0;
+
+    // Return punish pulse at t=1.0s — 5 bullets from each arena wall
+    if (t >= 1.0 && !(g.spawnCount & 4)) {
+      g.spawnCount |= 4;
+      for (let i = 0; i < 5; i++) {
+        const py = BY + BH * (0.18 + i * 0.16);
+        const spd = (182 + i * 14) * sm(g);
+        g.bullets.push({ id: nid(g), x: BX - 8,      y: py, vx:  spd, vy: rand(-15, 15), r: 5, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 8, y: py, vx: -spd, vy: rand(-15, 15), r: 5, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 18 });
+      }
     }
+
+    if (t >= 1.7) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
@@ -2090,13 +2117,17 @@ function doTrialCorridor(g: GameData, dt: number, boss: BossConf) {
   const initialSafe = 1; // centre lane safe first
 
   if (g.phase === 0) {
-    // 0.10s startup: column warn flash shows initial layout
+    // 0.10s startup: ALL 3 columns glow identically — false deception, safe lane not yet revealed
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      spawnDangerColumns(g, initialSafe, 0.10, boss);
+      const lW = BW / 3;
+      for (let col = 0; col < 3; col++) {
+        g.dangerZones.push({ id: nid(g), x: BX + lW * col, y: BY, w: lW, h: BH, warnTimer: 0.10, activeTimer: 0, color: '#997700', dmg: 0 });
+      }
     }
     g.phaseTimer += dt; tickDZ(g, dt);
     if (g.phaseTimer >= 0.10) {
+      // False lanes collapse: clear all, rain begins only in 2 danger columns — safe lane is now apparent
       g.dangerZones = []; g.phase = 1; g.phaseTimer = 0;
       g.spawnCount = initialSafe; // bits 0-1 = current safe lane
       g.spawnTimer = 0;
@@ -2179,12 +2210,16 @@ function doJudicatorCross(g: GameData, dt: number, boss: BossConf) {
       g.diagLasers.push({ id: nid(g), x1: BX+BW, y1: BY, x2: BX,    y2: BY+BH, width: 9, timer: 0.80, color: boss.color2, dmg: 22 });
     }
 
-    // Radial punish shards at t=0.88s — discourage centre after first cross
+    // Edge/wall punish at t=0.88s — bullets from all 4 arena walls punish players hugging edges
     if (g.phaseTimer >= 0.88 && !(g.spawnCount & 2)) {
       g.spawnCount |= 2;
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
-        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 128 * sm(g), vy: Math.sin(a) * 128 * sm(g), r: 5, color: '#ff2244', shape: 'diamond', rot: a, rotSpd: 4, frozen: false, dmg: 22 });
+      const spd = 158 * sm(g);
+      for (let i = 0; i < 5; i++) {
+        const ox = (i - 2) * 28;
+        g.bullets.push({ id: nid(g), x: BCX + ox,      y: BY - 8,      vx: rand(-10, 10), vy:  spd, r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BCX + ox,      y: BY + BH + 8, vx: rand(-10, 10), vy: -spd, r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX - 8,        y: BCY + ox * 0.55, vx:  spd, vy: rand(-10, 10), r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
+        g.bullets.push({ id: nid(g), x: BX + BW + 8,   y: BCY + ox * 0.55, vx: -spd, vy: rand(-10, 10), r: 6, color: '#ff2244', shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 20 });
       }
     }
 
@@ -2208,53 +2243,82 @@ function doJudicatorCross(g: GameData, dt: number, boss: BossConf) {
 
 // ================================================================
 // Segment 6 — PRISON SEAL
-// Two contracting ring waves close inward from the arena edge using
-// g.rings with negative speed. Each ring has 2 arc gaps (~58° each).
-// Gap angles rotate between waves; scatter bullets at wave 2 onset.
+// A small cage of 4 DZ wall segments forms around the arena centre.
+// Two corner bursts (top-left + bottom-right), then a top-to-bottom sweep
+// through the interior, then the cage shifts down 50px (safe pocket moves).
 // Single-run: ends at t=3.0s.
 // ================================================================
 function doPrisonSeal(g: GameData, dt: number, boss: BossConf) {
+  const CW = 224, CH = 196, WALL = 12; // cage dimensions
+  const CX = BCX, CY = BCY;
+
   if (g.phase === 0) {
-    // 0.10s startup: perimeter warn markers — main loop handles decrement
+    // 0.10s startup: cage outline forms as warn DZs — no hitbox yet
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      const G1 = Math.PI * 0.3, G2 = Math.PI * 1.3;
-      for (let i = 0; i < 20; i++) {
-        const a = (i / 20) * Math.PI * 2;
-        if (Math.abs(angleDiff(a, G1)) < 0.5 || Math.abs(angleDiff(a, G2)) < 0.5) continue;
-        g.warnMarkers.push({ id: nid(g), x: BCX + Math.cos(a) * 128, y: BCY + Math.sin(a) * 88, angle: a, r: 5, color: boss.color, timer: 0.10, maxTimer: 0.10 });
-      }
+      const wT = 0.10;
+      g.dangerZones.push({ id: nid(g), x: CX - CW/2,          y: CY - CH/2,          w: CW,          h: WALL,        warnTimer: wT, activeTimer: 0, color: boss.color, dmg: 0 });
+      g.dangerZones.push({ id: nid(g), x: CX - CW/2,          y: CY + CH/2 - WALL,   w: CW,          h: WALL,        warnTimer: wT, activeTimer: 0, color: boss.color, dmg: 0 });
+      g.dangerZones.push({ id: nid(g), x: CX - CW/2,          y: CY - CH/2 + WALL,   w: WALL,        h: CH - WALL*2, warnTimer: wT, activeTimer: 0, color: boss.color, dmg: 0 });
+      g.dangerZones.push({ id: nid(g), x: CX + CW/2 - WALL,   y: CY - CH/2 + WALL,   w: WALL,        h: CH - WALL*2, warnTimer: wT, activeTimer: 0, color: boss.color, dmg: 0 });
     }
-    g.phaseTimer += dt;
-    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.spawnCount = 0; g.warnMarkers = []; }
+    g.phaseTimer += dt; tickDZ(g, dt);
+    if (g.phaseTimer >= 0.10) { g.phase = 1; g.phaseTimer = 0; g.spawnCount = 0; }
     return;
   }
 
   if (g.phase === 1) {
-    g.phaseTimer += dt;
-    for (const ring of g.rings) ring.r += ring.speed * dt;
-    g.rings = g.rings.filter(r => r.r > 5);
-    moveBullets(g, dt);
+    g.phaseTimer += dt; tickDZ(g, dt); moveBullets(g, dt);
+    const t = g.phaseTimer;
 
-    // Ring 1 at t=0: contracts inward (negative speed)
+    // Cage walls become active (hitboxes ON for 2.8s)
     if (!(g.spawnCount & 1)) {
       g.spawnCount |= 1;
-      const G1 = Math.PI * 0.3, G2 = Math.PI * 1.3;
-      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 130, speed: -78 * sm(g), thick: 12, gaps: [G1, G2], gapSz: 0.50, color: boss.color });
+      const aT = 2.8;
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2,        y: CY-CH/2,        w: CW,        h: WALL,        warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2,        y: CY+CH/2-WALL,   w: CW,        h: WALL,        warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2,        y: CY-CH/2+WALL,   w: WALL,      h: CH-WALL*2,   warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX+CW/2-WALL,   y: CY-CH/2+WALL,   w: WALL,      h: CH-WALL*2,   warnTimer: 0, activeTimer: aT, color: boss.color, dmg: 20 });
     }
 
-    // Ring 2 at t=1.4s: rotated gaps + pressure scatter bullets
-    if (g.phaseTimer >= 1.4 && !(g.spawnCount & 2)) {
+    // Corner bursts at t=0.28s — top-left and bottom-right cage corners
+    if (t >= 0.28 && !(g.spawnCount & 2)) {
       g.spawnCount |= 2;
-      const rot = Math.PI * 0.65;
-      g.rings.push({ id: nid(g), cx: BCX, cy: BCY, r: 130, speed: -82 * sm(g), thick: 12, gaps: [Math.PI * 0.3 + rot, Math.PI * 1.3 + rot], gapSz: 0.48, color: boss.color2 });
-      for (let i = 0; i < 10; i++) {
-        const a = (i / 10) * Math.PI * 2;
-        g.bullets.push({ id: nid(g), x: BCX, y: BCY, vx: Math.cos(a) * 82 * sm(g), vy: Math.sin(a) * 82 * sm(g), r: 5, color: boss.color, shape: 'circle', rot: 0, rotSpd: 0, frozen: false, dmg: 16 });
+      const corners = [[CX-CW/2, CY-CH/2], [CX+CW/2, CY+CH/2]] as [number,number][];
+      for (const [cx, cy] of corners) {
+        for (let k = 0; k < 6; k++) {
+          const a = Math.atan2(CY - cy, CX - cx) + (k - 2.5) * 0.28;
+          const spd = (138 + k * 18) * sm(g);
+          g.bullets.push({ id: nid(g), x: cx, y: cy, vx: Math.cos(a) * spd, vy: Math.sin(a) * spd, r: 6, color: boss.color2, shape: 'diamond', rot: a, rotSpd: 3, frozen: false, dmg: 18 });
+        }
       }
     }
 
-    if (g.phaseTimer >= 3.0) { g.rings = []; g.phase = 2; g.phaseTimer = 0; }
+    // Sweep at t=0.65s — sequential DZ strips top→bottom through cage interior
+    if (t >= 0.65 && !(g.spawnCount & 4)) {
+      g.spawnCount |= 4;
+      const innerTop = CY - CH/2 + WALL;
+      const innerH   = CH - WALL * 2;
+      const strips   = 4;
+      for (let si = 0; si < strips; si++) {
+        const sweepY = innerTop + si * (innerH / strips);
+        g.dangerZones.push({ id: nid(g), x: CX-CW/2+WALL, y: sweepY, w: CW-WALL*2, h: innerH/strips, warnTimer: si * 0.18, activeTimer: 0.24, color: '#ff2244', dmg: 20 });
+      }
+    }
+
+    // Safe pocket shifts at t=1.45s — cage rebuilds 50px lower; player must reposition
+    if (t >= 1.45 && !(g.spawnCount & 8)) {
+      g.spawnCount |= 8;
+      g.dangerZones = g.dangerZones.filter(dz => dz.activeTimer > 0 && dz.color !== boss.color && dz.color !== '#ff2244'); // clear old cage walls
+      g.dangerZones = [];
+      const nCY = CY + 50, aT2 = 1.4;
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2,      y: nCY-CH/2,        w: CW,      h: WALL,        warnTimer: 0.10, activeTimer: aT2, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2,      y: nCY+CH/2-WALL,   w: CW,      h: WALL,        warnTimer: 0.10, activeTimer: aT2, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX-CW/2,      y: nCY-CH/2+WALL,   w: WALL,    h: CH-WALL*2,   warnTimer: 0.10, activeTimer: aT2, color: boss.color, dmg: 20 });
+      g.dangerZones.push({ id: nid(g), x: CX+CW/2-WALL, y: nCY-CH/2+WALL,   w: WALL,    h: CH-WALL*2,   warnTimer: 0.10, activeTimer: aT2, color: boss.color, dmg: 20 });
+    }
+
+    if (t >= 3.0) { g.dangerZones = []; g.phase = 2; g.phaseTimer = 0; }
     return;
   }
 
