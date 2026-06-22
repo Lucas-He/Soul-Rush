@@ -1,0 +1,507 @@
+You are editing my existing game project.
+
+IMPORTANT:
+I do NOT want boss phases.
+I do NOT want a phase 1 / phase 2 / phase 3 structure.
+I want one continuous boss fight.
+
+Design target:
+A fast, relentless, high-pressure boss fight inspired by the feel of a Sans-style fight:
+
+* quick move
+* then another quick move
+* then another
+* almost no downtime
+* overwhelming at first
+* secretly fair underneath
+* but still original to this game
+* do NOT copy Undertale assets, attacks, or visuals directly
+
+Keep the current Warden boss design and current visual identity.
+Do NOT redesign the boss again.
+
+==================================================
+TOP PRIORITY
+============
+
+MAKE THE ATTACKS WORK.
+
+That matters more than extra style.
+If the attacks are broken, disappearing, desyncing, or lagging, fix that first.
+
+==================================================
+CORE STRUCTURE
+==============
+
+This is ONE boss fight.
+NO boss phases.
+NO intermissions.
+NO phase title cards.
+NO “phase transition” moments.
+NO long pauses.
+
+The whole fight should feel like:
+attack -> tiny reset -> attack -> tiny reset -> attack
+
+Allowed downtime between moves:
+
+* 0.00 to 0.12 seconds maximum
+
+That tiny reset is only for:
+
+* cleaning old hazards
+* starting the next move
+* keeping logic stable
+
+It should NOT feel like a transition.
+It should feel like the boss is chaining attacks nonstop.
+
+==================================================
+FIGHT FLOW
+==========
+
+Use one continuous move chain.
+
+Recommended structure:
+
+* intro
+* move_1
+* move_2
+* move_3
+* move_4
+* move_5
+* move_6
+* move_7
+* optional short loop of harder versions only if the fight design already needs it
+* boss_end
+
+But:
+do NOT present these as phases.
+They are just chained attacks in one continuous sequence.
+
+If looping is used at all:
+
+* do not call it phase 2
+* do not add transitions
+* only reuse moves if needed after the first full cycle
+* first priority is making one strong clean sequence that works
+
+==================================================
+ATTACK STYLE TARGET
+===================
+
+I want the fight to feel like:
+
+* very fast reads
+* very quick attack startup
+* one move immediately followed by another
+* pressure-based
+* dodging and correction heavy
+* hard enough that the player feels cornered
+* little breathing room
+* panic is punished
+* movement discipline is rewarded
+
+But still:
+
+* fair
+* readable enough
+* deterministic
+* not random garbage
+* not broken
+* not impossible
+
+Interpret “Sans style” as:
+
+* relentless pacing
+* quick attack chaining
+* oppressive timing
+* hard movement checks
+* deceptive simplicity
+* almost no comfort
+
+Do NOT interpret it as:
+
+* copying specific Undertale attacks
+* copying specific art
+* copying specific gimmicks
+* random unfair spam
+
+==================================================
+NO PHASE RULE
+=============
+
+Do NOT structure the boss like:
+
+* phase 1
+* phase 2
+* enraged phase
+* transformation phase
+* final phase cutscene
+
+Instead:
+the boss is already dangerous from the start,
+and just keeps chaining fast attacks.
+
+==================================================
+MOVE CHAIN RULE
+===============
+
+Each move should be short, sharp, and dangerous.
+Do not make moves too long.
+
+Target structure per move:
+
+* 0.10 sec startup
+* short active attack window
+* immediate cleanup
+* next move begins almost instantly
+
+Each move should feel like:
+
+* quick tell
+* punish window
+* correction check
+* done
+* next one starts
+
+==================================================
+MAKE SURE MOVES WORK IN REPLIT
+==============================
+
+Build the fight as a deterministic attack chain controller.
+
+Required attack lifecycle for every move:
+
+* startup
+* active
+* cleanup
+* next move immediately starts
+
+Do NOT use sloppy overlapping timers.
+Do NOT use logic that can skip active state.
+Do NOT allow startup visuals without real attack hazards.
+Do NOT allow active attacks to disappear early.
+Do NOT allow leftover hitboxes after cleanup.
+
+Required per move:
+
+* startup visual appears
+* active hazard appears
+* hitbox activates with visible hazard
+* hazard lasts for intended duration
+* cleanup removes it
+* next move starts
+
+==================================================
+STATE MACHINE
+=============
+
+Use a clean structure like:
+
+* init
+* intro
+* move_1_startup
+* move_1_active
+* move_1_cleanup
+* move_2_startup
+* move_2_active
+* move_2_cleanup
+* move_3_startup
+* move_3_active
+* move_3_cleanup
+* move_4_startup
+* move_4_active
+* move_4_cleanup
+* move_5_startup
+* move_5_active
+* move_5_cleanup
+* move_6_startup
+* move_6_active
+* move_6_cleanup
+* move_7_startup
+* move_7_active
+* move_7_cleanup
+* boss_end
+
+No phase states.
+No transition states.
+No cinematic interruption states.
+
+==================================================
+0.10 SECOND STARTUP
+===================
+
+Every move uses:
+
+* exactly 0.10 seconds of startup animation
+* no hitbox during startup
+* then immediate attack activation
+
+This startup should come from:
+
+* boss body language
+* core glow
+* arm / shoulder snap
+* arena lighting change
+* fracture or lane energy forming
+
+No warning text.
+No warning icons.
+No tutorial overlays.
+
+==================================================
+MOVESET — QUICK CHAIN VERSION
+=============================
+
+Use these 7 original moves in a fast chained order:
+
+1. Sever Line
+2. Cathedral Drop
+3. Crown Bloom
+4. Trial Corridor
+5. Judicator Cross
+6. Prison Seal
+7. Rosette Spiral
+
+Each should be short and dangerous.
+
+MOVE 1 — SEVER LINE
+
+* fast horizontal execution beam
+* quick adjacent echo beam
+* tiny return punish pulse
+* move should be over quickly
+
+MOVE 2 — CATHEDRAL DROP
+
+* quick vertical strike columns
+* one safe lane
+* then fast shift to nearby safe lane
+* delayed punish on the old comfort lane
+
+MOVE 3 — CROWN BLOOM
+
+* sharp radial burst
+* one safe arc
+* rotated second burst shortly after
+* light return pressure
+
+MOVE 4 — TRIAL CORRIDOR
+
+* multiple corridor options
+* false lanes collapse
+* one true lane
+* one quick nearby shift
+
+MOVE 5 — JUDICATOR CROSS
+
+* first diagonal cleave
+* second crossing cleave
+* narrow wedge survives
+* brief edge punish
+
+MOVE 6 — PRISON SEAL
+
+* small cage forms
+* two quick corner bursts
+* one sweep through the cage
+* safe pocket shifts once
+
+MOVE 7 — ROSETTE SPIRAL
+
+* fast spiral bloom
+* curved safe route
+* one tightening event
+* one tempo shift or reversal
+* final burst
+
+==================================================
+DIFFICULTY
+==========
+
+Make it hard from the very start.
+
+Difficulty comes from:
+
+* short reads
+* rapid attack chaining
+* minimal breathing room
+* correction movement
+* panic punishment
+* tight safe routes
+
+Not from:
+
+* broken hitboxes
+* invisible hazards
+* impossible traps
+* random spam
+* lag
+
+==================================================
+5 CHARACTERS
+============
+
+Keep 5 selectable characters:
+
+* The Wanderer
+* The Exile
+* The Keeper
+* The Harbinger
+* The Veil
+
+Character descriptions:
+
+The Wanderer
+
+* slim traveler silhouette
+* dark long coat with split lower hem
+* white scarf or ribbon trailing behind
+* light cyan trim at wrists and boots
+* balanced, classic player read
+* looks agile and disciplined
+
+The Exile
+
+* heavier outer cloak and rough layered mantle
+* worn shoulder wraps or cracked light armor plates
+* longer sleeves and wrapped forearms
+* dim cyan accents under the cloak edges
+* looks hardened and isolated
+* slightly rougher silhouette, but same gameplay size
+
+The Keeper
+
+* ritual-styled robe with cleaner geometric hems
+* short hanging seals, cords, or rectangular fabric tabs
+* more upright, composed silhouette
+* faint cyan ring details near the waist or sleeves
+* looks calm, controlled, and ceremonial
+
+The Harbinger
+
+* sharper, more aggressive outline
+* longer coat tails or pointed lower panels
+* angular shoulder shape
+* cleaner brighter cyan accents on chest or belt area
+* looks dangerous and fast even though gameplay is identical
+
+The Veil
+
+* layered cape or veil-like outer cloth
+* smooth elegant silhouette
+* partially shrouded upper body
+* softer trailing fabric shape with subtle cyan edge light
+* looks mysterious and spectral without showing the face
+
+Rules:
+
+* player can choose one before the fight
+* all 5 are usable
+* all 5 are cosmetic-only
+* identical gameplay
+* same HP
+* same speed
+* same hurtbox
+* same dodge rules
+* no abilities
+* no stat differences
+
+Make sure character selection does NOT break:
+
+* fight startup
+* move logic
+* hazard spawning
+* boss behavior
+
+==================================================
+ANIMATION
+=========
+
+Improve animations strongly.
+
+Boss:
+
+* sharper anticipation
+* faster release snaps
+* stronger silhouette changes
+* better recoil
+* better core timing
+* more aggressive body language
+
+Attacks:
+
+* cleaner formation
+* faster release
+* stronger impact frames
+* cleaner cleanup
+* stronger motion smears
+
+Arena:
+
+* border pulses
+* floor response
+* subtle panel wake-up
+* fracture energy
+* not too noisy
+
+==================================================
+NO WARNING UI
+=============
+
+Do NOT use:
+
+* warning text
+* warning labels
+* warning symbols
+* danger icons
+* tutorial text
+* safe lane labels
+
+The player reads:
+
+* boss motion
+* arena lighting
+* hazard formation
+* geometry
+
+==================================================
+PERFORMANCE
+===========
+
+Keep it smooth.
+
+Use:
+
+* object pooling
+* pooled hazards
+* pooled beams
+* pooled pillars
+* pooled shards
+* pooled cage pieces
+* short-lived effects
+* controlled particles
+
+Do NOT:
+
+* add lag
+* over-stack transparency
+* use giant particle spam
+* break working logic for style
+
+==================================================
+REPORT BACK
+===========
+
+When done, report clearly:
+
+1. confirmation that there are NO boss phases
+2. confirmation that the fight is one continuous boss sequence
+3. confirmation that attacks chain quickly one after another
+4. confirmation that all 7 attacks work in Replit
+5. confirmation that the player can choose a character
+6. confirmation that all 5 characters are usable
+7. confirmation that all 5 characters are cosmetic-only
+8. exact files changed
+9. exact logic fixes made for attack reliability
