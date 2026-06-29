@@ -84,7 +84,7 @@ There are no automated tests detected in the repository root. Add a test runner 
 - Keep changes scoped within the artifact/package you modify (e.g., artifacts/soul-rush).
 
 ## License
-MIT (see repository root license file if present).
+
 
 ## Troubleshooting
 - If the dev server doesn't start, ensure pnpm is used (`pnpm -v`).
